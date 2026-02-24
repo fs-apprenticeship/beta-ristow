@@ -23,6 +23,12 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Next.js GitHub repository](https://github.com/vercel/next.js) - feedback and contributions welcome.
 
+### Project structure
+
+Generally, we adhere to [bulletproof-react](https://github.com/alan2207/bulletproof-react) guidelines. In particular, we aim to [factor our code into feature domains and maintain a unidirectional codebase](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md):
+
+![](https://github.com/alan2207/bulletproof-react/raw/master/docs/assets/unidirectional-codebase.png)
+
 ### Prisma
 
 We use the [Prisma ORM](https://www.prisma.io/docs/orm) to interact with our database.
