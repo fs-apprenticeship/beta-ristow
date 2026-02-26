@@ -8,12 +8,14 @@ An ongoing experimental project, resembling an adaptive/generative LMS.
 
 1. Install & run a local Postgres 17 server. You can use [Postgres.app](https://postgresapp.com/) or a [Homebrew service](https://wiki.postgresql.org/wiki/Homebrew), for example.
 1. Clone this repo
-1. Set up your `.env`; e.g. `cp .env{.example,}` (ensure the `DATABASE_URL` matches your local Postgres server; the value in `.env.example` is standard for local servers and should work for both Postgres.app and Homebrew)
+1. Set up your `.env`; e.g. `cp .env{.example,} && cp .env.test{.example,}`
 1. Install dependencies; `npm install`
 1. Generate the Prisma client; `npx prisma generate`
-1. Set up your local DB; `npx prisma migrate dev` (or `npx prisma migrate reset`)
-1. Seed your local DB; `npx prisma db seed`
-1. Run the Next.js server; `npm run dev`
+1. Set up your test DB; `NODE_ENV=test npx prisma migrate reset --force`
+1. Run tests; `npm test`
+1. Set up your development DB; `npx prisma migrate dev` (or `npx prisma migrate reset`)
+1. Seed your development DB; `npx prisma db seed`
+1. Run the Next.js server (and [Prisma Studio](#prisma-studio)); `npm run dev`
 
 ### Next.js
 
@@ -35,26 +37,36 @@ We use the [Prisma ORM](https://www.prisma.io/docs/orm) to interact with our dat
 
 #### Local DB
 
-For local development, use Postgres.app or a Homebrew service to run a local Postgres server. The `DATABASE_URL` in `.env.example` should work with most servers. Run `npx prisma migrate dev` or `npx prisma migrate reset` to create your DB and initialize the schema.
+For local development, use Postgres.app or a Homebrew service to run a local Postgres server. The `DATABASE_URL` in `.env.example` should work with most servers. Run `npx prisma migrate dev` or `npx prisma migrate reset` to create your DB and initialize the schema. Note that you must also generate your local Prisma client; `npx prisma generate`.
 
-To get started, you must run the following:
-
-```bash
-npx prisma generate
-npx prisma migrate dev
-```
-
-##### Seeding
+#### Seeding
 
 Seed logic lives in `prisma/seed.ts`. Run it with the `npx prisma db seed`.
 
-##### Schema & Migrations
+#### Schema & Migrations
 
 Our ORM, [Prisma](https://www.prisma.io/docs/orm), uses a declarative schema (`prisma/schema.prisma`). To add or change your database structure, update the schema first, then run `npx prisma migrate dev` to create and apply migrations against your local database. See the [Prisma schema docs](https://www.prisma.io/docs/orm/prisma-schema) and [Prisma Migrate docs](https://www.prisma.io/docs/orm/prisma-migrate) for details.
 
-##### Prisma Studio
+Note: you will need to keep your test database in sync as well: `NODE_ENV=test npx prisma migrate reset --force`.
+
+#### Prisma Studio
 
 Use `npx prisma studio` to browse and edit local data in a lightweight UI. For more details, see the [Prisma Studio docs](https://www.prisma.io/studio).
+
+### Testing
+
+Vitest is our test runner.
+
+We use `vitest-axe` for accessibility assertions in component tests.
+
+Importantly, we use an isolated test DB. This means any changes to the schema need to be applied to the test database as well: `NODE_ENV=test npx prisma migrate reset --force`.
+
+We use a transactional test setup for Prisma along with generated factories:
+
+- With help from [transactional-prisma-testing](https://github.com/chax-at/transactional-prisma-testing), each test runs in a DB transaction which is rolled back after the test.
+- The [factory-js](https://github.com/factory-js/factory-js?tab=readme-ov-file#prisma-plugin) Prisma plugin provides generated factories, which we wrap in `src/test/factories/*` to initialize and override any defaults necessary (which [faker](https://github.com/faker-js/faker) helps with).
+
+After changing the Prisma schema, run `npx prisma generate` to refresh the factories.
 
 ### Linting & Formatting
 

@@ -60,3 +60,6 @@ jobs:
         # (non-interactive); i.e., "deploy" is not actually a deployment.
       - name: Prepare CI database
         run: npx prisma migrate deploy
+
+      - name: Run tests
+        run: npm run test

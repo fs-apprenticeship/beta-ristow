@@ -10,7 +10,8 @@
     "format": "prettier . --write",
     "lint": "eslint",
     "prepare": "husky",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest --coverage"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.1",
@@ -22,10 +23,20 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@chax-at/transactional-prisma-testing": "^1.5.0",
+    "@factory-js/factory": "^0.4.2",
+    "@factory-js/prisma-factory": "^0.2.3",
+    "@faker-js/faker": "^10.3.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20.19.33",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/eslint-plugin": "^1.6.9",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.6",
@@ -37,11 +48,15 @@
     "eslint-plugin-security": "^4.0.0",
     "eslint-plugin-yml": "^3.2.1",
     "husky": "^9.1.7",
+    "jsdom": "^28.1.0",
     "lint-staged": "^16.2.7",
     "prettier": "3.8.1",
     "prisma": "^7.4.1",
     "prisma-lint": "^0.13.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.0.18",
+    "vitest-axe": "^0.1.0"
   }
 }

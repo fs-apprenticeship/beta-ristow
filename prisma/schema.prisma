@@ -3,6 +3,11 @@ generator client {
   output   = "./generated"
 }
 
+generator factory {
+  provider           = "prisma-factory"
+  prismaClientModule = "./client"
+}
+
 datasource db {
   provider = "postgresql"
 }

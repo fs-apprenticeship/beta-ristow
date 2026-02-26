@@ -1,9 +1,11 @@
+import vitest from "@vitest/eslint-plugin";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier";
 import boundaries from "eslint-plugin-boundaries";
 import checkFile from "eslint-plugin-check-file";
 import githubAction from "eslint-plugin-github-action";
+import importPlugin from "eslint-plugin-import";
 import perfectionist from "eslint-plugin-perfectionist";
 import security from "eslint-plugin-security";
 import yml from "eslint-plugin-yml";
@@ -17,9 +19,20 @@ const eslintConfig = defineConfig([
   perfectionist.configs["recommended-natural"],
   security.configs.recommended,
   {
-    plugins: {
-      "check-file": checkFile,
+    files: [
+      "**/*.{test,spec}.{js,jsx,ts,tsx}",
+      "**/__tests__/**/*.{js,jsx,ts,tsx}",
+    ],
+    ...vitest.configs.recommended,
+  },
+  {
+    plugins: { import: importPlugin },
+    rules: {
+      "import/no-duplicates": "error",
     },
+  },
+  {
+    plugins: { "check-file": checkFile },
     rules: {
       "check-file/filename-naming-convention": [
         "error",
@@ -128,6 +141,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "prisma/generated/**",
   ]),
 ]);
 
