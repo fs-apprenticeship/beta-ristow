@@ -6,9 +6,11 @@ An ongoing experimental project, resembling an adaptive/generative LMS.
 
 ### Getting started
 
-1. Install & run a local Postgres 17 server. You can use [Postgres.app](https://postgresapp.com/) or a [Homebrew service](https://wiki.postgresql.org/wiki/Homebrew), for example.
-1. Clone this repo
-1. Set up your `.env`; e.g. `cp .env{.example,} && cp .env.test{.example,}`
+1. Install the [mise-en-place](https://mise.jdx.dev/getting-started.html) tool version manager
+1. Install and run a local Postgres 17 server; on MacOS, use [Postgres.app](https://postgresapp.com/)
+1. Clone this repo and `cd` into your clone
+1. Ensure proper tool versions; `mise trust && mise install`
+1. Set up your local dotenv files; `cp .env{.example,} && cp .env.test{.example,}`
 1. Install dependencies; `npm install`
 1. Generate the Prisma client; `npx prisma generate`
 1. Set up your test DB; `NODE_ENV=test npx prisma migrate reset --force`
@@ -86,7 +88,7 @@ Note: deployments are promoted to production only when the “Lint & Test” Git
 
 [Neon](https://neon.com/) is the managed Postgres provider for deploy previews and production, configured through Vercel (https://vercel.com/flatiron-school/~/stores).
 
-The Neon/Vercel integration provides the database connection URLs through Vercel environment variables. Each Vercel deploy preview will have its own dedicated Postgres branch from Neon, which is a copy of production.
+The **Vercel-managed** Neon integration provides the database connection URLs through Vercel environment variables. Each Vercel deploy preview will have its own dedicated Postgres branch from Neon, which is a copy of production. For more details, see [this page](https://neon.com/docs/guides/vercel-managed-integration).
 
 #### DB Admin
 
