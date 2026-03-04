@@ -1,6 +1,9 @@
+import { initialize } from "../src/generated/fabbrica";
 import getClient from "../src/lib/prisma/get-client";
+import { AccountFactory } from "../src/test/factories/account-factory";
 
 const prisma = getClient();
+initialize({ prisma });
 
 async function main() {
   /*
@@ -8,7 +11,7 @@ async function main() {
    * need to seed; for now, it's just demonstrating the pattern. It should be
    * removed wheen proper data is added.
    */
-  await prisma.account.create({ data: {} });
+  await AccountFactory.create();
 }
 
 main()

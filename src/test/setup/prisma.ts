@@ -2,7 +2,8 @@ import { PrismaTestingHelper } from "@chax-at/transactional-prisma-testing";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { afterEach, beforeEach } from "vitest";
 
-import { PrismaClient } from "@/prisma-generated/client";
+import { initialize, resetSequence } from "@/generated/fabbrica";
+import { PrismaClient } from "@/generated/prisma/client";
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -19,5 +20,10 @@ if (!global.prismaTestingHelper) {
 const prismaTestingHelper = global.prismaTestingHelper;
 global.prisma = prismaTestingHelper.getProxyClient();
 
+initialize({ prisma: global.prisma });
+
 beforeEach(async () => await prismaTestingHelper.startNewTransaction());
-afterEach(() => prismaTestingHelper.rollbackCurrentTransaction());
+afterEach(() => {
+  prismaTestingHelper.rollbackCurrentTransaction();
+  resetSequence();
+});

@@ -1,6 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 
-import { PrismaClient } from "@/prisma-generated/client";
+import { PrismaClient } from "@/generated/prisma/client";
 
 /*
  * NOTE: the logic below prevents multiple instances of the Prisma client in

@@ -78,9 +78,10 @@ const eslintConfig = defineConfig([
           default: "disallow",
           rules: [
             {
-              allow: ["app", "feature", "shared"],
+              allow: ["app", "feature", "shared", "test"],
               from: ["app"],
-              message: "Compose routes from features and shared modules only.",
+              message:
+                "Compose routes from features, shared modules, and test utilities only.",
             },
             {
               disallow: ["prisma"],
@@ -102,6 +103,17 @@ const eslintConfig = defineConfig([
               allow: ["shared", "prisma"],
               from: ["shared"],
               message: "Shared modules must not depend on app or feature code.",
+            },
+            {
+              allow: ["generated"],
+              from: ["prisma"],
+              message: "Prisma modules may import generated clients only.",
+            },
+            {
+              allow: ["prisma", "shared", "generated"],
+              from: ["test"],
+              message:
+                "Tests may import shared, prisma, and generated code only.",
             },
           ],
         },
@@ -126,6 +138,14 @@ const eslintConfig = defineConfig([
           type: "prisma",
         },
         {
+          pattern: "src/test/**",
+          type: "test",
+        },
+        {
+          pattern: "src/generated/**",
+          type: "generated",
+        },
+        {
           capture: ["elementName"],
           pattern: "src/!(app|features)",
           type: "shared",
@@ -141,7 +161,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    "prisma/generated/**",
+    "src/generated/**",
   ]),
 ]);
 

@@ -7,7 +7,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { axe } from "vitest-axe";
 
-import accountFactory from "@/test/factories/account-factory";
+import { AccountFactory } from "@/test/factories/account-factory";
 
 import Home from "./page";
 
@@ -31,7 +31,7 @@ describe("Home page", () => {
   });
 
   it("handles a plethora of accounts", async () => {
-    await accountFactory.createList(3);
+    await AccountFactory.createList(3);
     const home = await Home();
 
     render(home);

@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client"
-  output   = "./generated"
+  output   = "../src/generated/prisma"
 }
 
-generator factory {
-  provider           = "prisma-factory"
-  prismaClientModule = "./client"
+generator fabbrica {
+  provider = "prisma-fabbrica"
+  output   = "../src/generated/fabbrica"
 }
 
 datasource db {
