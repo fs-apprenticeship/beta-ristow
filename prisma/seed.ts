@@ -1,7 +1,10 @@
+import { faker } from "@faker-js/faker";
+
 import { initialize } from "../src/generated/fabbrica";
 import getClient from "../src/lib/prisma/get-client";
 import { AccountFactory } from "../src/test/factories/account-factory";
 import { CourseFactory } from "../src/test/factories/course-factory";
+import { LessonFactory } from "../src/test/factories/lesson-factory";
 
 const prisma = getClient();
 initialize({ prisma });
@@ -33,6 +36,42 @@ async function main() {
     },
     where: { slug: courseData.slug },
   });
+
+  const course = await prisma.course.findUnique({
+    select: { id: true },
+    where: { slug: courseData.slug },
+  });
+
+  if (!course) {
+    throw new Error("Seed course not found after upsert.");
+  }
+
+  const lessonTitles = [
+    "Set Up Your Environment",
+    "Variables and Types",
+    "First Functions",
+  ];
+
+  for (const title of lessonTitles) {
+    const lessonData = await LessonFactory.build({
+      course: { connect: { id: course.id } },
+      slug: faker.helpers.slugify(title).toLowerCase(),
+      title,
+    });
+
+    await prisma.lesson.upsert({
+      create: lessonData,
+      update: {
+        title: lessonData.title,
+      },
+      where: {
+        courseId_slug: {
+          courseId: course.id,
+          slug: lessonData.slug,
+        },
+      },
+    });
+  }
 }
 
 main()
