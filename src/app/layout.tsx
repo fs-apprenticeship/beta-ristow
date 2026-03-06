@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   title: "Beverly Ristow",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{
