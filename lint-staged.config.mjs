@@ -1,16 +1,22 @@
 /**
  * @type {import('lint-staged').Configuration}
  */
-
 const config = {
-  "*": [
-    "eslint --fix --max-warnings 0 --no-warn-ignored",
+  // Excludes core files handled above to prevent the race condition, but formats everything else
+  "**/!(package-lock|*.js|*.jsx|*.mjs|*.ts|*.tsx|*.css|*.prisma)": [
     "prettier --ignore-unknown --write",
   ],
+
+  // Domain Specific Formatting and Linting
   "**/*.prisma": ["prisma format", "prisma-lint"],
-  // NOTE: we use the function syntax here to ignore filenames passed by
-  // lint-staged. We need to check types against the whole codebase.
-  "**/*.{js,jsx,mjs,ts,tsx}": [() => "npm run check-types"],
+  "**/*.{css,module.css}": ["stylelint --fix", "prettier --write"],
+
+  // Atomic Pipeline for Core Code
+  "**/*.{js,jsx,mjs,ts,tsx}": [
+    "eslint --fix --max-warnings 0",
+    "prettier --write",
+    () => "npm run check-types",
+  ],
 };
 
 export default config;

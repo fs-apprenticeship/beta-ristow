@@ -47,6 +47,9 @@ jobs:
       - name: Run Prettier check
         run: npx prettier . --check
 
+      - name: Run stylelint
+        run: npx stylelint "**/*.{css,scss}"
+
       - name: Run type check
         run: npm run check-types
 
