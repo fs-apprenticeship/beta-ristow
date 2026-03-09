@@ -14,6 +14,7 @@
     "test": "vitest --coverage"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.38.3",
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.4.2",
     "@sentry/nextjs": "^10.40.0",

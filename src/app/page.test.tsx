@@ -4,15 +4,40 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { axe } from "vitest-axe";
 
 import { AccountFactory } from "@/test/factories/account-factory";
 
 import Home from "./page";
 
+const { mockAuth } = vi.hoisted(() => ({
+  mockAuth: vi.fn(),
+}));
+
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: mockAuth,
+}));
+
 describe("Home page", () => {
+  beforeEach(() => {
+    mockAuth.mockReset();
+    mockAuth.mockResolvedValue({ userId: "user_123" });
+  });
+
+  it("asks signed-out users to log in", async () => {
+    mockAuth.mockResolvedValueOnce({ userId: null });
+    const home = await Home();
+
+    render(home);
+
+    expect(
+      screen.getByText("Please sign in to see the number of accounts."),
+    ).toBeInTheDocument();
+  });
+
   it("says hello", async () => {
+    mockAuth.mockResolvedValueOnce({ userId: "user_123" });
     const home = await Home();
 
     render(home);
@@ -23,6 +48,7 @@ describe("Home page", () => {
   });
 
   it("handles a lack of accounts", async () => {
+    mockAuth.mockResolvedValueOnce({ userId: "user_123" });
     const home = await Home();
 
     render(home);
@@ -40,6 +66,7 @@ describe("Home page", () => {
   });
 
   it("has no axe violations", async () => {
+    mockAuth.mockResolvedValueOnce({ userId: "user_123" });
     const home = await Home();
     const { container } = render(home);
     expect(await axe(container)).toHaveNoViolations();

@@ -27,6 +27,12 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Next.js GitHub repository](https://github.com/vercel/next.js) - feedback and contributions welcome.
 
+### Clerk
+
+We use [Clerk](https://clerk.com/) for authentication and user/session management.
+
+For local development, set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` in `.env` (see `.env.example`). You can test auth flows at `/sign-in` and `/sign-up`; route protection is enforced in `src/proxy.ts`.
+
 ### Project structure
 
 Generally, we adhere to [bulletproof-react](https://github.com/alan2207/bulletproof-react) guidelines. In particular, we aim to [factor our code into feature domains and maintain a unidirectional codebase](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md):
