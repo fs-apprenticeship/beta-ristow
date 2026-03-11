@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import AppProvider from "@/app/provider";
 import AppHeader from "@/components/layouts/app-header";
-import AuthControls from "@/features/auth/components/auth-controls";
+import AuthControls from "@/lib/clerk/components/auth-controls";
 
 import "./globals.css";
 

@@ -1,18 +1,11 @@
-/*
- * NOTE: everything below, including the imported function, is temporary,
- * just to confirm our Prisma and authentication setup across environments.
- */
-
-import { auth } from "@clerk/nextjs/server";
-
-import countAccounts from "@/features/identity/count-accounts";
+import countAccounts from "@/features/identity/actions/count-accounts";
+import getCurrentAccount from "@/features/identity/actions/get-current-account";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { userId } = await auth();
-
-  if (!userId) {
+  const account = await getCurrentAccount();
+  if (!account) {
     return (
       <main>
         <h1>Hello, world.</h1>
