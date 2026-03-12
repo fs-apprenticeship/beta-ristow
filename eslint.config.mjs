@@ -94,6 +94,7 @@ const eslintConfig = defineConfig([
                 ["feature", { elementName: "${from.elementName}" }],
                 "shared",
                 "prisma",
+                "test",
               ],
               from: ["feature"],
               message:

@@ -12,26 +12,78 @@ datasource db {
   provider = "postgresql"
 }
 
+enum OnboardingQuestionOrigin {
+  GENERATED
+  TEMPLATE
+}
+
 model Account {
-  id          String   @id @default(uuid()) @db.Uuid
-  clerkUserId String   @unique @map("clerk_user_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                  String               @id @default(uuid()) @db.Uuid
+  clerkUserId         String               @unique @map("clerk_user_id")
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  onboardingQuestions OnboardingQuestion[]
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
 
   @@map("accounts")
 }
 
 model Course {
-  id        String   @id @default(uuid()) @db.Uuid
-  slug      String   @unique
-  title     String
+  id                          String                       @id @default(uuid()) @db.Uuid
+  slug                        String                       @unique
+  title                       String
   /// prisma-lint-ignore-field require-default-empty-arrays
-  lessons   Lesson[]
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  onboardingQuestions         OnboardingQuestion[]
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  onboardingQuestionTemplates OnboardingQuestionTemplate[]
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  lessons                     Lesson[]
+  createdAt                   DateTime                     @default(now()) @map("created_at")
+  updatedAt                   DateTime                     @updatedAt @map("updated_at")
 
   @@index([slug])
   @@map("courses")
+}
+
+model OnboardingQuestionTemplate {
+  id                  String               @id @default(uuid()) @db.Uuid
+  courseId            String               @map("course_id") @db.Uuid
+  position            Int
+  question            String               @db.Text
+  description         String               @db.Text
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  onboardingQuestions OnboardingQuestion[]
+  course              Course               @relation(fields: [courseId], references: [id])
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  @@unique([courseId, position])
+  @@index([courseId])
+  @@map("onboarding_question_templates")
+}
+
+model OnboardingQuestion {
+  id          String                      @id @default(uuid()) @db.Uuid
+  courseId    String                      @map("course_id") @db.Uuid
+  // NOTE: learnerId is included in an index; prisma-lint just fails to see it
+  /// prisma-lint-ignore-field require-field-index
+  learnerId   String                      @map("learner_id") @db.Uuid
+  templateId  String?                     @map("template_id") @db.Uuid
+  position    Int
+  question    String                      @db.Text
+  answer      String?                     @db.Text
+  description String                      @db.Text
+  origin      OnboardingQuestionOrigin
+  course      Course                      @relation(fields: [courseId], references: [id])
+  learner     Account                     @relation(fields: [learnerId], references: [id])
+  template    OnboardingQuestionTemplate? @relation(fields: [templateId], references: [id])
+  createdAt   DateTime                    @default(now()) @map("created_at")
+  updatedAt   DateTime                    @updatedAt @map("updated_at")
+
+  @@unique([courseId, learnerId, position])
+  @@unique([templateId, learnerId])
+  @@index([courseId, learnerId])
+  @@map("onboarding_questions")
 }
 
 model Lesson {

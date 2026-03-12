@@ -40,14 +40,17 @@ vi.mock("@clerk/nextjs/server", () => ({
 import middleware from "./proxy";
 
 describe("proxy middleware", () => {
-  const requestUrl = "https://example.com/protected";
+  const requestUrl = "https://example.com/courses/testing";
   const request = {
     url: requestUrl,
   };
 
   it("builds middleware with the protected route matcher", () => {
     expect(middleware).toBe("mock-clerk-middleware");
-    expect(createRouteMatcherMock).toHaveBeenCalledWith(["/protected(.*)"]);
+    expect(createRouteMatcherMock).toHaveBeenCalledWith([
+      "/courses(.*)",
+      "/protected(.*)",
+    ]);
     expect(clerkMiddlewareMock).toHaveBeenCalledTimes(1);
   });
 

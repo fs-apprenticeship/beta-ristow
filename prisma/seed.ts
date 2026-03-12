@@ -5,6 +5,7 @@ import getClient from "../src/lib/prisma/get-client";
 import { AccountFactory } from "../src/test/factories/account-factory";
 import { CourseFactory } from "../src/test/factories/course-factory";
 import { LessonFactory } from "../src/test/factories/lesson-factory";
+import { OnboardingQuestionTemplateFactory } from "../src/test/factories/onboarding-question-template-factory";
 
 const prisma = getClient();
 initialize({ prisma });
@@ -44,6 +45,44 @@ async function main() {
 
   if (!course) {
     throw new Error("Seed course not found after upsert.");
+  }
+
+  const onboardingQuestionTemplates = [
+    {
+      description:
+        "A sentence or two is plenty. If it helps, mention what you have studied before or where things usually start to feel confusing.",
+      position: 1,
+      question: "Describe your current experience with Python.",
+    },
+    {
+      description:
+        'Focus on outcomes, not credentials. What would "this was worth it" look like?',
+      position: 2,
+      question: "What are you hoping to achieve after learning Python?",
+    },
+  ];
+
+  for (const template of onboardingQuestionTemplates) {
+    const templateData = await OnboardingQuestionTemplateFactory.build({
+      course: { connect: { id: course.id } },
+      description: template.description,
+      position: template.position,
+      question: template.question,
+    });
+
+    await prisma.onboardingQuestionTemplate.upsert({
+      create: templateData,
+      update: {
+        description: templateData.description,
+        question: templateData.question,
+      },
+      where: {
+        courseId_position: {
+          courseId: course.id,
+          position: templateData.position,
+        },
+      },
+    });
   }
 
   const lessonTitles = [
