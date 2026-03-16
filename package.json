@@ -16,7 +16,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.38.3",
     "@prisma/adapter-pg": "^7.4.1",
-    "@prisma/client": "^7.4.2",
+    "@prisma/client": "^7.5.0",
     "@sentry/nextjs": "^10.40.0",
     "@tailwindcss/postcss": "^4.2.1",
     "class-variance-authority": "^0.7.1",
@@ -62,7 +62,7 @@
     "jsdom": "^28.1.0",
     "lint-staged": "^16.2.7",
     "prettier": "3.8.1",
-    "prisma": "^7.4.2",
+    "prisma": "^7.5.0",
     "prisma-lint": "^0.13.1",
     "shadcn": "^3.8.5",
     "stylelint": "^17.4.0",

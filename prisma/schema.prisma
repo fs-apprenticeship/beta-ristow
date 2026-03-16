@@ -30,7 +30,7 @@ model Account {
 
 model Course {
   id                          String                       @id @default(uuid()) @db.Uuid
-  slug                        String                       @unique
+  slug                        String
   title                       String
   /// prisma-lint-ignore-field require-default-empty-arrays
   onboardingQuestions         OnboardingQuestion[]
@@ -41,7 +41,7 @@ model Course {
   createdAt                   DateTime                     @default(now()) @map("created_at")
   updatedAt                   DateTime                     @updatedAt @map("updated_at")
 
-  @@index([slug])
+  @@unique([slug])
   @@map("courses")
 }
 
@@ -58,15 +58,12 @@ model OnboardingQuestionTemplate {
   updatedAt           DateTime             @updatedAt @map("updated_at")
 
   @@unique([courseId, position])
-  @@index([courseId])
   @@map("onboarding_question_templates")
 }
 
 model OnboardingQuestion {
   id          String                      @id @default(uuid()) @db.Uuid
   courseId    String                      @map("course_id") @db.Uuid
-  // NOTE: learnerId is included in an index; prisma-lint just fails to see it
-  /// prisma-lint-ignore-field require-field-index
   learnerId   String                      @map("learner_id") @db.Uuid
   templateId  String?                     @map("template_id") @db.Uuid
   position    Int
@@ -82,7 +79,7 @@ model OnboardingQuestion {
 
   @@unique([courseId, learnerId, position])
   @@unique([templateId, learnerId])
-  @@index([courseId, learnerId])
+  @@index([learnerId])
   @@map("onboarding_questions")
 }
 
@@ -96,7 +93,5 @@ model Lesson {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([courseId, slug])
-  @@index([courseId, slug])
-  @@index([courseId])
   @@map("lessons")
 }
