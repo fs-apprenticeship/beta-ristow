@@ -53,6 +53,9 @@ jobs:
       - name: Run type check
         run: npm run check-types
 
+      - name: Run Prisma format check
+        run: npx prisma format --check
+
       - name: Run Prisma validate
         run: npx prisma validate
 

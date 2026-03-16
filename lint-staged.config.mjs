@@ -8,7 +8,7 @@ const config = {
   ],
 
   // Domain Specific Formatting and Linting
-  "**/*.prisma": ["prisma format", "prisma-lint"],
+  "**/*.prisma": ["prisma format", "prisma validate", "prisma-lint"],
   "**/*.{css,module.css}": ["stylelint --fix", "prettier --write"],
 
   // Atomic Pipeline for Core Code
