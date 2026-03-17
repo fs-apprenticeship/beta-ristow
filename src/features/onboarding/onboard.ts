@@ -28,18 +28,18 @@ const createOnboardingQuestions = async (
     }),
   );
 
-  const generatedPlaceholder = await prisma.onboardingQuestion.create({
+  const generatedQuestion = await prisma.onboardingQuestion.create({
     data: {
       courseId,
       description: "",
       learnerId,
       origin: GENERATED,
       position: templateQuestions.length + 1,
-      question: "",
+      question: "Is this a good summary? Correct the record…",
     },
   });
 
-  return [...(await Promise.all(templateQuestions)), generatedPlaceholder];
+  return [...(await Promise.all(templateQuestions)), generatedQuestion];
 };
 
 export default async function onboard(courseId: string, learnerId: string) {

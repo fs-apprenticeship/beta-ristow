@@ -136,7 +136,9 @@ describe("onboard", () => {
 
       expect(lastQuestion?.origin).toBe(GENERATED);
       expect(lastQuestion?.position).toBe(1);
-      expect(lastQuestion?.question).toBe("");
+      expect(lastQuestion?.question).toBe(
+        "Is this a good summary? Correct the record…",
+      );
     });
 
     it("returns the first question and the question count", async () => {
