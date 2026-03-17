@@ -1,6 +1,6 @@
 import requireCurrentAccount from "@/features/identity/actions/require-current-account";
 import generateDescription from "@/features/onboarding/generate-description";
-import streamTextResponse from "@/lib/stream-text-response";
+import createStreamResponse from "@/lib/stream/create-stream-response";
 
 export async function GET(
   _request: Request,
@@ -11,5 +11,5 @@ export async function GET(
 
   const descriptionChunks = generateDescription(questionId, learnerId);
 
-  return streamTextResponse(descriptionChunks);
+  return createStreamResponse(descriptionChunks);
 }

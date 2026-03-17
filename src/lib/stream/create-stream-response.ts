@@ -1,4 +1,4 @@
-export default function streamTextResponse(chunks: AsyncIterable<string>) {
+export default function createStreamResponse(chunks: AsyncIterable<string>) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {

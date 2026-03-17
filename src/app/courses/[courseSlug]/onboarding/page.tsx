@@ -7,6 +7,7 @@ import onboard from "@/features/onboarding/onboard";
 import { deleteCookie } from "@/lib/cookie-store";
 
 import answerAction from "./answer-action";
+import GeneratedDescription from "./generated-description";
 
 export default async function OnboardingPage({
   params,
@@ -39,7 +40,13 @@ export default async function OnboardingPage({
       <progress max={questionCount} value={nextQuestion.position} />
       <form action={submitAnswer}>
         <label htmlFor="answer">{nextQuestion.question}</label>
-        <p id="question-description">{nextQuestion.description}</p>
+        <p id="question-description">
+          {nextQuestion.isGenerated ? (
+            <GeneratedDescription questionId={nextQuestion.id} />
+          ) : (
+            nextQuestion.description
+          )}
+        </p>
         <input name="id" type="hidden" value={nextQuestion.id} />
         <textarea
           aria-describedby="question-description"
