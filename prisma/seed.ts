@@ -5,17 +5,13 @@ import getClient from "../src/lib/prisma/get-client";
 import { AccountFactory } from "../src/test/factories/account-factory";
 import { CourseFactory } from "../src/test/factories/course-factory";
 import { LessonFactory } from "../src/test/factories/lesson-factory";
+import { LessonItemFactory } from "../src/test/factories/lesson-item-factory";
 import { OnboardingQuestionTemplateFactory } from "../src/test/factories/onboarding-question-template-factory";
 
 const prisma = getClient();
 initialize({ prisma });
 
 async function main() {
-  /*
-   * NOTE: this is sort of a placeholder until we have data that we actually
-   * need to seed; for now, it's just demonstrating the pattern. It should be
-   * removed wheen proper data is added.
-   */
   const accountId = "8c6c41b0-0c3a-4c84-8a5b-06c8e5b0d15a";
   const accountData = await AccountFactory.build({ id: accountId });
 
@@ -98,7 +94,7 @@ async function main() {
       title,
     });
 
-    await prisma.lesson.upsert({
+    const lesson = await prisma.lesson.upsert({
       create: lessonData,
       update: {
         title: lessonData.title,
@@ -110,6 +106,31 @@ async function main() {
         },
       },
     });
+
+    const numberOfItems = 3;
+
+    for (let i = 0; i < numberOfItems; i++) {
+      const itemData = await LessonItemFactory.build({
+        learner: { connect: { id: accountId } },
+        lesson: { connect: { id: lesson.id } },
+        position: i + 1,
+        title: `${title} - Item ${i + 1}`,
+      });
+
+      await prisma.lessonItem.upsert({
+        create: itemData,
+        update: {
+          title: itemData.title,
+        },
+        where: {
+          lessonId_learnerId_position: {
+            learnerId: accountId,
+            lessonId: lesson.id,
+            position: itemData.position,
+          },
+        },
+      });
+    }
   }
 }
 

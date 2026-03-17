@@ -18,12 +18,16 @@ enum OnboardingQuestionOrigin {
 }
 
 model Account {
-  id                  String               @id @default(uuid()) @db.Uuid
-  clerkUserId         String               @unique @map("clerk_user_id")
+  id          String @id @default(uuid()) @db.Uuid
+  clerkUserId String @unique @map("clerk_user_id")
+
   /// prisma-lint-ignore-field require-default-empty-arrays
   onboardingQuestions OnboardingQuestion[]
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  lessonItems         LessonItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("accounts")
 }
@@ -84,14 +88,40 @@ model OnboardingQuestion {
 }
 
 model Lesson {
-  id        String   @id @default(uuid()) @db.Uuid
-  courseId  String   @map("course_id") @db.Uuid
-  slug      String
-  title     String
-  course    Course   @relation(fields: [courseId], references: [id])
+  id       String @id @default(uuid()) @db.Uuid
+  courseId String @map("course_id") @db.Uuid
+
+  slug  String
+  title String
+
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  lessonItems LessonItem[]
+  course      Course       @relation(fields: [courseId], references: [id])
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([courseId, slug])
   @@map("lessons")
+}
+
+model LessonItem {
+  id        String @id @default(uuid()) @db.Uuid
+  lessonId  String @map("lesson_id") @db.Uuid
+  learnerId String @map("learner_id") @db.Uuid
+
+  title       String
+  completedAt DateTime? @map("completed_at")
+  position    Int
+
+  lesson  Lesson  @relation(fields: [lessonId], references: [id])
+  learner Account @relation(fields: [learnerId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([lessonId, learnerId, position])
+  @@unique([lessonId, learnerId, title])
+  @@index([learnerId])
+  @@map("lesson_items")
 }
