@@ -5,6 +5,8 @@ import getCourse from "@/features/learning/get-course";
 import getCurrentLesson from "@/features/learning/get-current-lesson";
 import onboard from "@/features/onboarding/onboard";
 
+import answerAction from "./answer-action";
+
 export default async function OnboardingPage({
   params,
 }: {
@@ -17,6 +19,7 @@ export default async function OnboardingPage({
 
   const { id: learnerId } = await requireCurrentAccount();
   const { nextQuestion, questionCount } = await onboard(course.id, learnerId);
+  const submitAnswer = answerAction.bind(null, course.slug);
 
   if (!nextQuestion) {
     const lesson = await getCurrentLesson(course);
@@ -27,15 +30,16 @@ export default async function OnboardingPage({
     <main>
       <h2>{course.title}</h2>
       <progress max={questionCount} value={nextQuestion.position} />
-      <form>
+      <form action={submitAnswer}>
         <label htmlFor="answer">{nextQuestion.question}</label>
         <p id="question-description">{nextQuestion.description}</p>
-        <input name="questionId" type="hidden" value={nextQuestion.id} />
+        <input name="id" type="hidden" value={nextQuestion.id} />
         <textarea
           aria-describedby="question-description"
           id="answer"
           name="answer"
           placeholder="Type your response here."
+          required
           rows={6}
         />
         <button type="submit">Continue</button>
