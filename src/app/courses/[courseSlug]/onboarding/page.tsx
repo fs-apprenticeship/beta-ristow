@@ -4,6 +4,7 @@ import requireCurrentAccount from "@/features/identity/actions/require-current-a
 import getCourse from "@/features/learning/get-course";
 import getCurrentLesson from "@/features/learning/get-current-lesson";
 import onboard from "@/features/onboarding/onboard";
+import { deleteCookie } from "@/lib/cookie-store";
 
 import answerAction from "./answer-action";
 
@@ -22,6 +23,12 @@ export default async function OnboardingPage({
   const submitAnswer = answerAction.bind(null, course.slug);
 
   if (!nextQuestion) {
+    const afterOnboardingPath = await deleteCookie("afterOnboardingPath");
+
+    if (afterOnboardingPath) {
+      redirect(afterOnboardingPath);
+    }
+
     const lesson = await getCurrentLesson(course);
     redirect(`/courses/${course.slug}/lessons/${lesson.slug}`);
   }

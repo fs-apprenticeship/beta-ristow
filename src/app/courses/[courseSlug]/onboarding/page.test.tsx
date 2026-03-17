@@ -14,7 +14,14 @@ const { requireCurrentAccount } = vi.hoisted(() => ({
 
 import OnboardingPage from "./page";
 
-const redirectMock = vi.fn();
+const { deleteCookieMock, redirectMock } = vi.hoisted(() => ({
+  deleteCookieMock: vi.fn(),
+  redirectMock: vi.fn(),
+}));
+
+vi.mock("@/lib/cookie-store", () => ({
+  deleteCookie: deleteCookieMock,
+}));
 
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
@@ -29,6 +36,7 @@ vi.mock("@/features/identity/actions/require-current-account", () => ({
 
 describe("Onboarding page", () => {
   afterEach(() => {
+    deleteCookieMock.mockReset();
     redirectMock.mockClear();
     requireCurrentAccount.mockReset();
   });
@@ -85,6 +93,56 @@ describe("Onboarding page", () => {
     expect(
       screen.getByRole("button", { name: "Continue" }),
     ).toBeInTheDocument();
+  });
+
+  describe("when no questions are available", () => {
+    it("redirects to afterOnboardingPath if set", async () => {
+      const learner = await AccountFactory.create();
+      requireCurrentAccount.mockResolvedValue(learner);
+      const course = await CourseFactory.create();
+      const afterOnboardingPath = "/courses/focus/lessons/routines";
+
+      deleteCookieMock.mockResolvedValue(afterOnboardingPath);
+
+      await OnboardingQuestionFactory.create({
+        answer: "Done",
+        course: { connect: { id: course.id } },
+        learner: { connect: { id: learner.id } },
+      });
+
+      const pagePromise = OnboardingPage({
+        params: Promise.resolve({ courseSlug: course.slug }),
+      });
+
+      await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
+      expect(redirectMock).toHaveBeenCalledWith(afterOnboardingPath);
+      expect(deleteCookieMock).toHaveBeenCalledWith("afterOnboardingPath");
+    });
+
+    it("redirects to a lesson in the course if afterOnboardingPath is not set", async () => {
+      const learner = await AccountFactory.create();
+      requireCurrentAccount.mockResolvedValue(learner);
+      const course = await CourseFactory.create();
+      const lesson = await LessonFactory.create({
+        course: { connect: { id: course.id } },
+      });
+
+      await OnboardingQuestionFactory.create({
+        answer: "Done",
+        course: { connect: { id: course.id } },
+        learner: { connect: { id: learner.id } },
+      });
+
+      const pagePromise = OnboardingPage({
+        params: Promise.resolve({ courseSlug: course.slug }),
+      });
+
+      await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
+      expect(deleteCookieMock).toHaveBeenCalledWith("afterOnboardingPath");
+      expect(redirectMock).toHaveBeenCalledWith(
+        `/courses/${course.slug}/lessons/${lesson.slug}`,
+      );
+    });
   });
 
   it("has no axe violations", async () => {
