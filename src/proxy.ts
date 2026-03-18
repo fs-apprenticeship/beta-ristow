@@ -4,10 +4,12 @@ const isProtectedRoute = createRouteMatcher(["/courses(.*)", "/protected(.*)"]);
 
 export default clerkMiddleware(async (auth, request): Promise<void> => {
   if (isProtectedRoute(request)) {
-    const signInUrl = new URL("/sign-in", request.url).toString();
+    const signInUrl = new URL("/sign-in", request.url);
+    const returnTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+    signInUrl.searchParams.set("redirect_url", returnTo);
 
     await auth.protect({
-      unauthenticatedUrl: signInUrl,
+      unauthenticatedUrl: signInUrl.toString(),
     });
   }
 });

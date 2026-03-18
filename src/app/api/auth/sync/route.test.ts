@@ -34,6 +34,37 @@ describe("auth sync route", () => {
     expect(response.headers.get("location")).toBe("https://example.com/");
   });
 
+  it("redirects to the original protected page when redirect_url is present", async () => {
+    const user = { id: "user_123" };
+    const request = new Request(
+      "https://example.com/api/auth/sync?redirect_url=%2Fprotected%3Flesson%3Dintro",
+    );
+    mockCurrentUser.mockResolvedValue(user);
+
+    const response = await GET(request);
+
+    expect(mockEnsureAccountForClerkUser).toHaveBeenCalledWith(user);
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://example.com/protected?lesson=intro",
+    );
+  });
+
+  it("allows same-origin absolute redirect urls", async () => {
+    const request = new Request(
+      "https://example.com/api/auth/sync?redirect_url=https%3A%2F%2Fexample.com%2Fprotected",
+    );
+    mockCurrentUser.mockResolvedValue(null);
+
+    const response = await GET(request);
+
+    expect(mockEnsureAccountForClerkUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://example.com/protected",
+    );
+  });
+
   it("redirects home without creating an account when there is no current user", async () => {
     const request = new Request("https://example.com/api/auth/sync");
     mockCurrentUser.mockResolvedValue(null);
@@ -41,6 +72,19 @@ describe("auth sync route", () => {
     const response = await GET(request);
 
     expect(mockCurrentUser).toHaveBeenCalledOnce();
+    expect(mockEnsureAccountForClerkUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://example.com/");
+  });
+
+  it("ignores unsafe redirect urls", async () => {
+    const request = new Request(
+      "https://example.com/api/auth/sync?redirect_url=https://malicious.example.com/phish",
+    );
+    mockCurrentUser.mockResolvedValue(null);
+
+    const response = await GET(request);
+
     expect(mockEnsureAccountForClerkUser).not.toHaveBeenCalled();
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://example.com/");

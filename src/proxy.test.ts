@@ -42,6 +42,10 @@ import middleware from "./proxy";
 describe("proxy middleware", () => {
   const requestUrl = "https://example.com/courses/testing";
   const request = {
+    nextUrl: {
+      pathname: "/protected",
+      search: "",
+    },
     url: requestUrl,
   };
 
@@ -62,7 +66,8 @@ describe("proxy middleware", () => {
 
     expect(protect).toHaveBeenCalledTimes(1);
     expect(protect).toHaveBeenCalledWith({
-      unauthenticatedUrl: "https://example.com/sign-in",
+      unauthenticatedUrl:
+        "https://example.com/sign-in?redirect_url=%2Fprotected",
     });
   });
 
@@ -78,7 +83,8 @@ describe("proxy middleware", () => {
 
     expect(protect).toHaveBeenCalledTimes(1);
     expect(protect).toHaveBeenCalledWith({
-      unauthenticatedUrl: "https://example.com/sign-in",
+      unauthenticatedUrl:
+        "https://example.com/sign-in?redirect_url=%2Fprotected",
     });
     await expect(protect.mock.results[0]?.value).resolves.toBe(
       redirectResponse,
@@ -95,5 +101,29 @@ describe("proxy middleware", () => {
     await callbackStore.callback?.({ protect }, request);
 
     expect(protect).not.toHaveBeenCalled();
+  });
+
+  it("preserves the protected page query string in the redirect url", async () => {
+    const protect = vi.fn(() => Promise.resolve());
+    isProtectedRouteMock.mockReturnValue(true);
+
+    await callbackStore.callback?.(
+      {
+        protect,
+      },
+      {
+        ...request,
+        nextUrl: {
+          pathname: "/protected",
+          search: "?lesson=intro",
+        },
+        url: "https://example.com/protected?lesson=intro",
+      },
+    );
+
+    expect(protect).toHaveBeenCalledWith({
+      unauthenticatedUrl:
+        "https://example.com/sign-in?redirect_url=%2Fprotected%3Flesson%3Dintro",
+    });
   });
 });
