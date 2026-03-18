@@ -6,6 +6,7 @@
   "scripts": {
     "build": "prisma migrate dev && prisma generate && next build",
     "check-types": "tsc --project tsconfig.json --pretty --noEmit",
+    "db:reset": "node scripts/db-reset.js && NODE_ENV=test prisma migrate reset --force",
     "dev": "prisma studio --browser none & next dev",
     "format": "prettier . --write",
     "lint": "eslint",
