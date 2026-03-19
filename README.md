@@ -1,6 +1,8 @@
-# :teacher: Beverly Ristow
+# :teacher: :computer: Beta Ristow
 
-An ongoing experimental project, resembling an adaptive/generative LMS.
+An experimental development repo based on the production Beverly Ristow codebase.
+
+This copy exists for exploration and iteration. It does not have an active deployment target yet, so assume local development only unless the team documents a new environment explicitly.
 
 ## Development
 
@@ -86,22 +88,12 @@ Use `npm run check-types` to... well, check types. This is also performed in the
 
 ## Deployment
 
-The application is deployed and hosted by Vercel; https://vercel.com/flatiron-school/beverly-ristow.
+There is no deployed environment for this repo right now.
 
-Note: deployments are promoted to production only when the “Lint & Test” GitHub Action passes (see `.github/workflows/ci.yml`).
+Treat the app as local-only:
 
-### Postgres
+1. Run the Next.js app locally with `npm run dev`
+1. Use your own local Postgres instance for development and testing
+1. Keep secrets and API keys in local `.env` files
 
-[Neon](https://neon.com/) is the managed Postgres provider for deploy previews and production, configured through Vercel (https://vercel.com/flatiron-school/~/stores).
-
-The **Vercel-managed** Neon integration provides the database connection URLs through Vercel environment variables. Each Vercel deploy preview will have its own dedicated Postgres branch from Neon, which is a copy of production. For more details, see [this page](https://neon.com/docs/guides/vercel-managed-integration).
-
-#### DB Admin
-
-The production database is accessible through the following:
-
-1. The Neon console (through [Vercel](https://vercel.com/flatiron-school/~/integrations/neon/icfg_9wsSAxWhjD0i2V5jeAbCo4Br/resources/storage/store_HWaypUpbShQMku9s/guides); click "Open in Neon")
-1. A locally run Prisma Studio; e.g. `npx prisma studio --url <production-postgres-url>`
-1. A locally run DB editor connected to the production URL; e.g. [Postico](https://eggerapps.at/postico2/)
-
-:warning: If used, be careful to remember that you are operating on production data! Close your connection immediately after use to avoid mistaken operations. That is, if you use Prisma Studio on your local DB often, it's easy to forget you're connected to prod—avoid that!
+If this repo later gets a preview or production environment, document that setup here before treating it as a shared deployment target.
