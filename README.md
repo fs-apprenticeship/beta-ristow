@@ -37,7 +37,7 @@ For local development, set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET
 
 Generally, we adhere to [bulletproof-react](https://github.com/alan2207/bulletproof-react) guidelines. In particular, we aim to [factor our code into feature domains and maintain a unidirectional codebase](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md):
 
-![](https://github.com/alan2207/bulletproof-react/raw/master/docs/assets/unidirectional-codebase.png)
+![Unidirectional codebase diagram](https://github.com/alan2207/bulletproof-react/raw/master/docs/assets/unidirectional-codebase.png)
 
 ### Prisma
 

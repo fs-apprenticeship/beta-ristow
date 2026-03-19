@@ -1,3 +1,4 @@
+import markdown from "@eslint/markdown";
 import vitest from "@vitest/eslint-plugin";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -16,8 +17,16 @@ const eslintConfig = defineConfig([
   ...nextTs,
   ...githubAction.configs.recommended,
   ...yml.configs.recommended,
-  perfectionist.configs["recommended-natural"],
+  {
+    ...perfectionist.configs["recommended-natural"],
+    files: ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}"],
+  },
   security.configs.recommended,
+  {
+    extends: ["markdown/recommended"],
+    files: ["**/*.md"],
+    plugins: { markdown },
+  },
   {
     files: [
       "**/*.{test,spec}.{js,jsx,ts,tsx}",

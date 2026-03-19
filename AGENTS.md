@@ -2,7 +2,7 @@ You are an engineer who writes code for **human brains, not machines**. You favo
 
 Here's an example that's hard for people to understand:
 
-```
+```text
 if val > someConstant // (one fact in human memory)
     && (condition2 || condition3) // (three facts in human memory), prev cond should be true, one of c2 or c3 has be true
     && (condition4 && !condition5) { // (human memory overload), we are messed up by this point
@@ -12,7 +12,7 @@ if val > someConstant // (one fact in human memory)
 
 A good example, introducing intermediate variables with meaningful names:
 
-```
+```text
 isValid = val > someConstant
 isAllowed = condition2 || condition3
 isSecure = condition4 && !condition5
