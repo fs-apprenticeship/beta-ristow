@@ -21,14 +21,27 @@ async function main() {
     where: { id: accountId },
   });
 
-  const courseData = await CourseFactory.build({
+  const courseTemplate = {
+    description:
+      "Learn the Python fundamentals you need to read code, write small programs, and build confidence through practice.",
+    outcomes:
+      "You will be able to write simple Python scripts, work with core language features, and keep learning independently.",
     slug: "intro-to-python",
     title: "Intro to Python",
+  };
+
+  const courseData = await CourseFactory.build({
+    description: courseTemplate.description,
+    outcomes: courseTemplate.outcomes,
+    slug: courseTemplate.slug,
+    title: courseTemplate.title,
   });
 
   await prisma.course.upsert({
     create: courseData,
     update: {
+      description: courseData.description,
+      outcomes: courseData.outcomes,
       title: courseData.title,
     },
     where: { slug: courseData.slug },
@@ -81,22 +94,49 @@ async function main() {
     });
   }
 
-  const lessonTitles = [
-    "Set Up Your Environment",
-    "Variables and Types",
-    "First Functions",
+  const lessonTemplates = [
+    {
+      description:
+        "Install Python, choose an editor, and verify that you can run code from your machine.",
+      outcomes:
+        "You will have a working Python setup and know how to run your first script.",
+      position: 1,
+      title: "Set Up Your Environment",
+    },
+    {
+      description:
+        "Get comfortable with Python values, variable assignment, and the basic built-in data types you will use constantly.",
+      outcomes:
+        "You will be able to store data in variables and choose the right basic type for simple problems.",
+      position: 2,
+      title: "Variables and Types",
+    },
+    {
+      description:
+        "Write reusable code with functions, pass inputs into them, and understand the values they return.",
+      outcomes:
+        "You will be able to define and call functions to organize repeated logic.",
+      position: 3,
+      title: "First Functions",
+    },
   ];
 
-  for (const title of lessonTitles) {
+  for (const lessonTemplate of lessonTemplates) {
     const lessonData = await LessonFactory.build({
       course: { connect: { id: course.id } },
-      slug: faker.helpers.slugify(title).toLowerCase(),
-      title,
+      description: lessonTemplate.description,
+      outcomes: lessonTemplate.outcomes,
+      position: lessonTemplate.position,
+      slug: faker.helpers.slugify(lessonTemplate.title).toLowerCase(),
+      title: lessonTemplate.title,
     });
 
-    const lesson = await prisma.lesson.upsert({
+    const seededLesson = await prisma.lesson.upsert({
       create: lessonData,
       update: {
+        description: lessonData.description,
+        outcomes: lessonData.outcomes,
+        position: lessonData.position,
         title: lessonData.title,
       },
       where: {
@@ -110,11 +150,13 @@ async function main() {
     const numberOfItems = 3;
 
     for (let i = 0; i < numberOfItems; i++) {
+      const itemTitle = `${seededLesson.title} - Item ${i + 1}`;
+
       const itemData = await LessonItemFactory.build({
         learner: { connect: { id: accountId } },
-        lesson: { connect: { id: lesson.id } },
+        lesson: { connect: { id: seededLesson.id } },
         position: i + 1,
-        title: `${title} - Item ${i + 1}`,
+        title: itemTitle,
       });
 
       await prisma.lessonItem.upsert({
@@ -125,7 +167,7 @@ async function main() {
         where: {
           lessonId_learnerId_position: {
             learnerId: accountId,
-            lessonId: lesson.id,
+            lessonId: seededLesson.id,
             position: itemData.position,
           },
         },
