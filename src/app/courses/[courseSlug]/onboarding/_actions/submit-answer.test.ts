@@ -23,9 +23,9 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-import answerAction from "./answer-action";
+import { submitAnswer } from "./submit-answer";
 
-describe("answerAction", () => {
+describe("submitAnswer", () => {
   afterEach(() => {
     requireCurrentAccountMock.mockClear();
     redirectMock.mockClear();
@@ -44,7 +44,7 @@ describe("answerAction", () => {
     formData.set("id", question.id);
     formData.set("answer", "I want a clearer weekly routine.");
 
-    await expect(answerAction(course.slug, formData)).rejects.toThrow(
+    await expect(submitAnswer(course.slug, formData)).rejects.toThrow(
       "NEXT_REDIRECT",
     );
     expect(redirectMock).toHaveBeenCalledWith(
@@ -71,7 +71,7 @@ describe("answerAction", () => {
     formData.set("id", firstQuestion!.id);
     formData.set("answer", "I want a clearer weekly routine.");
 
-    await expect(answerAction(course.slug, formData)).rejects.toThrow(
+    await expect(submitAnswer(course.slug, formData)).rejects.toThrow(
       "NEXT_REDIRECT",
     );
 
@@ -89,7 +89,7 @@ describe("answerAction", () => {
     formData.set("id", "");
     formData.set("answer", "   ");
 
-    await expect(answerAction(course.slug, formData)).rejects.toBeInstanceOf(
+    await expect(submitAnswer(course.slug, formData)).rejects.toBeInstanceOf(
       ZodError,
     );
   });

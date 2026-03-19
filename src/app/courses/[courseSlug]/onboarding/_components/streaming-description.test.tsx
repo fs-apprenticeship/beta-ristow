@@ -9,9 +9,9 @@ vi.mock("@/lib/stream/request-stream", () => ({
   default: requestStreamMock,
 }));
 
-import GeneratedDescription from "./generated-description";
+import { StreamingDescription } from "./streaming-description";
 
-describe("GeneratedDescription", () => {
+describe("StreamingDescription", () => {
   beforeEach(() => {
     requestStreamMock.mockReset();
   });
@@ -28,7 +28,7 @@ describe("GeneratedDescription", () => {
       return () => {};
     });
 
-    render(<GeneratedDescription questionId="question-123" />);
+    render(<StreamingDescription questionId="question-123" />);
 
     expect(requestStreamMock).toHaveBeenCalledWith(
       "/api/onboarding-questions/question-123/description",
@@ -45,7 +45,7 @@ describe("GeneratedDescription", () => {
     requestStreamMock.mockReturnValue(stopStreaming);
 
     const { unmount } = render(
-      <GeneratedDescription questionId="question-123" />,
+      <StreamingDescription questionId="question-123" />,
     );
 
     unmount();
@@ -61,7 +61,7 @@ describe("GeneratedDescription", () => {
       return () => {};
     });
 
-    render(<GeneratedDescription questionId="question-123" />);
+    render(<StreamingDescription questionId="question-123" />);
 
     await act(async () => {
       await onChunk?.("First sentence. ");

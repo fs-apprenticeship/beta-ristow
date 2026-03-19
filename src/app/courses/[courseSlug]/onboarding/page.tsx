@@ -6,8 +6,8 @@ import getCurrentLesson from "@/features/learning/get-current-lesson";
 import onboard from "@/features/onboarding/onboard";
 import { deleteCookie } from "@/lib/cookie-store";
 
-import answerAction from "./answer-action";
-import GeneratedDescription from "./generated-description";
+import { submitAnswer } from "./_actions/submit-answer";
+import { StreamingDescription } from "./_components/streaming-description";
 
 export default async function OnboardingPage({
   params,
@@ -21,7 +21,7 @@ export default async function OnboardingPage({
 
   const { id: learnerId } = await requireCurrentAccount();
   const { nextQuestion, questionCount } = await onboard(course.id, learnerId);
-  const submitAnswer = answerAction.bind(null, course.slug);
+  const formAction = submitAnswer.bind(null, course.slug);
 
   if (!nextQuestion) {
     const afterOnboardingPath = await deleteCookie("afterOnboardingPath");
@@ -38,11 +38,11 @@ export default async function OnboardingPage({
     <main>
       <h2>{course.title}</h2>
       <progress max={questionCount} value={nextQuestion.position} />
-      <form action={submitAnswer}>
+      <form action={formAction}>
         <label htmlFor="answer">{nextQuestion.question}</label>
         <p id="question-description">
           {nextQuestion.isGenerated ? (
-            <GeneratedDescription questionId={nextQuestion.id} />
+            <StreamingDescription questionId={nextQuestion.id} />
           ) : (
             nextQuestion.description
           )}

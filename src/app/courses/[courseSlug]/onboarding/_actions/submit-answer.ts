@@ -11,10 +11,7 @@ const answerSchema = z.object({
   id: z.string().trim().min(1),
 });
 
-export default async function answerAction(
-  courseSlug: string,
-  formData: FormData,
-) {
+export async function submitAnswer(courseSlug: string, formData: FormData) {
   const { id: learnerId } = await requireCurrentAccount();
   const { answer, id } = answerSchema.parse(Object.fromEntries(formData));
 

@@ -4,11 +4,7 @@ import { useEffect, useState } from "react";
 
 import requestStream from "@/lib/stream/request-stream";
 
-export default function GeneratedDescription({
-  questionId,
-}: {
-  questionId: string;
-}) {
+export function StreamingDescription({ questionId }: { questionId: string }) {
   const [text, setText] = useState("");
 
   useEffect(() => {
