@@ -14,13 +14,8 @@ const { requireCurrentAccount } = vi.hoisted(() => ({
 
 import OnboardingPage from "./page";
 
-const { deleteCookieMock, redirectMock } = vi.hoisted(() => ({
-  deleteCookieMock: vi.fn(),
+const { redirectMock } = vi.hoisted(() => ({
   redirectMock: vi.fn(),
-}));
-
-vi.mock("@/lib/cookie-store", () => ({
-  deleteCookie: deleteCookieMock,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -36,7 +31,6 @@ vi.mock("@/features/identity/actions/require-current-account", () => ({
 
 describe("Onboarding page", () => {
   afterEach(() => {
-    deleteCookieMock.mockReset();
     redirectMock.mockClear();
     requireCurrentAccount.mockReset();
   });
@@ -59,6 +53,7 @@ describe("Onboarding page", () => {
 
     const pagePromise = OnboardingPage({
       params: Promise.resolve({ courseSlug: course.slug }),
+      searchParams: Promise.resolve({}),
     });
 
     await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
@@ -78,6 +73,7 @@ describe("Onboarding page", () => {
 
     const page = await OnboardingPage({
       params: Promise.resolve({ courseSlug: course.slug }),
+      searchParams: Promise.resolve({}),
     });
 
     render(page);
@@ -96,13 +92,11 @@ describe("Onboarding page", () => {
   });
 
   describe("when no questions are available", () => {
-    it("redirects to afterOnboardingPath if set", async () => {
+    it("redirects to returnTo if it is a site path", async () => {
       const learner = await AccountFactory.create();
       requireCurrentAccount.mockResolvedValue(learner);
       const course = await CourseFactory.create();
-      const afterOnboardingPath = "/courses/focus/lessons/routines";
-
-      deleteCookieMock.mockResolvedValue(afterOnboardingPath);
+      const returnTo = "/anything";
 
       await OnboardingQuestionFactory.create({
         answer: "Done",
@@ -112,14 +106,14 @@ describe("Onboarding page", () => {
 
       const pagePromise = OnboardingPage({
         params: Promise.resolve({ courseSlug: course.slug }),
+        searchParams: Promise.resolve({ returnTo }),
       });
 
       await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
-      expect(redirectMock).toHaveBeenCalledWith(afterOnboardingPath);
-      expect(deleteCookieMock).toHaveBeenCalledWith("afterOnboardingPath");
+      expect(redirectMock).toHaveBeenCalledWith(returnTo);
     });
 
-    it("redirects to a lesson in the course if afterOnboardingPath is not set", async () => {
+    it("falls back to the course lesson when returnTo is external", async () => {
       const learner = await AccountFactory.create();
       requireCurrentAccount.mockResolvedValue(learner);
       const course = await CourseFactory.create();
@@ -135,10 +129,35 @@ describe("Onboarding page", () => {
 
       const pagePromise = OnboardingPage({
         params: Promise.resolve({ courseSlug: course.slug }),
+        searchParams: Promise.resolve({ returnTo: "//example.com" }),
       });
 
       await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
-      expect(deleteCookieMock).toHaveBeenCalledWith("afterOnboardingPath");
+      expect(redirectMock).toHaveBeenCalledWith(
+        `/courses/${course.slug}/lessons/${lesson.slug}`,
+      );
+    });
+
+    it("redirects to a lesson in the course if returnTo is not set", async () => {
+      const learner = await AccountFactory.create();
+      requireCurrentAccount.mockResolvedValue(learner);
+      const course = await CourseFactory.create();
+      const lesson = await LessonFactory.create({
+        course: { connect: { id: course.id } },
+      });
+
+      await OnboardingQuestionFactory.create({
+        answer: "Done",
+        course: { connect: { id: course.id } },
+        learner: { connect: { id: learner.id } },
+      });
+
+      const pagePromise = OnboardingPage({
+        params: Promise.resolve({ courseSlug: course.slug }),
+        searchParams: Promise.resolve({}),
+      });
+
+      await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
       expect(redirectMock).toHaveBeenCalledWith(
         `/courses/${course.slug}/lessons/${lesson.slug}`,
       );
@@ -156,6 +175,7 @@ describe("Onboarding page", () => {
 
     const page = await OnboardingPage({
       params: Promise.resolve({ courseSlug: course.slug }),
+      searchParams: Promise.resolve({}),
     });
 
     const { container } = render(page);

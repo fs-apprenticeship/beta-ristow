@@ -44,9 +44,9 @@ describe("submitAnswer", () => {
     formData.set("id", question.id);
     formData.set("answer", "I want a clearer weekly routine.");
 
-    await expect(submitAnswer(course.slug, formData)).rejects.toThrow(
-      "NEXT_REDIRECT",
-    );
+    await expect(
+      submitAnswer(`/courses/${course.slug}/onboarding`, formData),
+    ).rejects.toThrow("NEXT_REDIRECT");
     expect(redirectMock).toHaveBeenCalledWith(
       `/courses/${course.slug}/onboarding`,
     );
@@ -71,9 +71,9 @@ describe("submitAnswer", () => {
     formData.set("id", firstQuestion!.id);
     formData.set("answer", "I want a clearer weekly routine.");
 
-    await expect(submitAnswer(course.slug, formData)).rejects.toThrow(
-      "NEXT_REDIRECT",
-    );
+    await expect(
+      submitAnswer(`/courses/${course.slug}/onboarding`, formData),
+    ).rejects.toThrow("NEXT_REDIRECT");
 
     const { nextQuestion } = await onboard(course.id, learner.id);
     expect(nextQuestion!.id).toEqual(questions[1].id);
@@ -89,8 +89,32 @@ describe("submitAnswer", () => {
     formData.set("id", "");
     formData.set("answer", "   ");
 
-    await expect(submitAnswer(course.slug, formData)).rejects.toBeInstanceOf(
-      ZodError,
+    await expect(
+      submitAnswer(`/courses/${course.slug}/onboarding`, formData),
+    ).rejects.toBeInstanceOf(ZodError);
+  });
+
+  it("redirects back to the current onboarding URL", async () => {
+    const learner = await AccountFactory.create();
+    requireCurrentAccountMock.mockResolvedValue(learner);
+    const course = await CourseFactory.create();
+    const question = await OnboardingQuestionFactory.create({
+      course: { connect: { id: course.id } },
+      learner: { connect: { id: learner.id } },
+    });
+
+    const formData = new FormData();
+    formData.set("id", question.id);
+    formData.set("answer", "I want a clearer weekly routine.");
+
+    await expect(
+      submitAnswer(
+        `/courses/${course.slug}/onboarding?returnTo=%2Fcourses%2F${course.slug}%2Flessons%2Froutines`,
+        formData,
+      ),
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirectMock).toHaveBeenCalledWith(
+      `/courses/${course.slug}/onboarding?returnTo=%2Fcourses%2F${course.slug}%2Flessons%2Froutines`,
     );
   });
 });

@@ -4,7 +4,6 @@ import requireCurrentAccount from "@/features/identity/actions/require-current-a
 import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
 import onboard from "@/features/onboarding/onboard";
-import { setCookie } from "@/lib/cookie-store";
 
 export const dynamic = "force-dynamic";
 
@@ -23,9 +22,9 @@ export default async function LessonPage({
 
   if (nextQuestion) {
     const currentPath = `/courses/${course.slug}/lessons/${lessonSlug}`;
-
-    await setCookie("afterOnboardingPath", currentPath);
-    redirect(`/courses/${course.slug}/onboarding`);
+    redirect(
+      `/courses/${course.slug}/onboarding?returnTo=${encodeURIComponent(currentPath)}`,
+    );
   }
 
   const lesson = await getLesson(course.id, lessonSlug);

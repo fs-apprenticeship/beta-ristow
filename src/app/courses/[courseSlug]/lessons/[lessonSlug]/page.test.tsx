@@ -8,16 +8,9 @@ import { OnboardingQuestionFactory } from "@/test/factories/onboarding-question-
 
 import LessonPage from "./page";
 
-const { redirectMock, requireCurrentAccountMock, setCookieMock } = vi.hoisted(
-  () => ({
-    redirectMock: vi.fn(),
-    requireCurrentAccountMock: vi.fn(),
-    setCookieMock: vi.fn(),
-  }),
-);
-
-vi.mock("@/lib/cookie-store", () => ({
-  setCookie: setCookieMock,
+const { redirectMock, requireCurrentAccountMock } = vi.hoisted(() => ({
+  redirectMock: vi.fn(),
+  requireCurrentAccountMock: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -35,7 +28,6 @@ describe("Lesson page", () => {
   afterEach(() => {
     redirectMock.mockClear();
     requireCurrentAccountMock.mockClear();
-    setCookieMock.mockReset();
   });
 
   it("redirects to onboarding when the learner still has a question to answer", async () => {
@@ -59,12 +51,8 @@ describe("Lesson page", () => {
     });
 
     await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
-    expect(setCookieMock).toHaveBeenCalledWith(
-      "afterOnboardingPath",
-      `/courses/${course.slug}/lessons/${lesson.slug}`,
-    );
     expect(redirectMock).toHaveBeenCalledWith(
-      `/courses/${course.slug}/onboarding`,
+      `/courses/${course.slug}/onboarding?returnTo=%2Fcourses%2F${course.slug}%2Flessons%2F${lesson.slug}`,
     );
   });
 

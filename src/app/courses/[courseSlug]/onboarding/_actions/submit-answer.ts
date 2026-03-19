@@ -11,11 +11,11 @@ const answerSchema = z.object({
   id: z.string().trim().min(1),
 });
 
-export async function submitAnswer(courseSlug: string, formData: FormData) {
+export async function submitAnswer(redirectTo: string, formData: FormData) {
   const { id: learnerId } = await requireCurrentAccount();
   const { answer, id } = answerSchema.parse(Object.fromEntries(formData));
 
   await answerQuestion({ answer, id, learnerId });
 
-  redirect(`/courses/${courseSlug}/onboarding`);
+  redirect(redirectTo);
 }
