@@ -17,10 +17,13 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const forceRedirectUrl = getAuthRedirectUrl(redirectUrl);
 
   return (
-    <SignIn
-      forceRedirectUrl={forceRedirectUrl}
-      signUpForceRedirectUrl={forceRedirectUrl}
-      signUpUrl={signUpUrl}
-    />
+    // @ts-expect-error React typings do not include the legacy align attribute.
+    <div align="center">
+      <SignIn
+        forceRedirectUrl={forceRedirectUrl}
+        signUpForceRedirectUrl={forceRedirectUrl}
+        signUpUrl={signUpUrl}
+      />
+    </div>
   );
 }
