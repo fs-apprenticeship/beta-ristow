@@ -1,15 +1,17 @@
 import getClient from "@/lib/prisma/get-client";
 
-export async function saveChallengeToDB(challengeData: any) {
-    const prisma = getClient();
+import { ChallengeData } from "./types";
 
-    return await prisma.challenge.create({
-        data: {
-            prompt: challengeData.prompt,
-            starterCode: challengeData.starterCode,
-            solution: challengeData.solution,
-            difficulty: challengeData.difficulty,
-            language: challengeData.language,
-        },
-    });
+export async function saveChallengeToDB(challengeData: ChallengeData) {
+  const prisma = getClient();
+
+  return await prisma.challenge.create({
+    data: {
+      difficulty: challengeData.difficulty,
+      language: challengeData.language,
+      prompt: challengeData.prompt,
+      solution: challengeData.solution,
+      starterCode: challengeData.starterCode,
+    },
+  });
 }
