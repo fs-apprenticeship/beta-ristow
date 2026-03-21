@@ -12,12 +12,21 @@ interface Challenge {
   starterCode?: string;
 }
 
+interface Evaluation {
+  correct: boolean;
+  feedback: string;
+}
+
 export default function ChallengePage() {
   const params = useParams();
   const id = params.id as string;
 
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [userCode, setUserCode] = useState("");
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+  const [running, setRunning] = useState(false);
 
   useEffect(() => {
     async function fetchChallenge() {
@@ -29,6 +38,7 @@ export default function ChallengePage() {
         if (!res.ok) throw new Error("Failed to fetch challenge");
         const data: Challenge = await res.json();
         setChallenge(data);
+        setUserCode(data.starterCode || "");
       } catch (err) {
         console.error(err);
         setChallenge(null);
@@ -38,6 +48,29 @@ export default function ChallengePage() {
     }
     fetchChallenge();
   }, [id]);
+
+  const handleRun = async () => {
+    if (!challenge) return;
+
+    setRunning(true);
+    setEvaluation(null);
+    try {
+      const res = await fetch(`/api/code-challenges/${challenge.id}/evaluate`, {
+        body: JSON.stringify({ userCode }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+
+      if (!res.ok) throw new Error("Evaluation failed");
+      const data: Evaluation = await res.json();
+      setEvaluation(data);
+    } catch (err) {
+      console.error(err);
+      setEvaluation({ correct: false, feedback: "Evaluation failed" });
+    } finally {
+      setRunning(false);
+    }
+  };
 
   if (loading && !challenge) return <div>Loading...</div>;
   if (!challenge) return <div>Challenge not found</div>;
@@ -59,10 +92,33 @@ export default function ChallengePage() {
           <CodeMirror
             extensions={[python()]}
             height="300px"
-            value={challenge.starterCode || ""}
+            onChange={(value) => setUserCode(value)}
+            value={userCode}
           />
         </div>
       </div>
+
+      {/* Run Button */}
+      <button
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+        disabled={running}
+        onClick={handleRun}
+      >
+        {running ? "Running..." : "Run"}
+      </button>
+
+      {/* Evaluation Feedbac */}
+      {evaluation && (
+        <div className="mt-4 p-4 border rounded-md bg-gray-100">
+          <p>
+            <strong>Result:</strong>{" "}
+            {evaluation.correct ? "✅ Correct" : "❌ Incorrect"}
+          </p>
+          <p>
+            <strong>Feedback:</strong> {evaluation.feedback}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
