@@ -63,6 +63,7 @@ export default function ChallengePage() {
 
       if (!res.ok) throw new Error("Evaluation failed");
       const data: Evaluation = await res.json();
+      console.log(data);
       setEvaluation(data);
     } catch (err) {
       console.error(err);
@@ -123,7 +124,7 @@ export default function ChallengePage() {
       )}
 
       {/* User Solution */}
-      <div className="mt-16 max-w-xl mx-auto">
+      <div className="mt-16 mb-16 max-w-xl mx-auto">
         <h2 className="font-medium mb-4 text-lg">Your Solution</h2>
         <div className="border border-gray-300 rounded-md">
           <CodeMirror
