@@ -88,8 +88,15 @@ export default function ChallengePage() {
 
       if (!res.ok) throw new Error("Submission failed");
 
-      const data: Evaluation = await res.json();
-      setEvaluation(data);
+      const data = await res.json();
+
+      setEvaluation({
+        correct: data.submission?.correct ?? false,
+        feedback:
+          data.submission?.feedback ??
+          data.msg ??
+          "Submission saved (no evaluation yet)",
+      });
     } catch (err) {
       console.error(err);
       setEvaluation({ correct: false, feedback: "Submission failed" });
@@ -110,6 +117,11 @@ export default function ChallengePage() {
           {challenge.prompt}
         </div>
       </div>
+      {submitting && (
+        <div className="mt-4 flex justify-center">
+          <div className="w-6 h-6 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
 
       {/* User Solution */}
       <div className="mt-16 max-w-xl mx-auto">
@@ -132,6 +144,7 @@ export default function ChallengePage() {
         >
           {running ? "Running..." : "Run"}
         </button>
+        {/* Submit button */}
         <button
           className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
           disabled={running || submitting}
