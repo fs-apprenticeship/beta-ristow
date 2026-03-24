@@ -131,3 +131,37 @@ model LessonItem {
   @@index([learnerId])
   @@map("lesson_items")
 }
+
+model Challenge {
+  id String @id @default(uuid()) @db.Uuid
+
+  prompt      String  @db.Text
+  starterCode String? @map("starter_code") @db.Text
+  solution    String? @db.Text
+  difficulty  String
+  language    String  @default("python")
+
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  submissions ChallengeSubmission[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("challenges")
+}
+
+model ChallengeSubmission {
+  id          String  @id @default(uuid()) @db.Uuid
+  challengeId String  @map("challenge_id") @db.Uuid
+  userCode    String  @map("user_code") @db.Text
+  feedback    String  @db.Text
+  correct     Boolean
+
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([challengeId])
+  @@map("challenge_submissions")
+}
