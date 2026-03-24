@@ -13,7 +13,7 @@ export default function GenerateChallengePage() {
   const params = useParams();
 
   // Grab the parent slugs from the route
-  const courseSlug = params.couseSlug;
+  const courseSlug = params.courseSlug;
   const lessonSlug = params.lessonSlug;
 
   const handleGenerate = async () => {
