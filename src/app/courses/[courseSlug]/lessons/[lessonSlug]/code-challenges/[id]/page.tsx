@@ -144,7 +144,6 @@ export default function ChallengePage() {
         >
           {running ? "Running..." : "Run"}
         </button>
-        {/* Submit button */}
         <button
           className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
           disabled={running || submitting}

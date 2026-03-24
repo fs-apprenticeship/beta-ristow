@@ -33,7 +33,18 @@ export async function POST(
         err: err instanceof Error ? err.message : "Unknown error",
         msg: "Server error during submission.",
       }),
-      { headers: { "Content-Type": "application/json" }, status: 500 },
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 500,
+      },
     );
   }
+  return new Response(
+    JSON.stringify({
+      msg: "Submission received. (Evaluation not implemented yet.)",
+    }),
+    {
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 }
