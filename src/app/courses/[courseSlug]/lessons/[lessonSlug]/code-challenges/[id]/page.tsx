@@ -27,6 +27,7 @@ export default function ChallengePage() {
   const [userCode, setUserCode] = useState("");
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [running, setRunning] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchChallenge() {
@@ -72,6 +73,31 @@ export default function ChallengePage() {
     }
   };
 
+  const handleSubmit = async () => {
+    if (!challenge) return;
+
+    setSubmitting(true);
+    setEvaluation(null);
+
+    try {
+      const res = await fetch(`/api/code-challenges/${challenge.id}/submit`, {
+        body: JSON.stringify({ userCode }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+
+      if (!res.ok) throw new Error("Submission failed");
+
+      const data: Evaluation = await res.json();
+      setEvaluation(data);
+    } catch (err) {
+      console.error(err);
+      setEvaluation({ correct: false, feedback: "Submission failed" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading && !challenge) return <div>Loading...</div>;
   if (!challenge) return <div>Challenge not found</div>;
 
@@ -97,16 +123,23 @@ export default function ChallengePage() {
           />
         </div>
       </div>
-
-      {/* Run Button */}
-      <button
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-        disabled={running}
-        onClick={handleRun}
-      >
-        {running ? "Running..." : "Run"}
-      </button>
-
+      <div className="flex gap-4 mt-4">
+        {/* Run Button */}
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          disabled={running || submitting}
+          onClick={handleRun}
+        >
+          {running ? "Running..." : "Run"}
+        </button>
+        <button
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+          disabled={running || submitting}
+          onClick={handleSubmit}
+        >
+          {submitting ? "Submitting..." : "Submit"}
+        </button>
+      </div>
       {/* Evaluation Feedbac */}
       {evaluation && (
         <div className="mt-4 p-4 border rounded-md bg-gray-100">
