@@ -23,7 +23,7 @@ export default function ChallengePage() {
 
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [submitting, setSubmitting] = useState(false);
   const [userCode, setUserCode] = useState("");
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [running, setRunning] = useState(false);
@@ -143,6 +143,13 @@ export default function ChallengePage() {
         onClick={handleRun}
       >
         {running ? "Running..." : "Run"}
+      </button>
+      <button
+        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+        disabled={running || submitting}
+        onClick={handleSubmit}
+      >
+        {submitting ? "Submitting..." : "Submit"}
       </button>
 
       {/* Evaluation Feedbac */}
