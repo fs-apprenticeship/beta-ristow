@@ -23,11 +23,10 @@ export default function ChallengePage() {
 
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [submitting, setSubmitting] = useState(false);
   const [userCode, setUserCode] = useState("");
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [running, setRunning] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchChallenge() {
@@ -64,6 +63,7 @@ export default function ChallengePage() {
 
       if (!res.ok) throw new Error("Evaluation failed");
       const data: Evaluation = await res.json();
+      console.log(data);
       setEvaluation(data);
     } catch (err) {
       console.error(err);
@@ -124,7 +124,7 @@ export default function ChallengePage() {
       )}
 
       {/* User Solution */}
-      <div className="mt-16 max-w-xl mx-auto">
+      <div className="mt-16 mb-16 max-w-xl mx-auto">
         <h2 className="font-medium mb-4 text-lg">Your Solution</h2>
         <div className="border border-gray-300 rounded-md">
           <CodeMirror
@@ -135,23 +135,23 @@ export default function ChallengePage() {
           />
         </div>
       </div>
-      <div className="flex gap-4 mt-4">
-        {/* Run Button */}
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-          disabled={running || submitting}
-          onClick={handleRun}
-        >
-          {running ? "Running..." : "Run"}
-        </button>
-        <button
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-          disabled={running || submitting}
-          onClick={handleSubmit}
-        >
-          {submitting ? "Submitting..." : "Submit"}
-        </button>
-      </div>
+
+      {/* Run Button */}
+      <button
+        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+        disabled={running}
+        onClick={handleRun}
+      >
+        {running ? "Running..." : "Run"}
+      </button>
+      <button
+        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+        disabled={running || submitting}
+        onClick={handleSubmit}
+      >
+        {submitting ? "Submitting..." : "Submit"}
+      </button>
+
       {/* Evaluation Feedbac */}
       {evaluation && (
         <div className="mt-4 p-4 border rounded-md bg-gray-100">

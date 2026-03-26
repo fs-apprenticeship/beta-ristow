@@ -31,10 +31,17 @@ ${userCode}
 Instructions:
 - Return true ONLY if the user's code fully solves the problem.
 - Consider edge cases.
-- Do not execute the code; evaluate logic and correctness.
+- Evaluate logic and correctness.
+- Line number of error code if it is error.
+- print any prints or console logs.
+- return the output if the code is run.
+- If the code runs, accept the code and provide feedback for an optimal solution.
 - Return JSON only in this format:
 {
     "correct": true|false,
+    "stdout": "if there are prints or console logs, print it out"
+    "error-code": "error description and line of the error code"
+    "output": "If the code runs, provide the output"
     "feedback": "Explain why the solution is correct or what is missing."
 }
 `;

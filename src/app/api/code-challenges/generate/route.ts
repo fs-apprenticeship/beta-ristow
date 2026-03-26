@@ -15,7 +15,11 @@ export async function POST(req: Request) {
     // Save to DB using Prisma
     const savedChallenge = await saveChallengeToDB(challengeData);
 
-    return Response.json(savedChallenge);
+    // Only return the ID for frontend routing
+    return new Response(JSON.stringify({ id: savedChallenge.id }), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error: unknown) {
     console.error(error);
     return new Response(

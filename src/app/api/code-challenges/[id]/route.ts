@@ -6,7 +6,6 @@ export async function GET(
 ) {
   try {
     const params = await context.params;
-
     console.log("PARAMS:", params); // 👈 add this
 
     if (!params?.id) {
