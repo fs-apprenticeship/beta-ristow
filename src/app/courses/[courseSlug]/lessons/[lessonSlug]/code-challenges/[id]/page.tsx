@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { getChallengeByIdAction } from "../_actions/get-challenge-action";
-import CodeEditor from "../_components/code-editor";
+import ChallengePageClient from "../_components/challenge-page-client";
 
 interface Params {
   id: string;
@@ -30,8 +30,11 @@ export default async function ChallengePage({ params }: { params: Params }) {
         </pre>
       </section>
 
-      {/* Starter Code */}
-      <CodeEditor code={challenge.starterCode ?? ""} />
+      {/* Interactive Editor + Run */}
+      <ChallengePageClient
+        challengeId={challenge.id}
+        starterCode={challenge.starterCode ?? ""}
+      />
     </div>
   );
 }

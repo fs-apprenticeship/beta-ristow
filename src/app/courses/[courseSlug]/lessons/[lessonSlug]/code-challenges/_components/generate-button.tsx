@@ -3,17 +3,17 @@
 import React from "react";
 import { useFormStatus } from "react-dom";
 
-type SubmitButtonProps = {
+type GenerateButtonProps = {
   children: React.ReactNode;
   className?: string;
   pendingText?: string;
 };
 
-export function SubmitButton({
+export function GenerateButton({
   children,
   className = "",
-  pendingText = "Submitting...",
-}: SubmitButtonProps) {
+  pendingText = "Generating...",
+}: GenerateButtonProps) {
   const { pending } = useFormStatus();
 
   return (

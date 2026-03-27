@@ -1,5 +1,5 @@
 import { generateChallengeAction } from "../_actions/generage-challenge-action";
-import { SubmitButton } from "../_components/submit-button";
+import { GenerateButton } from "../_components/generate-button";
 
 export default async function GenerateChallengePage({
   params,
@@ -38,9 +38,9 @@ export default async function GenerateChallengePage({
           />
         </label>
 
-        <SubmitButton pendingText="Generating...">
+        <GenerateButton pendingText="Generating...">
           Generate Challenge
-        </SubmitButton>
+        </GenerateButton>
       </form>
     </main>
   );
