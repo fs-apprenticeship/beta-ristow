@@ -5,7 +5,6 @@ import getClient from "@/lib/prisma/get-client";
 const prisma = getClient();
 const openai = new OpenAI();
 
-
 interface Article {
   conclusion: string;
   intro: string;
@@ -39,12 +38,10 @@ const ARTICLE_JSON_FORMAT = {
   type: "json_schema",
 } as const;
 
-
 export default async function* generateArticle(
   lessonId: string,
   courseId: string,
 ): AsyncGenerator<string> {
-
   const [course, lesson] = await Promise.all([
     prisma.course.findUniqueOrThrow({ where: { id: courseId } }),
     prisma.lesson.findUniqueOrThrow({ where: { courseId, id: lessonId } }),
