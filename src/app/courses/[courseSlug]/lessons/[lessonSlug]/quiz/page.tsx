@@ -5,7 +5,7 @@ import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
 import onboard from "@/features/onboarding/onboard";
 import buildQuizContext from "@/features/quiz/build-quiz-context";
-import QuizForm from "@/features/quiz/components/quiz-form";
+import QuizSession from "@/features/quiz/components/quiz-session";
 import generateQuiz from "@/features/quiz/generate-quiz";
 
 export const dynamic = "force-dynamic";
@@ -36,8 +36,7 @@ export default async function LessonQuizPage({
 
   return (
     <main>
-      <h1>{quiz.title}</h1>
-      <QuizForm quiz={quiz} />
+      <QuizSession context={context} quiz={quiz} />
     </main>
   );
 }
