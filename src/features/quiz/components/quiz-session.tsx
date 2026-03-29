@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import submitQuiz from "../submit-quiz";
+import submitQuiz from "../actions/submit-quiz";
 import { GeneratedQuiz, QuizContext, QuizFeedback, UserAnswer } from "../types";
 import QuizFeedbackView from "./quiz-feedback-view";
 import QuizFormView from "./quiz-form-view";
