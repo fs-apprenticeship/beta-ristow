@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import getLessonArticle from "@/features/article/get-lesson-article";
 import { AccountFactory } from "@/test/factories/account-factory";
 import { CourseFactory } from "@/test/factories/course-factory";
 import { LessonFactory } from "@/test/factories/lesson-factory";
@@ -20,14 +21,23 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
+vi.mock("@/features/article/get-lesson-article", () => ({
+  default: vi.fn(),
+}));
+
 vi.mock("@/features/identity/actions/require-current-account", () => ({
   default: requireCurrentAccountMock,
 }));
 
 describe("Lesson page", () => {
+  beforeEach(() => {
+    vi.mocked(getLessonArticle).mockResolvedValue(null);
+  });
+
   afterEach(() => {
     redirectMock.mockClear();
     requireCurrentAccountMock.mockClear();
+    vi.mocked(getLessonArticle).mockReset();
   });
 
   it("redirects to onboarding when the learner still has a question to answer", async () => {
