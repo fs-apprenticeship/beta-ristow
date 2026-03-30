@@ -1,0 +1,201 @@
+"use client";
+
+import React, { useRef } from "react";
+
+interface Conversation {
+  content: string;
+  role: string;
+}
+
+export default function Home({
+  params,
+}: {
+  params: { courseSlug: string; lessonSlug: string };
+}) {
+  const [value, setValue] = React.useState<string>("");
+  const [conversation, setConversation] = React.useState<Conversation[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleInput = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setValue(e.target.value);
+    },
+    [],
+  );
+
+  const sendMessage = async (message: string) => {
+    const chatHistory = [...conversation, { content: message, role: "user" }];
+    const response = await fetch(
+      `/api/courses/${params.courseSlug}/lessons/${params.lessonSlug}/chat`,
+      {
+        body: JSON.stringify({ messages: chatHistory }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      },
+    );
+
+    const data = await response.json();
+
+    setValue("");
+    setConversation([
+      ...chatHistory,
+      { content: data.result.choices[0].message.content, role: "assistant" },
+    ]);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && value.trim()) {
+      sendMessage(value.trim());
+    }
+  };
+
+  const handleSend = () => {
+    if (value.trim()) {
+      sendMessage(value.trim());
+    }
+  };
+
+  return (
+    <>
+      <style>{`
+        .chat-page {
+          min-height: 100vh;
+        }
+        .chat-header {
+          text-align: center;
+          padding: var(--pico-spacing) 0 calc(var(--pico-spacing) * 3);
+        }
+        .chat-header h1 {
+          font-size: 3.5rem;
+          font-weight: 700;
+          margin-bottom: var(--pico-spacing);
+        }
+        .chat-header p {
+          opacity: 0.7;
+          font-size: 1.1rem;
+        }
+        .chat-area {
+          min-height: 500px;
+          margin-bottom: calc(var(--pico-spacing) * 4);
+        }
+        .chat-empty {
+          text-align: center;
+          opacity: 0.6;
+          padding: calc(var(--pico-spacing) * 6) 0;
+          font-size: 1.1rem;
+        }
+        .chat-row {
+          display: flex;
+          width: 100%;
+          margin-bottom: calc(var(--pico-spacing) * 1.5);
+        }
+        .chat-row.user { justify-content: flex-end; }
+        .chat-row.assistant { justify-content: flex-start; }
+        .chat-bubble {
+          max-width: 72%;
+          padding: var(--pico-spacing) calc(var(--pico-spacing) * 1.25);
+          border-radius: var(--pico-border-radius);
+          line-height: 1.6;
+          font-size: 0.97rem;
+          margin: 0;
+        }
+        .chat-user {
+          background-color: var(--pico-secondary-background);
+          color: var(--pico-secondary-inverse);
+          border-bottom-left-radius: 4px;
+        }
+        .chat-assistant {
+          background-color: var(--pico-primary-background);
+          color: var(--pico-primary-inverse);
+          border-bottom-right-radius: 4px;
+        }
+        .bubble-label {
+          display: block;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          opacity: 0.75;
+          margin-bottom: calc(var(--pico-spacing) * 0.5);
+        }
+        .chat-input-area {
+          position: sticky;
+          bottom: var(--pico-spacing);
+          background: var(--pico-background-color);
+          padding-top: var(--pico-spacing);
+        }
+        .chat-input-row {
+          display: flex;
+          gap: var(--pico-spacing);
+          align-items: center;
+        }
+        .chat-input-row input {
+          flex: 1;
+          margin: 0;
+        }
+        .chat-input-row button {
+          margin: 0;
+          width: auto;
+        }
+        .chat-hint {
+          text-align: center;
+          font-size: 0.75rem;
+          opacity: 0.5;
+          margin-top: calc(var(--pico-spacing) * 0.5);
+        }
+      `}</style>
+
+      <main className="container chat-page">
+        <section className="chat-header">
+          <h1>Hi there, I am AVA</h1>
+          <p>Ask me anything</p>
+        </section>
+
+        <div className="chat-area">
+          {conversation.length === 0 && (
+            <p className="chat-empty">Your conversation will appear here...</p>
+          )}
+          {conversation.map((item, index) => {
+            const isUser = item.role === "user";
+            return (
+              <div
+                className={`chat-row ${isUser ? "user" : "assistant"}`}
+                key={index}
+              >
+                <article
+                  className={`chat-bubble ${isUser ? "chat-user" : "chat-assistant"}`}
+                >
+                  <span className="bubble-label">{isUser ? "YOU" : "AVA"}</span>
+                  <p
+                    style={{
+                      margin: 0,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {item.content}
+                  </p>
+                </article>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="chat-input-area">
+          <div className="chat-input-row">
+            <input
+              onChange={handleInput}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter a message"
+              ref={inputRef}
+              type="text"
+              value={value}
+            />
+            <button onClick={handleSend}>Send</button>
+          </div>
+          <p className="chat-hint">Press Enter to send</p>
+        </div>
+      </main>
+    </>
+  );
+}
