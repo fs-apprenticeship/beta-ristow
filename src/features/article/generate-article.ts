@@ -38,35 +38,16 @@ const ARTICLE_JSON_FORMAT = {
   type: "json_schema",
 } as const;
 
-export default async function* generateArticle(
+export async function getOrGenerateLessonArticle(
   lessonId: string,
   courseId: string,
-): AsyncGenerator<string> {
-  const [course, lesson] = await Promise.all([
-    prisma.course.findUniqueOrThrow({ where: { id: courseId } }),
-    prisma.lesson.findUniqueOrThrow({ where: { courseId, id: lessonId } }),
-  ]);
-
-  const response = await openai.responses.create({
-    input: [
-      { content: buildInstructions(), role: "developer" },
-      { content: await buildPrompt(lesson, course), role: "user" },
-    ],
-    max_output_tokens: 1000,
-    model: "gpt-4o-2024-08-06",
-    temperature: 0.7,
-    text: { format: ARTICLE_JSON_FORMAT },
+): Promise<Article> {
+  const existing = await prisma.lessonArticle.findUnique({
+    where: { lessonId },
   });
+  if (existing) return existing.content as unknown as Article;
 
-  const article = JSON.parse(response.output_text) as Article;
-  yield article.intro;
-  yield "\n";
-  for (const section of article.sections) {
-    yield section.content;
-    yield "\n";
-  }
-  yield article.conclusion;
-  yield "\n";
+  return generateAndPersistArticle(lessonId, courseId);
 }
 
 function buildInstructions() {
@@ -109,4 +90,50 @@ async function buildPrompt(
 `
     .replace(/\s+/g, " ")
     .trim();
+}
+
+async function generateAndPersistArticle(
+  lessonId: string,
+  courseId: string,
+): Promise<Article> {
+  const [course, lesson] = await Promise.all([
+    prisma.course.findUniqueOrThrow({ where: { id: courseId } }),
+    prisma.lesson.findUniqueOrThrow({ where: { courseId, id: lessonId } }),
+  ]);
+
+  const response = await openai.responses.create({
+    input: [
+      { content: buildInstructions(), role: "developer" },
+      { content: await buildPrompt(lesson, course), role: "user" },
+    ],
+    max_output_tokens: 8192,
+    model: "gpt-4o-2024-08-06",
+    temperature: 0.7,
+    text: { format: ARTICLE_JSON_FORMAT },
+  });
+
+  if (
+    response.status === "incomplete" &&
+    response.incomplete_details?.reason === "max_output_tokens"
+  ) {
+    throw new Error("Lesson article hit the model output limit.");
+  }
+
+  let article: Article;
+  try {
+    article = JSON.parse(response.output_text) as Article;
+  } catch {
+    throw new Error(
+      "Lesson article response was not valid JSON (often caused by truncation).",
+    );
+  }
+  const content = JSON.parse(JSON.stringify(article));
+
+  await prisma.lessonArticle.upsert({
+    create: { content, lessonId },
+    update: { content },
+    where: { lessonId },
+  });
+
+  return article;
 }

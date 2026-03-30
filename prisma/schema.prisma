@@ -100,8 +100,9 @@ model Lesson {
   position    Int
 
   /// prisma-lint-ignore-field require-default-empty-arrays
-  lessonItems LessonItem[]
-  course      Course       @relation(fields: [courseId], references: [id])
+  lessonItems   LessonItem[]
+  lessonArticle LessonArticle?
+  course        Course         @relation(fields: [courseId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -109,6 +110,19 @@ model Lesson {
   @@unique([courseId, slug])
   @@unique([courseId, position])
   @@map("lessons")
+}
+
+model LessonArticle {
+  id       String @id @default(uuid()) @db.Uuid
+  lessonId String @unique @map("lesson_id") @db.Uuid
+  content  Json
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("lesson_articles")
 }
 
 model LessonItem {
