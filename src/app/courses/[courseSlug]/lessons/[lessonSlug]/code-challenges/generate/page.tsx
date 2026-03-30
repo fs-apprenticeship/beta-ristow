@@ -1,4 +1,4 @@
-import { generateChallengeAction } from "../_actions/generage-challenge-action";
+import { generateChallengeAction } from "../_actions/generate-challenge-action";
 import { GenerateButton } from "../_components/generate-button";
 
 export default async function GenerateChallengePage({
