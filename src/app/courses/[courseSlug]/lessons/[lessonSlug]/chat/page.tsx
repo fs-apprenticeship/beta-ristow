@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface Conversation {
   content: string;
@@ -173,7 +174,7 @@ export default function Home({
                       wordBreak: "break-word",
                     }}
                   >
-                    {item.content}
+                    <ReactMarkdown>{item.content}</ReactMarkdown>
                   </p>
                 </article>
               </div>
