@@ -68,14 +68,10 @@ describe("generateQuizFeedback", () => {
       passed: true,
       questionFeedback: [
         {
-          feedback: "Correct. A variable stores a value.",
+          chosenAnswer: "A storage location for data",
+          feedback: "Correct.",
           isCorrect: true,
-          questionId: "q1",
-        },
-        {
-          feedback: "Correct. int is a primitive type in Java.",
-          isCorrect: true,
-          questionId: "q2",
+          question: "What is a variable?",
         },
       ],
     };
@@ -92,8 +88,10 @@ describe("generateQuizFeedback", () => {
       "Great job. You understood the main concepts well.",
     );
     expect(result.passed).toBe(true);
-    expect(result.questionFeedback).toHaveLength(2);
-    expect(result.questionFeedback[0]?.questionId).toBe("q1");
+    expect(result.questionFeedback[0]?.question).toBe("What is a variable?");
+    expect(result.questionFeedback[0]?.chosenAnswer).toBe(
+      "A storage location for data",
+    );
   });
 
   it("throws when the parsed feedback shape is invalid", async () => {

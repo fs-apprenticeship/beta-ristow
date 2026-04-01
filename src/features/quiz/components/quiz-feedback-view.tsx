@@ -1,26 +1,24 @@
 "use client";
 
-import { GeneratedQuiz, QuizFeedback, UserAnswer } from "../types";
+import { QuizFeedback } from "../types";
 
 type QuizFeedbackViewProps = {
-  answers: UserAnswer[];
   feedback: QuizFeedback;
   onBackToQuiz: () => void;
-  quiz: GeneratedQuiz;
+  quizTitle: string;
 };
 
 export default function QuizFeedbackView({
-  answers,
   feedback,
   onBackToQuiz,
-  quiz,
+  quizTitle,
 }: QuizFeedbackViewProps) {
   return (
     <section>
       <h2>Quiz Feedback</h2>
 
       <p>
-        <strong>Quiz:</strong> {quiz.title}
+        <strong>Quiz:</strong> {quizTitle}
       </p>
 
       <p>
@@ -36,31 +34,24 @@ export default function QuizFeedbackView({
       <h3>Question Feedback</h3>
 
       <ul>
-        {feedback.questionFeedback.map((item) => {
-          const userAnswer = answers.find(
-            (answer) => answer.questionId === item.questionId,
-          );
-
-          return (
-            <li key={item.questionId}>
+        {feedback.questionFeedback.map((item, index) => (
+          <li key={`${item.question}-${index}`}>
+            <p>
+              <strong>Question:</strong> {item.question}
+            </p>
+            <p>
+              <strong>Chosen Answer:</strong> {item.chosenAnswer}
+            </p>
+            {typeof item.isCorrect === "boolean" && (
               <p>
-                <strong>Question ID:</strong> {item.questionId}
+                <strong>Correct:</strong> {item.isCorrect ? "Yes" : "No"}
               </p>
-              <p>
-                <strong>Selected Option:</strong>{" "}
-                {userAnswer?.selectedOptionId ?? "N/A"}
-              </p>
-              {typeof item.isCorrect === "boolean" && (
-                <p>
-                  <strong>Correct:</strong> {item.isCorrect ? "Yes" : "No"}
-                </p>
-              )}
-              <p>
-                <strong>Feedback:</strong> {item.feedback}
-              </p>
-            </li>
-          );
-        })}
+            )}
+            <p>
+              <strong>Feedback:</strong> {item.feedback}
+            </p>
+          </li>
+        ))}
       </ul>
 
       <button onClick={onBackToQuiz} type="button">

@@ -4,9 +4,10 @@ export type GeneratedQuiz = {
 };
 
 export type QuestionFeedback = {
+  chosenAnswer: string;
   feedback: string;
   isCorrect?: boolean;
-  questionId: string;
+  question: string;
 };
 
 export type QuizContext = {

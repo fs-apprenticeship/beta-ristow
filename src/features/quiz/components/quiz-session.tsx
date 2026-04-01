@@ -42,10 +42,9 @@ export default function QuizSession({ context, quiz }: QuizSessionProps) {
   if (status === "submitted" && submittedAnswers && feedback) {
     return (
       <QuizFeedbackView
-        answers={submittedAnswers}
         feedback={feedback}
         onBackToQuiz={() => setStatus("answering")}
-        quiz={quiz}
+        quizTitle={quiz.title}
       />
     );
   }

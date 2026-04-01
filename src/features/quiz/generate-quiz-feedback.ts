@@ -6,9 +6,10 @@ import parseJsonResponse from "@/lib/openai/parse-json-response";
 import type { QuizFeedback, QuizSubmission } from "./types";
 
 const questionFeedbackSchema = z.object({
+  chosenAnswer: z.string(),
   feedback: z.string(),
   isCorrect: z.boolean().optional(),
-  questionId: z.string(),
+  question: z.string(),
 });
 
 const quizFeedbackSchema = z.object({
@@ -53,6 +54,21 @@ export default async function generateQuizFeedback({
 }
 
 function generatePrompt({ answers, context, quiz }: QuizSubmission): string {
+  const answerDetails = answers.map((answer) => {
+    const question = quiz.questions.find(
+      (item) => item.id === answer.questionId,
+    );
+
+    const selectedOption = question?.options.find(
+      (option) => option.id === answer.selectedOptionId,
+    );
+
+    return {
+      chosenAnswer: selectedOption?.text ?? answer.selectedOptionId,
+      question: question?.prompt ?? answer.questionId,
+    };
+  });
+
   return `
 Evaluate the following quiz submission.
 
@@ -62,7 +78,8 @@ Return JSON in exactly this shape:
   "passed": true,
   "questionFeedback": [
     {
-      "questionId": "q1",
+      "question": "What is a variable in Python?",
+      "chosenAnswer": "A storage location for data",
       "isCorrect": true,
       "feedback": "string"
     }
@@ -79,6 +96,6 @@ Quiz:
 ${JSON.stringify(quiz, null, 2)}
 
 User Answers:
-${JSON.stringify(answers, null, 2)}
+${JSON.stringify(answerDetails, null, 2)}
 `;
 }
