@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
+import CodeBlock from "./codeblock";
 interface Conversation {
   content: string;
   role: string;
@@ -174,7 +175,13 @@ export default function Home({
                       wordBreak: "break-word",
                     }}
                   >
-                    <ReactMarkdown>{item.content}</ReactMarkdown>
+                    <ReactMarkdown
+                      components={{
+                        code: CodeBlock,
+                      }}
+                    >
+                      {item.content}
+                    </ReactMarkdown>
                   </p>
                 </article>
               </div>
