@@ -3,8 +3,10 @@
 import { useState } from "react";
 
 import { evaluateChallengeAction } from "../_actions/evaluate-challenge-action";
+import { submitChallengeAction } from "../_actions/submit-action";
 import CodeEditor from "./code-editor";
 import { RunButton } from "./run-button";
+import { SubmitButton } from "./submit-button";
 
 interface Props {
   challengeId: string;
@@ -51,6 +53,15 @@ export default function ChallengePageClient({
           </div>
         </section>
       )}
+      <div className="mt-3">
+        <SubmitButton
+          onSubmit={async () => {
+            await handleRun();
+            await submitChallengeAction(challengeId, userCode);
+          }}
+          pendingText="Submitting..."
+        />
+      </div>
     </div>
   );
 }
