@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useRef } from "react";
+import ReactMarkdown from "react-markdown";
 
+import CodeBlock from "./codeblock";
 interface Conversation {
   content: string;
   role: string;
@@ -58,91 +60,126 @@ export default function Home({
   return (
     <>
       <style>{`
-        .chat-page {
-          min-height: 100vh;
-        }
-        .chat-header {
-          text-align: center;
-          padding: var(--pico-spacing) 0 calc(var(--pico-spacing) * 3);
-        }
-        .chat-header h1 {
-          font-size: 3.5rem;
-          font-weight: 700;
-          margin-bottom: var(--pico-spacing);
-        }
-        .chat-header p {
-          opacity: 0.7;
-          font-size: 1.1rem;
-        }
-        .chat-area {
-          min-height: 500px;
-          margin-bottom: calc(var(--pico-spacing) * 4);
-        }
-        .chat-empty {
-          text-align: center;
-          opacity: 0.6;
-          padding: calc(var(--pico-spacing) * 6) 0;
-          font-size: 1.1rem;
-        }
-        .chat-row {
-          display: flex;
-          width: 100%;
-          margin-bottom: calc(var(--pico-spacing) * 1.5);
-        }
-        .chat-row.user { justify-content: flex-end; }
-        .chat-row.assistant { justify-content: flex-start; }
-        .chat-bubble {
-          max-width: 72%;
-          padding: var(--pico-spacing) calc(var(--pico-spacing) * 1.25);
-          border-radius: var(--pico-border-radius);
-          line-height: 1.6;
-          font-size: 0.97rem;
-          margin: 0;
-        }
-        .chat-user {
-          background-color: var(--pico-secondary-background);
-          color: var(--pico-secondary-inverse);
-          border-bottom-left-radius: 4px;
-        }
-        .chat-assistant {
-          background-color: var(--pico-primary-background);
-          color: var(--pico-primary-inverse);
-          border-bottom-right-radius: 4px;
-        }
-        .bubble-label {
-          display: block;
-          font-size: 0.7rem;
-          font-weight: 700;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          opacity: 0.75;
-          margin-bottom: calc(var(--pico-spacing) * 0.5);
-        }
-        .chat-input-area {
-          position: sticky;
-          bottom: var(--pico-spacing);
-          background: var(--pico-background-color);
-          padding-top: var(--pico-spacing);
-        }
-        .chat-input-row {
-          display: flex;
-          gap: var(--pico-spacing);
-          align-items: center;
-        }
-        .chat-input-row input {
-          flex: 1;
-          margin: 0;
-        }
-        .chat-input-row button {
-          margin: 0;
-          width: auto;
-        }
-        .chat-hint {
-          text-align: center;
-          font-size: 0.75rem;
-          opacity: 0.5;
-          margin-top: calc(var(--pico-spacing) * 0.5);
-        }
+      .chat-page {
+        min-height: 100vh;
+      }
+      .chat-header {
+        text-align: center;
+        padding: var(--pico-spacing) 0 calc(var(--pico-spacing) * 3);
+      }
+      .chat-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: var(--pico-spacing);
+      }
+      .chat-header p {
+        opacity: 0.7;
+        font-size: 1.1rem;
+      }
+      .chat-area {
+        min-height: 500px;
+        margin-bottom: calc(var(--pico-spacing) * 4);
+        padding: var(--pico-spacing);
+        border-radius: var(--pico-border-radius);
+        gap: var(--pico-spacing);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* soft inner shadow */
+      }
+      .chat-empty {
+        text-align: center;
+        opacity: 0.6;
+        padding: calc(var(--pico-spacing) * 6) 0;
+        font-size: 1.1rem;
+      }
+      .chat-row {
+        display: flex;
+        width: 100%;
+        margin-bottom: calc(var(--pico-spacing) * 1.5);
+      }
+      .chat-row.user { justify-content: flex-end; }
+      .chat-row.assistant { justify-content: flex-start; }
+      .chat-bubble {
+        max-width: 65%;
+        padding: var(--pico-spacing) calc(var(--pico-spacing) * 1.25);
+        border-radius: var(--pico-border-radius);
+        line-height: 1.6;
+        font-size: 0.97rem;
+        margin: 0;
+        border: 1px solid var(--pico-muted-border-color);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      .chat-bubble pre {
+        background-color: var(--pico-code-background-color);
+        border-radius: var(--pico-border-radius);
+        padding: var(--pico-spacing);
+        font-size: 0.85rem;
+      }
+
+      .chat-bubble code {
+        background-color: var(--pico-code-background-color);
+        padding: 2px 6px;
+        border-radius: calc(var(--pico-border-radius) / 2);
+      }
+
+      .chat-user {
+        background-color: var(--pico-secondary-background);
+        color: var(--pico-secondary-inverse);
+        border-bottom-left-radius: 4px;
+      }
+      .chat-assistant {
+        background-color: var(--pico--card-background-color);
+        color: var(--pico-color);
+        border-bottom-right-radius: 4px;
+      }
+      .bubble-label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.75;
+        margin-bottom: calc(var(--pico-spacing) * 0.5);
+      }
+      .chat-input-area {
+        position: sticky;
+        bottom: 0;
+        background: var(--pico-background-color);
+        padding: var(--pico-spacing);
+        border-top: 1px solid var(--pico-muted-border-color);
+        box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
+      }
+      .chat-input-row {
+        display: flex;
+        gap: var(--pico-spacing);
+        align-items: center;
+      }
+      .chat-input-row input {
+        flex: 1;
+        margin: 0;
+      }
+
+      .chat-input-row input:focus {
+        border-color: var(--pico-color);
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+      }
+
+      .chat-input-row button {
+        margin: 0;
+        width: auto;
+        padding: 0.5em 1.2em;
+        border-radius: var(--pico-border-radius);
+        background-color: var(--pico-color);
+        color: var(--pico-background-color);
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      .chat-hint {
+        text-align: center;
+        font-size: 0.75rem;
+        opacity: 0.5;
+        margin-top: calc(var(--pico-spacing) * 0.5);
+      }
       `}</style>
 
       <main className="container chat-page">
@@ -173,7 +210,13 @@ export default function Home({
                       wordBreak: "break-word",
                     }}
                   >
-                    {item.content}
+                    <ReactMarkdown
+                      components={{
+                        code: CodeBlock,
+                      }}
+                    >
+                      {item.content}
+                    </ReactMarkdown>
                   </p>
                 </article>
               </div>
