@@ -3,6 +3,12 @@ export type GeneratedQuiz = {
   title: string;
 };
 
+export type PersistedQuizAttemptPayload = {
+  answers: UserAnswer[];
+  feedback: QuizFeedback;
+  quiz: GeneratedQuiz;
+};
+
 export type QuestionFeedback = {
   chosenAnswer: string;
   feedback: string;
