@@ -25,6 +25,8 @@ model Account {
   onboardingQuestions OnboardingQuestion[]
   /// prisma-lint-ignore-field require-default-empty-arrays
   lessonItems         LessonItem[]
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  quizAttempts        QuizAttempt[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -102,6 +104,8 @@ model Lesson {
   /// prisma-lint-ignore-field require-default-empty-arrays
   lessonItems   LessonItem[]
   lessonArticle LessonArticle?
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  quizAttempts  QuizAttempt[]
   course        Course         @relation(fields: [courseId], references: [id])
 
   /// prisma-lint-ignore-field require-default-empty-arrays
@@ -183,6 +187,7 @@ model ChallengeSubmission {
   @@map("challenge_submissions")
 }
 
+
 model Quiz {
   id       String @id @default(uuid()) @db.Uuid
   lessonId String @map("lesson_id") @db.Uuid
@@ -192,6 +197,21 @@ model Quiz {
 
   /// prisma-lint-ignore-field require-default-empty-arrays
   questions QuizQuestion[]
+=======
+model QuizAttempt {
+  id        String @id @default(uuid()) @db.Uuid
+  learnerId String @map("learner_id") @db.Uuid
+  lessonId  String @map("lesson_id") @db.Uuid
+
+  score           Int
+  totalQuestions  Int     @map("total_questions")
+  passed          Boolean
+  overallFeedback String  @map("overall_feedback") @db.Text
+  payload         Json
+
+  learner Account @relation(fields: [learnerId], references: [id])
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+>>>>>>> 482b18f (update account and lesson model add quiz attempt persistence model)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -235,4 +255,9 @@ model QuizOption {
   @@unique([questionId, position])
   @@index([questionId])
   @@map("quiz_options")
+=======
+  @@index([learnerId])
+  @@index([lessonId])
+  @@map("quiz_attempts")
+>>>>>>> 482b18f (update account and lesson model add quiz attempt persistence model)
 }
