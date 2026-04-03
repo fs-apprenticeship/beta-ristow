@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
 import CodeBlock from "./codeblock";
+
 interface Conversation {
   content: string;
   role: string;
@@ -16,13 +17,23 @@ export default function Home({
 }) {
   const [value, setValue] = React.useState<string>("");
   const [conversation, setConversation] = React.useState<Conversation[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-grow the textarea - moved up and wrapped in useCallback
+  const autoGrow = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`; // max ~200px
+    }
+  }, []);
 
   const handleInput = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setValue(e.target.value);
+      autoGrow();
     },
-    [],
+    [autoGrow],
   );
 
   const sendMessage = async (message: string) => {
@@ -43,10 +54,18 @@ export default function Home({
       ...chatHistory,
       { content: data.result.choices[0].message.content, role: "assistant" },
     ]);
+
+    // Reset textarea height after sending
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
+    }, 10);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && value.trim()) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey && value.trim()) {
+      e.preventDefault();
       sendMessage(value.trim());
     }
   };
@@ -56,6 +75,11 @@ export default function Home({
       sendMessage(value.trim());
     }
   };
+
+  // Run autoGrow when value changes
+  useEffect(() => {
+    autoGrow();
+  }, [value, autoGrow]);
 
   return (
     <>
@@ -82,7 +106,7 @@ export default function Home({
         padding: var(--pico-spacing);
         border-radius: var(--pico-border-radius);
         gap: var(--pico-spacing);
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* soft inner shadow */
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
       }
       .chat-empty {
         text-align: center;
@@ -113,6 +137,7 @@ export default function Home({
         border-radius: var(--pico-border-radius);
         padding: var(--pico-spacing);
         font-size: 0.85rem;
+        overflow-x: auto;
       }
 
       .chat-bubble code {
@@ -151,28 +176,41 @@ export default function Home({
       .chat-input-row {
         display: flex;
         gap: var(--pico-spacing);
-        align-items: center;
+        align-items: flex-end;
       }
-      .chat-input-row input {
+      .chat-input-row textarea {
         flex: 1;
         margin: 0;
+        padding: 0.75rem;
+        border: 1px solid var(--pico-muted-border-color);
+        border-radius: var(--pico-border-radius);
+        background: var(--pico-background-color);
+        color: var(--pico-color);
+        font-size: 0.97rem;
+        line-height: 1.5;
+        resize: none;
+        min-height: 52px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-family: inherit;
       }
-
-      .chat-input-row input:focus {
+      .chat-input-row textarea:focus {
         border-color: var(--pico-color);
         box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+        outline: none;
       }
-
       .chat-input-row button {
         margin: 0;
         width: auto;
-        padding: 0.5em 1.2em;
+        padding: 0.75em 1.4em;
         border-radius: var(--pico-border-radius);
         background-color: var(--pico-color);
         color: var(--pico-background-color);
         border: none;
         cursor: pointer;
         transition: background 0.2s ease;
+        height: fit-content;
+        align-self: flex-end;
       }
       .chat-hint {
         text-align: center;
@@ -203,7 +241,7 @@ export default function Home({
                   className={`chat-bubble ${isUser ? "chat-user" : "chat-assistant"}`}
                 >
                   <span className="bubble-label">{isUser ? "YOU" : "AVA"}</span>
-                  <p
+                  <div
                     style={{
                       margin: 0,
                       whiteSpace: "pre-wrap",
@@ -217,7 +255,7 @@ export default function Home({
                     >
                       {item.content}
                     </ReactMarkdown>
-                  </p>
+                  </div>
                 </article>
               </div>
             );
@@ -226,17 +264,18 @@ export default function Home({
 
         <div className="chat-input-area">
           <div className="chat-input-row">
-            <input
+            <textarea
               onChange={handleInput}
               onKeyDown={handleKeyDown}
-              placeholder="Enter a message"
-              ref={inputRef}
-              type="text"
+              placeholder="Type your message here...&#10;Press Enter to send • Shift + Enter for new line"
+              ref={textareaRef}
               value={value}
             />
             <button onClick={handleSend}>Send</button>
           </div>
-          <p className="chat-hint">Press Enter to send</p>
+          <p className="chat-hint">
+            You can paste multi-line code directly. AVA will see the formatting.
+          </p>
         </div>
       </main>
     </>
