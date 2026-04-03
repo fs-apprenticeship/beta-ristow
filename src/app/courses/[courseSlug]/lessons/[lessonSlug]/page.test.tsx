@@ -1,7 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import getLessonArticle from "@/features/article/get-lesson-article";
 import { AccountFactory } from "@/test/factories/account-factory";
 import { CourseFactory } from "@/test/factories/course-factory";
 import { LessonFactory } from "@/test/factories/lesson-factory";
@@ -30,14 +28,9 @@ vi.mock("@/features/identity/actions/require-current-account", () => ({
 }));
 
 describe("Lesson page", () => {
-  beforeEach(() => {
-    vi.mocked(getLessonArticle).mockResolvedValue(null);
-  });
-
   afterEach(() => {
     redirectMock.mockClear();
     requireCurrentAccountMock.mockClear();
-    vi.mocked(getLessonArticle).mockReset();
   });
 
   it("redirects to onboarding when the learner still has a question to answer", async () => {
@@ -66,7 +59,7 @@ describe("Lesson page", () => {
     );
   });
 
-  it("renders the course and lesson titles", async () => {
+  it("redirects to the current lesson intro (article) when onboarding is complete", async () => {
     const learner = await AccountFactory.create();
     requireCurrentAccountMock.mockResolvedValue(learner);
     const course = await CourseFactory.create();
@@ -80,20 +73,16 @@ describe("Lesson page", () => {
       learner: { connect: { id: learner.id } },
     });
 
-    const page = await LessonPage({
+    const pagePromise = LessonPage({
       params: Promise.resolve({
         courseSlug: course.slug,
         lessonSlug: lesson.slug,
       }),
     });
 
-    render(page);
-
-    expect(
-      screen.getByRole("heading", { level: 1, name: course.title }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: lesson.title }),
-    ).toBeInTheDocument();
+    await expect(pagePromise).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirectMock).toHaveBeenCalledWith(
+      `/courses/${course.slug}/lessons/${lesson.slug}/intro`,
+    );
   });
 });
