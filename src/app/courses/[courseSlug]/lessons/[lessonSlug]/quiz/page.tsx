@@ -49,7 +49,12 @@ export default async function LessonQuizPage({
 
   return (
     <main>
-      <QuizSession context={context} quiz={quiz} />
+      <QuizSession
+        context={context}
+        learnerId={learnerId}
+        lessonId={lesson.id}
+        quiz={quiz}
+      />
     </main>
   );
 }

@@ -5,8 +5,13 @@ export type GeneratedQuiz = {
 
 export type PersistedQuizAttemptPayload = {
   answers: UserAnswer[];
-  feedback: QuizFeedback;
+  feedback: PersistedQuizFeedback;
   quiz: GeneratedQuiz;
+};
+
+export type PersistedQuizFeedback = QuizFeedback & {
+  score: number;
+  totalQuestions: number;
 };
 
 export type QuestionFeedback = {

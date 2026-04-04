@@ -49,6 +49,7 @@ export default function QuizFormView({
 
   return (
     <form onSubmit={handleSubmit}>
+      <h1>{quiz.title}</h1>
       <p>
         <strong>
           Answered {answeredQuestions} of {totalQuestions}
