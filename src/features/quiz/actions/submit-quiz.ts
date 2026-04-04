@@ -21,11 +21,13 @@ export default async function submitQuiz({
 
   const feedback = await generateQuizFeedback(submission);
 
-  const score = feedback.questionFeedback.filter(
+  const answeredCorrectly = feedback.questionFeedback.filter(
     (item) => item.isCorrect === true,
   ).length;
 
   const totalQuestions = submission.quiz.questions.length;
+
+  const score = (answeredCorrectly / totalQuestions) * 100;
 
   const persistedFeedback = {
     ...feedback,
