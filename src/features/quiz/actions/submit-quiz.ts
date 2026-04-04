@@ -27,7 +27,7 @@ export default async function submitQuiz({
 
   const totalQuestions = submission.quiz.questions.length;
 
-  const score = (answeredCorrectly / totalQuestions) * 100;
+  const score = Math.round((answeredCorrectly / totalQuestions) * 100);
 
   const persistedFeedback = {
     ...feedback,
