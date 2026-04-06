@@ -1,6 +1,5 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import generateText from "@/lib/openai/generate-text";
+import parseJsonResponse from "@/lib/openai/parse-json-response";
 
 export async function generateChallenge(title: string, topics: string) {
   const prompt = `
@@ -18,10 +17,14 @@ Return JSON only in this format:
 }
 `;
 
-  const response = await openai.chat.completions.create({
-    messages: [{ content: prompt, role: "user" }],
-    model: "gpt-4.1",
+  const response = await generateText({
+    instructions:
+      "You are a coding challenge generator for a coding education platform.",
+    prompt,
   });
-
-  return JSON.parse(response.choices[0].message.content!.trim());
+  console.log("Raw response from OpenAI:", response);
+  return parseJsonResponse(
+    response,
+    "Failed to generate a valid coding challenge.",
+  );
 }
