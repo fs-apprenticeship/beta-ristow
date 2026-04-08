@@ -1,3 +1,7 @@
+import getClient from "@/lib/prisma/get-client";
+
+const prisma = getClient();
+
 export default async function getQuizzes(lessonId: string) {
   return await prisma?.quiz.findMany({
     include: {

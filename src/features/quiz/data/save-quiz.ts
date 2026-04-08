@@ -1,4 +1,8 @@
+import getClient from "@/lib/prisma/get-client";
+
 import { GeneratedQuiz } from "../types";
+
+const prisma = getClient();
 
 type SaveQuizInput = {
   lessonId: string;
