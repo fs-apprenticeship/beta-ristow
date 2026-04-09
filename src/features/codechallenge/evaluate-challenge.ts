@@ -3,10 +3,10 @@ import parseJsonResponse from "@/lib/openai/parse-json-response";
 
 interface EvaluationResult {
   correct: boolean;
-  stdout?: string;
   "error-code"?: string;
-  output?: string;
+  stdout?: string;
   feedback: string;
+  output?: string;
 }
 
 /**
@@ -41,10 +41,10 @@ Instructions:
 Return JSON only in this format:
 {
   "correct": true|false,
-  "stdout": "string",
   "error-code": "string",
-  "output": "string",
-  "feedback": "string"
+  "stdout": "string",
+  "feedback": "string",
+  "output": "string"
 }
 `;
 
