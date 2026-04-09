@@ -35,8 +35,8 @@ export default function EvaluationPanel({
         <section
             style={{
                 border: "1px solid #ccc",
-                marginTop: "1rem",
                 borderRadius: "0.5rem",
+                marginTop: "1rem",
                 padding: "1rem",
             }}
         >
@@ -71,8 +71,8 @@ export default function EvaluationPanel({
                                 : "#666",
                             fontWeight: 500,
                             marginRight: "0.25rem",
-                            padding: "0.5rem 1rem",
                             cursor: "pointer",
+                            padding: "0.5rem 1rem",
                         }}
                     >
                         {tab}
@@ -84,13 +84,13 @@ export default function EvaluationPanel({
             {evaluation.testExamples && evaluation.testExamples[activeTab] && (
                 <div
                     style={{
-                        border: "1px solid",
                         backgroundColor: isTestFailing(activeTab)
                         ? "#ffe5e5"
                         : "#f9f9f9",
+                        border: "1px solid",
                         borderColor: isTestFailing(activeTab) ? "red" : "#ccc",
-                        padding: "1rem",
                         borderRadius: "0.5rem",
+                        padding: "1rem",
                         marginTop: "1rem",
                     }}
                 >
