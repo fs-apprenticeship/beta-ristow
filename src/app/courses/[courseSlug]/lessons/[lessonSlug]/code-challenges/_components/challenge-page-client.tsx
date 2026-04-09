@@ -6,6 +6,7 @@ import { evaluateChallengeAction } from "../_actions/evaluate-challenge-action";
 import { submitChallengeAction } from "../_actions/submit-action";
 import CodeEditor from "./code-editor";
 import { RunButton } from "./run-button";
+import EvaluationPanel from "./evaluation-panel";
 import { SubmitButton } from "./submit-button";
 
 interface Props {
@@ -13,15 +14,22 @@ interface Props {
   starterCode: string;
 }
 
+interface Evaluation {
+  correct: boolean;
+  stdout?: string[];
+  output?: string[];
+  expectedOutput?: string[];
+  testExamples?: string[];
+  feedback?: string;
+}
+
 export default function ChallengePageClient({
   challengeId,
   starterCode,
 }: Props) {
   const [userCode, setUserCode] = useState(starterCode);
-  const [evaluation, setEvaluation] = useState<null | {
-    correct: boolean;
-    feedback: string;
-  }>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+  const [activeTab, setActiveTab] = useState(0)
 
   const handleRun = async () => {
     setEvaluation(null);
@@ -30,30 +38,25 @@ export default function ChallengePageClient({
   };
 
   return (
-    <div className="container mt-6 max-w-3xl">
+    <div className="container" style={{ width: "100%", padding: "1rem", marginTop: "2rem" }}>
       {/* Code Editor */}
       <CodeEditor code={userCode} onChange={setUserCode} />
 
       {/* Run Button */}
-      <div className="mt-3">
+      <div style={{ marginTop: "1rem" }}>
         <RunButton onRun={handleRun} pendingText="Running..." />
       </div>
 
       {/* Evaluation and Feedback */}
       {evaluation && (
-        <section className="card mt-3">
-          <div className="card-body-bg-light">
-            <p>
-              <strong>Result:</strong>{" "}
-              {evaluation.correct ? "✅ Correct" : "❌ Incorrect"}
-            </p>
-            <p>
-              <strong>Feedback:</strong> {evaluation.feedback}
-            </p>
-          </div>
-        </section>
+        <EvaluationPanel
+          evaluation={evaluation}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
       )}
-      <div className="mt-3">
+
+      <div style={{ marginTop: "1rem" }}>
         <SubmitButton
           onSubmit={async () => {
             await handleRun();
