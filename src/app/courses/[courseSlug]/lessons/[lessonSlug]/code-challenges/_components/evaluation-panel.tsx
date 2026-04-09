@@ -69,9 +69,9 @@ export default function EvaluationPanel({
                                     ? "red"
                                     : "blue"
                                 : "#666",
+                            cursor: "pointer",
                             fontWeight: 500,
                             marginRight: "0.25rem",
-                            cursor: "pointer",
                             padding: "0.5rem 1rem",
                         }}
                     >
@@ -90,8 +90,8 @@ export default function EvaluationPanel({
                         border: "1px solid",
                         borderColor: isTestFailing(activeTab) ? "red" : "#ccc",
                         borderRadius: "0.5rem",
-                        padding: "1rem",
                         marginTop: "1rem",
+                        padding: "1rem",
                     }}
                 >
                 <p>
