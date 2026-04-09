@@ -4,11 +4,11 @@ import parseJsonResponse from "@/lib/openai/parse-json-response";
 interface EvaluationResult {
   correct: boolean;
   "error-code"?: string;
-  expectedOutput?: string[]; 
+  expectedOutput?: string[];
   feedback: string;
-  output?: string[]; 
-  stdout?: string[]; 
-  testExamples?: string[]
+  output?: string[];
+  stdout?: string[];
+  testExamples?: string[];
 }
 
 /**

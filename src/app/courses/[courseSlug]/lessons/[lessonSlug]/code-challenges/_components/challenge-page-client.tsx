@@ -29,7 +29,7 @@ export default function ChallengePageClient({
 }: Props) {
   const [userCode, setUserCode] = useState(starterCode);
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
-  const [activeTab, setActiveTab] = useState(0)
+  const [activeTab, setActiveTab] = useState(0);
 
   const handleRun = async () => {
     setEvaluation(null);
@@ -38,7 +38,10 @@ export default function ChallengePageClient({
   };
 
   return (
-    <div className="container" style={{ marginTop: "2rem", padding: "1rem", width: "100%" }}>
+    <div
+      className="container"
+      style={{ marginTop: "2rem", padding: "1rem", width: "100%" }}
+    >
       {/* Code Editor */}
       <CodeEditor code={userCode} onChange={setUserCode} />
 
