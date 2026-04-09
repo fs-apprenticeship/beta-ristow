@@ -85,10 +85,10 @@ export default function EvaluationPanel({
                 <div
                     style={{
                         border: "1px solid",
-                        borderColor: isTestFailing(activeTab) ? "red" : "#ccc",
                         backgroundColor: isTestFailing(activeTab)
                         ? "#ffe5e5"
                         : "#f9f9f9",
+                        borderColor: isTestFailing(activeTab) ? "red" : "#ccc",
                         padding: "1rem",
                         borderRadius: "0.5rem",
                         marginTop: "1rem",
