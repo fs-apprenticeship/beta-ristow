@@ -4,8 +4,8 @@ import parseJsonResponse from "@/lib/openai/parse-json-response";
 interface EvaluationResult {
   correct: boolean;
   "error-code"?: string;
-  stdout?: string;
   feedback: string;
+  stdout?: string;
   output?: string;
 }
 
@@ -42,8 +42,8 @@ Return JSON only in this format:
 {
   "correct": true|false,
   "error-code": "string",
-  "stdout": "string",
   "feedback": "string",
+  "stdout": "string",
   "output": "string"
 }
 `;
