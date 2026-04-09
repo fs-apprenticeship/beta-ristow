@@ -12,14 +12,14 @@ interface Evaluation {
 }
 
 interface Props {
-    evaluation: Evaluation;
     activeTab: number;
+    evaluation: Evaluation;
     setActiveTab: (index: number) => void;
 }
 
 export default function EvaluationPanel({
-    evaluation,
     activeTab,
+    evaluation,
     setActiveTab
 }: Props) {
 
@@ -34,8 +34,8 @@ export default function EvaluationPanel({
     return (
         <section
             style={{
-                marginTop: "1rem",
                 border: "1px solid #ccc",
+                marginTop: "1rem",
                 borderRadius: "0.5rem",
                 padding: "1rem",
             }}
@@ -47,8 +47,8 @@ export default function EvaluationPanel({
             {/* Tabs */}
             <div
                 style={{
-                display: "flex",
                 borderBottom: "2px solid #ddd",
+                display: "flex",
                 marginTop: "1rem",
                 }}
             >
@@ -57,6 +57,7 @@ export default function EvaluationPanel({
                         key={index}
                         onClick={() => setActiveTab(index)}
                         style={{
+                            background: "none",
                             border: "none",
                             borderBottom:
                                 activeTab === index
@@ -68,10 +69,9 @@ export default function EvaluationPanel({
                                     ? "red"
                                     : "blue"
                                 : "#666",
-                            padding: "0.5rem 1rem",
-                            marginRight: "0.25rem",
                             fontWeight: 500,
-                            background: "none",
+                            marginRight: "0.25rem",
+                            padding: "0.5rem 1rem",
                             cursor: "pointer",
                         }}
                     >

@@ -38,7 +38,7 @@ export default function ChallengePageClient({
   };
 
   return (
-    <div className="container" style={{ width: "100%", padding: "1rem", marginTop: "2rem" }}>
+    <div className="container" style={{ marginTop: "2rem", padding: "1rem", width: "100%" }}>
       {/* Code Editor */}
       <CodeEditor code={userCode} onChange={setUserCode} />
 
