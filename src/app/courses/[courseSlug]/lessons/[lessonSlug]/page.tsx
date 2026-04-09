@@ -7,6 +7,7 @@ import onboard from "@/features/onboarding/onboard";
 
 export const dynamic = "force-dynamic";
 
+// redirection to intro if onboarding has been completed
 export default async function LessonPage({
   params,
 }: {
@@ -16,8 +17,11 @@ export default async function LessonPage({
   }>;
 }) {
   const { courseSlug, lessonSlug } = await params;
-  const course = await getCourse(courseSlug);
   const { id: learnerId } = await requireCurrentAccount();
+  const course = await getCourse(courseSlug);
+
+  await getLesson(course.id, lessonSlug);
+
   const { nextQuestion } = await onboard(course.id, learnerId);
 
   if (nextQuestion) {
@@ -27,12 +31,5 @@ export default async function LessonPage({
     );
   }
 
-  const lesson = await getLesson(course.id, lessonSlug);
-
-  return (
-    <main>
-      <h1>{course.title}</h1>
-      <h2>{lesson.title}</h2>
-    </main>
-  );
+  redirect(`/courses/${courseSlug}/lessons/${lessonSlug}/intro`);
 }

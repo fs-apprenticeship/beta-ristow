@@ -2,13 +2,19 @@
 
 import { useMemo, useState } from "react";
 
-import type { GeneratedQuiz, UserAnswer } from "../types";
+import { GeneratedQuiz, UserAnswer } from "../types";
+import { QuizSessionStatus } from "./types";
 
-type QuizFormProps = {
+type QuizFormViewProps = {
+  onSubmit: (answers: UserAnswer[]) => void;
   quiz: GeneratedQuiz;
+  status: QuizSessionStatus;
 };
-
-export default function QuizForm({ quiz }: QuizFormProps) {
+export default function QuizFormView({
+  onSubmit,
+  quiz,
+  status,
+}: QuizFormViewProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<
     Record<string, string>
   >({});
@@ -21,6 +27,7 @@ export default function QuizForm({ quiz }: QuizFormProps) {
   }, [quiz.questions, selectedAnswers]);
 
   const isComplete = answeredQuestions === totalQuestions;
+  const isSubmitting = status === "submitting";
 
   function handleOptionChange(questionId: string, optionId: string) {
     setSelectedAnswers((current) => ({
@@ -29,7 +36,7 @@ export default function QuizForm({ quiz }: QuizFormProps) {
     }));
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const answers: UserAnswer[] = quiz.questions.map((question) => ({
@@ -37,10 +44,8 @@ export default function QuizForm({ quiz }: QuizFormProps) {
       selectedOptionId: selectedAnswers[question.id],
     }));
 
-    console.log("Submitting quiz answers:", answers);
-    // next step:
-    // call server action
-  }
+    onSubmit(answers);
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -78,8 +83,14 @@ export default function QuizForm({ quiz }: QuizFormProps) {
         </fieldset>
       ))}
 
-      <button disabled={!isComplete} type="submit">
-        Submit Quiz
+      {status === "error" && (
+        <p>
+          <strong>Something went wrong while submitting the quiz.</strong>
+        </p>
+      )}
+
+      <button disabled={!isComplete || isSubmitting} type="submit">
+        {isSubmitting ? "Submitting..." : "Submit Quiz"}
       </button>
     </form>
   );

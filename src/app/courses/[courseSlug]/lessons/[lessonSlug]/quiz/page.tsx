@@ -5,8 +5,10 @@ import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
 import onboard from "@/features/onboarding/onboard";
 import buildQuizContext from "@/features/quiz/build-quiz-context";
-import QuizForm from "@/features/quiz/components/quiz-form";
+import QuizSession from "@/features/quiz/components/quiz-session";
+import saveQuiz from "@/features/quiz/data/save-quiz";
 import generateQuiz from "@/features/quiz/generate-quiz";
+import mapQuizToUIQuiz from "@/features/quiz/mappers/map-quiz-to-ui-quiz";
 
 export const dynamic = "force-dynamic";
 
@@ -32,12 +34,22 @@ export default async function LessonQuizPage({
 
   const lesson = await getLesson(course.id, lessonSlug);
   const context = buildQuizContext(lesson);
-  const quiz = await generateQuiz(context);
+  const generatedQuiz = await generateQuiz(context);
+
+  const savedQuiz = await saveQuiz({
+    lessonId: lesson.id,
+    quiz: generatedQuiz,
+  });
+
+  if (!savedQuiz) {
+    throw new Error("Failed to save quiz.");
+  }
+
+  const quiz = mapQuizToUIQuiz(savedQuiz);
 
   return (
     <main>
-      <h1>{quiz.title}</h1>
-      <QuizForm quiz={quiz} />
+      <QuizSession context={context} quiz={quiz} />
     </main>
   );
 }
