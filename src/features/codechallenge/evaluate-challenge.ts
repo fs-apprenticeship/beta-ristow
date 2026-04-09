@@ -5,8 +5,8 @@ interface EvaluationResult {
   correct: boolean;
   "error-code"?: string;
   feedback: string;
-  stdout?: string;
   output?: string;
+  stdout?: string;
 }
 
 /**
@@ -43,8 +43,8 @@ Return JSON only in this format:
   "correct": true|false,
   "error-code": "string",
   "feedback": "string",
-  "stdout": "string",
-  "output": "string"
+  "output": "string",
+  "stdout": "string"
 }
 `;
 
