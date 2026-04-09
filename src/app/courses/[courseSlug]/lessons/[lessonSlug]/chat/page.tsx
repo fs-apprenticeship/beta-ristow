@@ -10,11 +10,18 @@ interface Conversation {
   role: string;
 }
 
+// export default function Home({
+//   params,
+// }: {
+//   params: { courseSlug: string; lessonSlug: string };
+// }) {
+
 export default function Home({
   params,
 }: {
-  params: { courseSlug: string; lessonSlug: string };
+  params: Promise<{ courseSlug: string; lessonSlug: string }>;
 }) {
+  const { courseSlug, lessonSlug } = React.use(params);
   const [value, setValue] = React.useState<string>("");
   const [conversation, setConversation] = React.useState<Conversation[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -39,7 +46,7 @@ export default function Home({
   const sendMessage = async (message: string) => {
     const chatHistory = [...conversation, { content: message, role: "user" }];
     const response = await fetch(
-      `/api/courses/${params.courseSlug}/lessons/${params.lessonSlug}/chat`,
+      `/api/courses/${courseSlug}/lessons/${lessonSlug}/chat`,
       {
         body: JSON.stringify({ messages: chatHistory }),
         headers: { "Content-Type": "application/json" },
@@ -267,7 +274,9 @@ export default function Home({
             <textarea
               onChange={handleInput}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message here...&#10;Press Enter to send • Shift + Enter for new line"
+              placeholder={
+                "Type your message here...\nPress Enter to send • Shift + Enter for new line"
+              }
               ref={textareaRef}
               value={value}
             />
