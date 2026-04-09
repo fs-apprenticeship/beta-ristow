@@ -4,11 +4,11 @@
 
 interface Evaluation {
   correct: boolean;
-  stdout?: string[];
-  output?: string[];
   expectedOutput?: string[];
-  testExamples?: string[];
   feedback?: string;
+  output?: string[];
+  stdout?: string[];
+  testExamples?: string[];
 }
 
 interface Props {

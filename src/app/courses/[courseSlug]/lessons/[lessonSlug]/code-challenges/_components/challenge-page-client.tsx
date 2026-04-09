@@ -5,22 +5,22 @@ import { useState } from "react";
 import { evaluateChallengeAction } from "../_actions/evaluate-challenge-action";
 import { submitChallengeAction } from "../_actions/submit-action";
 import CodeEditor from "./code-editor";
-import { RunButton } from "./run-button";
 import EvaluationPanel from "./evaluation-panel";
+import { RunButton } from "./run-button";
 import { SubmitButton } from "./submit-button";
+
+interface Evaluation {
+  correct: boolean;
+  expectedOutput?: string[];
+  feedback?: string;
+  output?: string[];
+  stdout?: string[];
+  testExamples?: string[];
+}
 
 interface Props {
   challengeId: string;
   starterCode: string;
-}
-
-interface Evaluation {
-  correct: boolean;
-  stdout?: string[];
-  output?: string[];
-  expectedOutput?: string[];
-  testExamples?: string[];
-  feedback?: string;
 }
 
 export default function ChallengePageClient({
@@ -50,8 +50,8 @@ export default function ChallengePageClient({
       {/* Evaluation and Feedback */}
       {evaluation && (
         <EvaluationPanel
-          evaluation={evaluation}
           activeTab={activeTab}
+          evaluation={evaluation}
           setActiveTab={setActiveTab}
         />
       )}
