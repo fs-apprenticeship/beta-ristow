@@ -4,15 +4,24 @@ import { useEffect, useState } from "react";
 
 import type { LessonArticleContent } from "@/features/article/get-lesson-article";
 
-export default function LessonArticle({
-  courseSlug,
-  initialArticle,
-  lessonSlug,
-}: {
+import { LessonArticleBody } from "./lesson-article-body";
+import { lessonArticleShellStyles } from "./lesson-article.styles";
+
+type LessonArticleProps = {
   courseSlug: string;
+  headerSubtitle: string;
+  headerTitle: string;
   initialArticle: LessonArticleContent | null;
   lessonSlug: string;
-}) {
+};
+
+export default function LessonArticle({
+  courseSlug,
+  headerSubtitle,
+  headerTitle,
+  initialArticle,
+  lessonSlug,
+}: LessonArticleProps) {
   const [article, setArticle] = useState<LessonArticleContent | null>(
     initialArticle,
   );
@@ -51,28 +60,32 @@ export default function LessonArticle({
     };
   }, [initialArticle, courseSlug, lessonSlug]);
 
-  if (error) {
-    return (
-      <p className="lesson-article-error" role="alert">
-        {error}
-      </p>
-    );
-  }
-
-  if (!article) {
-    return <p className="lesson-article-loading">Loading article…</p>;
-  }
+  const showLoading = !error && article === null;
+  const showBody = !error && article !== null;
+  const showError = error !== null;
 
   return (
-    <article className="lesson-article max-w-3xl">
-      <div className="whitespace-pre-wrap">{article.intro}</div>
-      {article.sections.map((section, index) => (
-        <section key={`${section.heading}-${index}`}>
-          <h3>{section.heading}</h3>
-          <div className="whitespace-pre-wrap">{section.content}</div>
+    <>
+      <style>{lessonArticleShellStyles}</style>
+
+      <main className="container chat-page">
+        <section className="chat-header">
+          <h1>{headerTitle}</h1>
+          <p>{headerSubtitle}</p>
         </section>
-      ))}
-      <div className="whitespace-pre-wrap">{article.conclusion}</div>
-    </article>
+
+        <div className="chat-area">
+          {showError ? (
+            <p className="lesson-article-error" role="alert">
+              {error}
+            </p>
+          ) : null}
+
+          {showLoading ? <p className="chat-empty">Loading article…</p> : null}
+
+          {showBody ? <LessonArticleBody article={article} /> : null}
+        </div>
+      </main>
+    </>
   );
 }
