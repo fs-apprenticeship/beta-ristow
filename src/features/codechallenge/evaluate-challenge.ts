@@ -1,16 +1,17 @@
-import OpenAI from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import generateText from "@/lib/openai/generate-text";
+import parseJsonResponse from "@/lib/openai/parse-json-response";
 
 interface EvaluationResult {
   correct: boolean;
+  stdout?: string;
+  "error-code"?: string;
+  output?: string;
   feedback: string;
 }
 
 /**
  * Evaluates user code against a coding challenge prompt.
  */
-
 export async function evaluateChallenge(
   prompt: string,
   userCode: string,
@@ -32,42 +33,34 @@ Instructions:
 - Return true ONLY if the user's code fully solves the problem.
 - Consider edge cases.
 - Evaluate logic and correctness.
-- Line number of error code if it is error.
-- print any prints or console logs.
-- return the output if the code is run.
-- If the code runs, accept the code and provide feedback for an optimal solution.
-- Return JSON only in this format:
+- Include line number if there is an error.
+- Capture any prints or console logs.
+- Return the output if the code runs.
+- If the code runs, accept it and provide optimization feedback.
+
+Return JSON only in this format:
 {
-    "correct": true|false,
-    "stdout": "if there are prints or console logs, print it out"
-    "error-code": "error description and line of the error code"
-    "output": "If the code runs, provide the output"
-    "feedback": "Explain why the solution is correct or what is missing."
+  "correct": true|false,
+  "stdout": "string",
+  "error-code": "string",
+  "output": "string",
+  "feedback": "string"
 }
 `;
 
   try {
-    const response = await openai.chat.completions.create({
-      messages: [{ content: evalPrompt, role: "user" }],
-      model: "gpt-4.1",
-      temperature: 0,
+    const response = await generateText({
+      instructions:
+        "You are a strict coding evaluator for a coding education platform. Always return valid JSON.",
+      prompt: evalPrompt,
     });
 
-    const content = response.choices?.[0].message?.content;
-
-    if (!content) {
-      return { correct: false, feedback: "AI returned an empty response." };
-    }
-
-    try {
-      // Parse JSON returned by AI
-      return JSON.parse(content.trim());
-    } catch {
-      console.warn("AI returned invalid JSON:", content);
-      return { correct: false, feedback: "AI returned invalid JSON." };
-    }
+    return parseJsonResponse(
+      response,
+      "Failed to evaluate coding challenge.",
+    ) as EvaluationResult;
   } catch (err) {
-    console.error("OpenAI evaluation error:", err);
+    console.error("Evaluation error:", err);
     return { correct: false, feedback: "AI evaluation failed." };
   }
 }
