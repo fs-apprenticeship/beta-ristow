@@ -1,13 +1,14 @@
-import generateText from "@/lib/openai/generate-text";
-import parseJsonResponse from "@/lib/openai/parse-json-response";
+import generateStructuredOutput from "@/lib/openai/generate-structured-output";
 
-interface EvaluationResult {
+type EvaluationResult = {
   correct: boolean;
-  stdout?: string;
   "error-code"?: string;
-  output?: string;
+  expectedOutput?: string;
   feedback: string;
-}
+  output?: string;
+  stdout?: string;
+  testExamples?: string[];
+};
 
 /**
  * Evaluates user code against a coding challenge prompt.
@@ -20,47 +21,37 @@ export async function evaluateChallenge(
     return { correct: false, feedback: "Missing prompt or user code." };
   }
 
-  const evalPrompt = `
-You are a strict coding evaluator.
+  const schema = {
+    additionalProperties: false,
+    properties: {
+      correct: { type: "boolean" },
+      errorcode: { type: "string" },
+      feedback: { type: "string" },
+      output: { type: "string" },
+      stdout: { type: "string" },
+    },
+    required: ["correct", "stdout", "errorcode", "output", "feedback"],
+    type: "object",
+  } as const;
 
-Challenge:
-${prompt}
-
-User Code:
-${userCode}
-
-Instructions:
-- Return true ONLY if the user's code fully solves the problem.
+  const instructions = `- Return true ONLY if the user's code fully solves the problem.
 - Consider edge cases.
 - Evaluate logic and correctness.
 - Include line number if there is an error.
 - Capture any prints or console logs.
 - Return the output if the code runs.
-- If the code runs, accept it and provide optimization feedback.
-
-Return JSON only in this format:
-{
-  "correct": true|false,
-  "stdout": "string",
-  "error-code": "string",
-  "output": "string",
-  "feedback": "string"
-}
-`;
+- If the code runs, accept it and provide optimization feedback.`;
 
   try {
-    const response = await generateText({
-      instructions:
-        "You are a strict coding evaluator for a coding education platform. Always return valid JSON.",
-      prompt: evalPrompt,
+    const response = await generateStructuredOutput<EvaluationResult>({
+      formatSchema: schema,
+      instructions,
+      prompt,
     });
-
-    return parseJsonResponse(
-      response,
-      "Failed to evaluate coding challenge.",
-    ) as EvaluationResult;
+    console.log("Evaluation response:", response);
+    return response;
   } catch (err) {
-    console.error("Evaluation error:", err);
-    return { correct: false, feedback: "AI evaluation failed." };
+    console.error("Error during challenge evaluation:", err);
+    return { correct: false, feedback: "Error evaluating code." };
   }
 }
