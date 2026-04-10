@@ -4,9 +4,11 @@ import parseJsonResponse from "@/lib/openai/parse-json-response";
 interface EvaluationResult {
   correct: boolean;
   "error-code"?: string;
+  expectedOutput?: string[];
   feedback: string;
-  output?: string;
-  stdout?: string;
+  output?: string[];
+  stdout?: string[];
+  testExamples?: string[];
 }
 
 /**
@@ -30,21 +32,22 @@ User Code:
 ${userCode}
 
 Instructions:
-- Return true ONLY if the user's code fully solves the problem.
-- Consider edge cases.
-- Evaluate logic and correctness.
-- Include line number if there is an error.
-- Capture any prints or console logs.
-- Return the output if the code runs.
-- If the code runs, accept it and provide optimization feedback.
+- Generate 3 test examples for this challenge: normal case, edge case, corner case.
+- Run the user's code against each example.
+- Capture any prints or console logs for each example.
+- Return the output the code produces for each example.
+- Include all test examples in the response.
+- Provide optimization feedback if the code runs successfully.
 
 Return JSON only in this format:
 {
   "correct": true|false,
   "error-code": "string",
   "feedback": "string",
-  "output": "string",
-  "stdout": "string"
+  "expectedOutput": ["string", "string", "string"],
+  "output": ["string", "string", "string"],
+  "stdout": ["string", "string", "string"],
+  "testExamples": ["string", "string", "string"]
 }
 `;
 
