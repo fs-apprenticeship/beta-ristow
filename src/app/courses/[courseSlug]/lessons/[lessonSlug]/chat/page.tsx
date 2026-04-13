@@ -10,12 +10,6 @@ interface Conversation {
   role: string;
 }
 
-// export default function Home({
-//   params,
-// }: {
-//   params: { courseSlug: string; lessonSlug: string };
-// }) {
-
 export default function Home({
   params,
 }: {
@@ -25,13 +19,14 @@ export default function Home({
   const [value, setValue] = React.useState<string>("");
   const [conversation, setConversation] = React.useState<Conversation[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
-  // Auto-grow the textarea - moved up and wrapped in useCallback
   const autoGrow = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`; // max ~200px
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
     }
   }, []);
 
@@ -45,6 +40,17 @@ export default function Home({
 
   const sendMessage = async (message: string) => {
     const chatHistory = [...conversation, { content: message, role: "user" }];
+
+    // Show user message immediately and clear input
+    setValue("");
+    setConversation(chatHistory);
+
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
+    }, 10);
+
     const response = await fetch(
       `/api/courses/${courseSlug}/lessons/${lessonSlug}/chat`,
       {
@@ -56,18 +62,10 @@ export default function Home({
 
     const data = await response.json();
 
-    setValue("");
     setConversation([
       ...chatHistory,
       { content: data.result.choices[0].message.content, role: "assistant" },
     ]);
-
-    // Reset textarea height after sending
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
-    }, 10);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -83,10 +81,25 @@ export default function Home({
     }
   };
 
-  // Run autoGrow when value changes
   useEffect(() => {
     autoGrow();
   }, [value, autoGrow]);
+
+  useEffect(() => {
+    if (lastUserMessageRef.current && chatContainerRef.current) {
+      const container = chatContainerRef.current;
+      const element = lastUserMessageRef.current;
+
+      const scrollTarget = element.offsetTop - container.offsetTop;
+
+      if (typeof container.scrollTo === "function") {
+        container.scrollTo({
+          behavior: "smooth",
+          top: scrollTarget,
+        });
+      }
+    }
+  }, [conversation]);
 
   return (
     <>
@@ -114,6 +127,8 @@ export default function Home({
         border-radius: var(--pico-border-radius);
         gap: var(--pico-spacing);
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        overflow-y: auto;
+        max-height: calc(100vh - 250px);
       }
       .chat-empty {
         text-align: center;
@@ -138,7 +153,6 @@ export default function Home({
         border: 1px solid var(--pico-muted-border-color);
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       }
-
       .chat-bubble pre {
         background-color: var(--pico-code-background-color);
         border-radius: var(--pico-border-radius);
@@ -146,13 +160,11 @@ export default function Home({
         font-size: 0.85rem;
         overflow-x: auto;
       }
-
       .chat-bubble code {
         background-color: var(--pico-code-background-color);
         padding: 2px 6px;
         border-radius: calc(var(--pico-border-radius) / 2);
       }
-
       .chat-user {
         background-color: var(--pico-secondary-background);
         color: var(--pico-secondary-inverse);
@@ -233,16 +245,21 @@ export default function Home({
           <p>Ask me anything</p>
         </section>
 
-        <div className="chat-area">
+        <div className="chat-area" ref={chatContainerRef}>
           {conversation.length === 0 && (
             <p className="chat-empty">Your conversation will appear here...</p>
           )}
           {conversation.map((item, index) => {
             const isUser = item.role === "user";
+            const isLastUser =
+              isUser &&
+              index ===
+                [...conversation].map((c) => c.role).lastIndexOf("user");
             return (
               <div
                 className={`chat-row ${isUser ? "user" : "assistant"}`}
                 key={index}
+                ref={isLastUser ? lastUserMessageRef : null}
               >
                 <article
                   className={`chat-bubble ${isUser ? "chat-user" : "chat-assistant"}`}
