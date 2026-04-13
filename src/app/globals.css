@@ -14,3 +14,80 @@ nav li a[role="button"] {
 .grid a[role="button"] {
   margin-bottom: var(--pico-spacing);
 }
+
+/* Scrollable chat message container with max height relative to viewport */
+.chat-area {
+  overflow-y: auto;
+  max-height: calc(100vh - 260px);
+  margin-bottom: calc(var(--pico-spacing) * 4);
+}
+
+/* Flex row wrapper for each message bubble */
+.chat-row {
+  display: flex;
+  width: 100%;
+  margin-bottom: var(--pico-spacing);
+}
+
+/* Aligns user messages to the right */
+.chat-row.user {
+  justify-content: flex-end;
+}
+
+/* Aligns assistant messages to the left */
+.chat-row.assistant {
+  justify-content: flex-start;
+}
+
+/* Limits bubble width so it doesn't stretch the full container */
+.chat-bubble {
+  max-width: 65%;
+  margin: 0;
+}
+
+/* Keeps the input bar fixed to the bottom of the viewport while scrolling */
+.chat-input-area {
+  position: sticky;
+  bottom: 0;
+  background: var(--pico-background-color);
+  padding: var(--pico-spacing);
+  border-top: 1px solid var(--pico-muted-border-color);
+  box-shadow: 0 -2px 6px rgb(0 0 0 / 5%);
+}
+
+/* Flex row that holds the textarea and send button side by side */
+.chat-input-row {
+  display: flex;
+  gap: var(--pico-spacing);
+  align-items: flex-end;
+}
+
+/* Auto-growing textarea that fills available space next to the send button */
+.chat-input-row textarea {
+  flex: 1;
+  margin: 0;
+  resize: none;
+  min-height: 52px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: inherit;
+}
+
+/* Send button sized to content and pinned to the bottom of the input row */
+.chat-input-row button {
+  margin: 0;
+  width: auto;
+  height: fit-content;
+  align-self: flex-end;
+}
+
+/* Small uppercase label above each bubble identifying the speaker (YOU / AVA) */
+.bubble-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  display: block;
+  margin-bottom: calc(var(--pico-spacing) * 0.5);
+}
