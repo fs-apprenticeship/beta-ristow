@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import Home from "./page";
@@ -20,10 +26,10 @@ globalThis.fetch = mockFetch as typeof fetch;
 
 describe("Chat Page (AVA)", () => {
   const mockParams = {
-    params: {
+    params: Promise.resolve({
       courseSlug: "intro-to-python",
       lessonSlug: "set-up-your-environment",
-    },
+    }),
   };
 
   beforeEach(() => {
@@ -31,8 +37,10 @@ describe("Chat Page (AVA)", () => {
     mockFetch.mockReset();
   });
 
-  it("renders the initial UI correctly with header and empty state", () => {
-    render(<Home params={mockParams.params} />);
+  it("renders the initial UI correctly with header and empty state", async () => {
+    await act(async () => {
+      render(<Home params={mockParams.params} />);
+    });
 
     expect(screen.getByText("Hi there, I am AVA")).toBeInTheDocument();
     expect(screen.getByText("Ask me anything")).toBeInTheDocument();
@@ -62,7 +70,9 @@ describe("Chat Page (AVA)", () => {
 
     mockFetch.mockResolvedValueOnce(mockResponse);
 
-    render(<Home params={mockParams.params} />);
+    await act(async () => {
+      render(<Home params={mockParams.params} />);
+    });
 
     const textarea = screen.getByRole("textbox");
 
