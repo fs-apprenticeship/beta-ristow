@@ -1,10 +1,9 @@
 "use server";
 
-import getClient from "@/lib/prisma/get-client";
-
 import type { QuizFeedback, QuizSubmission } from "../types";
 
 import generateQuizFeedback from "../generate-quiz-feedback";
+import persistQuizFeedback from "./persist-quiz-feedback";
 
 type SubmitQuizInput = {
   learnerId: string;
@@ -16,9 +15,9 @@ export default async function submitQuiz({
   learnerId,
   lessonId,
   submission,
-}: SubmitQuizInput): Promise<QuizFeedback> {
-  const prisma = getClient();
-
+}: SubmitQuizInput): Promise<
+  QuizFeedback & { score: number; totalQuestions: number }
+> {
   const feedback = await generateQuizFeedback(submission);
 
   const answeredCorrectly = feedback.questionFeedback.filter(
@@ -29,27 +28,20 @@ export default async function submitQuiz({
 
   const score = Math.round((answeredCorrectly / totalQuestions) * 100);
 
-  const persistedFeedback = {
+  const result = {
     ...feedback,
     score,
     totalQuestions,
   };
 
-  await prisma.quizAttempt.create({
-    data: {
-      learnerId,
-      lessonId,
-      overallFeedback: feedback.overallFeedback,
-      passed: feedback.passed ?? false,
-      payload: {
-        answers: submission.answers,
-        feedback: persistedFeedback,
-        quiz: submission.quiz,
-      },
-      score,
-      totalQuestions,
-    },
+  await persistQuizFeedback({
+    feedback,
+    learnerId,
+    lessonId,
+    score,
+    submission,
+    totalQuestions,
   });
 
-  return persistedFeedback;
+  return result;
 }

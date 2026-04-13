@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 
-import type {
-  GeneratedQuiz,
-  QuizContext,
-  QuizFeedback,
-  UserAnswer,
-} from "../types";
+import type { Quiz, QuizContext, QuizFeedback, UserAnswer } from "../types";
 import type { QuizSessionStatus } from "./types";
 
 import submitQuiz from "../actions/submit-quiz";
@@ -18,7 +13,7 @@ type QuizSessionProps = {
   context: QuizContext;
   learnerId: string;
   lessonId: string;
-  quiz: GeneratedQuiz;
+  quiz: Quiz;
 };
 
 export default function QuizSession({

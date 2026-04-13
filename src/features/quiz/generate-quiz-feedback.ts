@@ -9,7 +9,7 @@ const questionFeedbackSchema = z.object({
   chosenAnswer: z.string(),
   feedback: z.string(),
   isCorrect: z.boolean().optional(),
-  question: z.string(),
+  questionId: z.string(),
 });
 
 const quizFeedbackSchema = z.object({
@@ -27,6 +27,7 @@ Rules:
 - Evaluate answers based only on the provided lesson content.
 - Provide clear and concise feedback.
 - For each question:
+  - Return the original questionId exactly as provided.
   - Indicate whether the answer is correct (true/false).
   - Provide short feedback explaining why.
 - Include an overall summary of performance.
@@ -65,7 +66,8 @@ function generatePrompt({ answers, context, quiz }: QuizSubmission): string {
 
     return {
       chosenAnswer: selectedOption?.text ?? answer.selectedOptionId,
-      question: question?.prompt ?? answer.questionId,
+      questionId: answer.questionId,
+      questionPrompt: question?.prompt ?? answer.questionId,
     };
   });
 
@@ -78,13 +80,17 @@ Return JSON in exactly this shape:
   "passed": true,
   "questionFeedback": [
     {
-      "question": "What is a variable in Python?",
+      "questionId": "string",
       "chosenAnswer": "A storage location for data",
       "isCorrect": true,
       "feedback": "string"
     }
   ]
 }
+
+Important:
+- Return each questionId exactly as provided in User Answers.
+- Do not replace questionId with question text.
 
 Lesson title:
 ${context.title}

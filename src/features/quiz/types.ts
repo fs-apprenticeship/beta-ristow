@@ -1,12 +1,17 @@
 export type GeneratedQuiz = {
-  questions: QuizQuestion[];
+  questions: GeneratedQuizQuestion[];
   title: string;
 };
 
-export type PersistedQuizAttemptPayload = {
-  answers: UserAnswer[];
-  feedback: PersistedQuizFeedback;
-  quiz: GeneratedQuiz;
+export type GeneratedQuizOption = {
+  id: string;
+  text: string;
+};
+
+export type GeneratedQuizQuestion = {
+  id: string;
+  options: GeneratedQuizOption[];
+  prompt: string;
 };
 
 export type PersistedQuizFeedback = QuizFeedback & {
@@ -18,7 +23,13 @@ export type QuestionFeedback = {
   chosenAnswer: string;
   feedback: string;
   isCorrect?: boolean;
-  question: string;
+  questionId: string;
+};
+
+export type Quiz = {
+  id: string;
+  questions: QuizQuestion[];
+  title: string;
 };
 
 export type QuizContext = {
@@ -47,7 +58,7 @@ export type QuizQuestion = {
 export type QuizSubmission = {
   answers: UserAnswer[];
   context: QuizContext;
-  quiz: GeneratedQuiz;
+  quiz: Quiz;
 };
 
 export type UserAnswer = {

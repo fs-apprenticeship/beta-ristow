@@ -35,18 +35,16 @@ export default function QuizFeedbackView({
 
       <ul>
         {feedback.questionFeedback.map((item, index) => (
-          <li key={`${item.question}-${index}`}>
+          <li key={`${item.questionId}-${index}`}>
             <p>
-              <strong>Question:</strong> {item.question}
+              <strong>Question ID:</strong> {item.questionId}
             </p>
             <p>
               <strong>Chosen Answer:</strong> {item.chosenAnswer}
             </p>
-            {typeof item.isCorrect === "boolean" && (
-              <p>
-                <strong>Correct:</strong> {item.isCorrect ? "Yes" : "No"}
-              </p>
-            )}
+            <p>
+              <strong>Correct:</strong> {item.isCorrect ? "Yes" : "No"}
+            </p>
             <p>
               <strong>Feedback:</strong> {item.feedback}
             </p>

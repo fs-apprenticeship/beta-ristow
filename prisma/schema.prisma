@@ -187,7 +187,6 @@ model ChallengeSubmission {
   @@map("challenge_submissions")
 }
 
-
 model Quiz {
   id       String @id @default(uuid()) @db.Uuid
   lessonId String @map("lesson_id") @db.Uuid
@@ -197,21 +196,8 @@ model Quiz {
 
   /// prisma-lint-ignore-field require-default-empty-arrays
   questions QuizQuestion[]
-=======
-model QuizAttempt {
-  id        String @id @default(uuid()) @db.Uuid
-  learnerId String @map("learner_id") @db.Uuid
-  lessonId  String @map("lesson_id") @db.Uuid
-
-  score           Int
-  totalQuestions  Int     @map("total_questions")
-  passed          Boolean
-  overallFeedback String  @map("overall_feedback") @db.Text
-  payload         Json
-
-  learner Account @relation(fields: [learnerId], references: [id])
-  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
->>>>>>> 482b18f (update account and lesson model add quiz attempt persistence model)
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  attempts  QuizAttempt[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -230,7 +216,9 @@ model QuizQuestion {
   quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   /// prisma-lint-ignore-field require-default-empty-arrays
-  options QuizOption[]
+  options        QuizOption[]
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  attemptAnswers QuizAttemptAnswer[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -249,15 +237,62 @@ model QuizOption {
 
   question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  selectedInAttempts QuizAttemptAnswer[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([questionId, position])
   @@index([questionId])
   @@map("quiz_options")
-=======
+}
+
+model QuizAttempt {
+  id        String @id @default(uuid()) @db.Uuid
+  learnerId String @map("learner_id") @db.Uuid
+  lessonId  String @map("lesson_id") @db.Uuid
+  quizId    String @map("quiz_id") @db.Uuid
+
+  score           Int
+  totalQuestions  Int     @map("total_questions")
+  passed          Boolean
+  overallFeedback String  @map("overall_feedback") @db.Text
+
+  learner Account @relation(fields: [learnerId], references: [id])
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  quiz    Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  answers QuizAttemptAnswer[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@index([learnerId])
   @@index([lessonId])
+  @@index([quizId])
   @@map("quiz_attempts")
->>>>>>> 482b18f (update account and lesson model add quiz attempt persistence model)
+}
+
+model QuizAttemptAnswer {
+  id               String  @id @default(uuid()) @db.Uuid
+  attemptId        String  @map("attempt_id") @db.Uuid
+  questionId       String  @map("question_id") @db.Uuid
+  selectedOptionId String  @map("selected_option_id") @db.Uuid
+  isCorrect        Boolean @map("is_correct")
+  feedback         String? @db.Text
+
+  attempt        QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOption QuizOption   @relation(fields: [selectedOptionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@index([selectedOptionId])
+  @@map("quiz_attempt_answers")
 }
