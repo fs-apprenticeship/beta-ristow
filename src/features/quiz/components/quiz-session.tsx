@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 
-import type { Quiz, QuizContext, QuizFeedback, UserAnswer } from "../types";
+import type {
+  PersistedQuizFeedback,
+  Quiz,
+  QuizContext,
+  UserAnswer,
+} from "../types";
 import type { QuizSessionStatus } from "./types";
 
 import submitQuiz from "../actions/submit-quiz";
@@ -23,7 +28,7 @@ export default function QuizSession({
   quiz,
 }: QuizSessionProps) {
   const [status, setStatus] = useState<QuizSessionStatus>("answering");
-  const [feedback, setFeedback] = useState<null | QuizFeedback>(null);
+  const [feedback, setFeedback] = useState<null | PersistedQuizFeedback>(null);
   const [submittedAnswers, setSubmittedAnswers] = useState<null | UserAnswer[]>(
     null,
   );
@@ -56,6 +61,7 @@ export default function QuizSession({
       <QuizFeedbackView
         feedback={feedback}
         onBackToQuiz={() => setStatus("answering")}
+        quiz={quiz}
         quizTitle={quiz.title}
       />
     );

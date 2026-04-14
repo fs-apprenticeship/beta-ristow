@@ -60,7 +60,7 @@ describe("generateQuizFeedback", () => {
           chosenAnswer: "A storage location for data",
           feedback: "Correct.",
           isCorrect: true,
-          question: "What is a variable?",
+          questionId: "q1",
         },
       ],
     };
@@ -77,7 +77,7 @@ describe("generateQuizFeedback", () => {
       "Great job. You understood the main concepts well.",
     );
     expect(result.passed).toBe(true);
-    expect(result.questionFeedback[0]?.questionId).toBe("What is a variable?");
+    expect(result.questionFeedback[0]?.questionId).toBe("q1");
     expect(result.questionFeedback[0]?.chosenAnswer).toBe(
       "A storage location for data",
     );

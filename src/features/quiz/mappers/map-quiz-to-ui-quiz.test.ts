@@ -3,28 +3,29 @@ import { describe, expect, it } from "vitest";
 import mapQuizToUIQuiz from "./map-quiz-to-ui-quiz";
 
 describe("mapQuizToUIQuiz", () => {
-  it("maps persisted quiz data to ui quiz shape", () => {
+  it("maps persisted quiz data to quiz shape with persisted ids", () => {
     const quiz = createPersistedQuiz();
 
     expect(mapQuizToUIQuiz(quiz)).toEqual({
+      id: "quiz-db-id",
       questions: [
         {
-          id: "0",
+          id: "question-1-db-id",
           options: [
-            { id: "0", text: "A programming language" },
-            { id: "1", text: "A database" },
-            { id: "2", text: "An operating system" },
-            { id: "3", text: "A browser" },
+            { id: "option-1-db-id", text: "A programming language" },
+            { id: "option-2-db-id", text: "A database" },
+            { id: "option-3-db-id", text: "An operating system" },
+            { id: "option-4-db-id", text: "A browser" },
           ],
           prompt: "What is Java?",
         },
         {
-          id: "1",
+          id: "question-2-db-id",
           options: [
-            { id: "0", text: "class" },
-            { id: "1", text: "new" },
-            { id: "2", text: "void" },
-            { id: "3", text: "this" },
+            { id: "option-5-db-id", text: "class" },
+            { id: "option-6-db-id", text: "new" },
+            { id: "option-7-db-id", text: "void" },
+            { id: "option-8-db-id", text: "this" },
           ],
           prompt: "Which keyword creates an object in Java?",
         },
@@ -33,13 +34,14 @@ describe("mapQuizToUIQuiz", () => {
     });
   });
 
-  it("maps positions to string ids for questions and options", () => {
+  it("preserves persisted ids for quiz, questions, and options", () => {
     const quiz = createPersistedQuiz();
 
     const result = mapQuizToUIQuiz(quiz);
 
-    expect(result.questions[0].id).toBe("0");
-    expect(result.questions[0].options[0].id).toBe("0");
+    expect(result.id).toBe("quiz-db-id");
+    expect(result.questions[0].id).toBe("question-1-db-id");
+    expect(result.questions[0].options[0].id).toBe("option-1-db-id");
   });
 });
 
