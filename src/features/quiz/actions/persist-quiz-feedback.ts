@@ -25,7 +25,6 @@ export default async function persistQuizFeedback({
 }: PersistQuizFeedbackInput) {
   const prisma = getClient();
 
-  // 🔴 IMPORTANT: this assumes quiz.id is a real DB id
   const quizId = submission.quiz.id;
 
   const attempt = await prisma.quizAttempt.create({
