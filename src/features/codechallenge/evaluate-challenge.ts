@@ -2,11 +2,11 @@ import generateStructuredOutput from "@/lib/openai/generate-structured-output";
 
 type EvaluationResult = {
   correct: boolean;
-  "error-code"?: string;
-  expectedOutput?: string;
+  errorCode?: string;
+  expectedOutput?: string[];
   feedback: string;
-  output?: string;
-  stdout?: string;
+  output?: string[];
+  stdout?: string[];
   testExamples?: string[];
 };
 
@@ -25,22 +25,73 @@ export async function evaluateChallenge(
     additionalProperties: false,
     properties: {
       correct: { type: "boolean" },
-      errorcode: { type: "string" },
+      errorCode: { type: "string" },
+      expectedOutput: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
+
       feedback: { type: "string" },
-      output: { type: "string" },
-      stdout: { type: "string" },
+      output: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
+      stdout: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
+      testExamples: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
     },
-    required: ["correct", "stdout", "errorcode", "output", "feedback"],
+    required: [
+      "correct",
+      "errorCode",
+      "feedback",
+      "testExamples",
+      "expectedOutput",
+      "output",
+      "stdout",
+    ],
     type: "object",
   } as const;
 
-  const instructions = `- Return true ONLY if the user's code fully solves the problem.
-- Consider edge cases.
-- Evaluate logic and correctness.
-- Include line number if there is an error.
-- Capture any prints or console logs.
-- Return the output if the code runs.
-- If the code runs, accept it and provide optimization feedback.`;
+  const instructions = `
+You are a strict code evaluator.
+
+Return a JSON object that matches the schema exactly.
+
+Rules:
+- Generate EXACTLY 3 test examples.
+- testExamples must contain the inputs.
+- expectedOutput must contain the correct outputs for each test.
+- output must contain the user's code results.
+- stdout must contain any console logs (or empty string if none).
+
+- All arrays MUST have exactly 3 items and align by index:
+  index 0 = Test 1
+  index 1 = Test 2
+  index 2 = Test 3
+
+- Include:
+  1 normal case
+  1 edge case
+  1 corner/tricky case
+
+- "correct" is true ONLY if all outputs match expectedOutput.
+
+- Do NOT leave any array empty.
+- Use empty string "" if no stdout exists.
+`;
 
   try {
     const response = await generateStructuredOutput<EvaluationResult>({
