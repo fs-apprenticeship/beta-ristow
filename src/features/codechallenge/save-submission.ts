@@ -3,22 +3,18 @@ import getClient from "@/lib/prisma/get-client";
 
 interface SaveSubmissionInput {
   challengeId: string;
+  correct: boolean;
+  feedback: string;
   userCode: string;
 }
 
 export async function saveSubmission({
   challengeId,
+  correct,
+  feedback,
   userCode,
 }: SaveSubmissionInput) {
   const prisma = getClient();
-
-  if (!challengeId) {
-    throw new Error("Missing challengeId");
-  }
-
-  if (!userCode) {
-    throw new Error("Missing userCode");
-  }
 
   const clerkUserId = await getCurrentUserId();
 
@@ -36,8 +32,8 @@ export async function saveSubmission({
     data: {
       accountId: account.id,
       challengeId,
-      correct: false,
-      feedback: "Pending evaluation",
+      correct: correct,
+      feedback: feedback ?? "",
       userCode,
     },
   });
