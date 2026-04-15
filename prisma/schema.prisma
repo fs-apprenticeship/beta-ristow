@@ -26,6 +26,8 @@ model Account {
   /// prisma-lint-ignore-field require-default-empty-arrays
   lessonItems         LessonItem[]
 
+  challengeSubmissions ChallengeSubmission[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -170,16 +172,20 @@ model Challenge {
 model ChallengeSubmission {
   id          String  @id @default(uuid()) @db.Uuid
   challengeId String  @map("challenge_id") @db.Uuid
-  userCode    String  @map("user_code") @db.Text
-  feedback    String  @db.Text
-  correct     Boolean
+  accountId   String? @map("account_id") @db.Uuid
+
+  userCode String  @map("user_code") @db.Text
+  feedback String  @db.Text
+  correct  Boolean
 
   challenge Challenge @relation(fields: [challengeId], references: [id])
+  account   Account?  @relation(fields: [accountId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([challengeId])
+  @@index([accountId])
   @@map("challenge_submissions")
 }
 
