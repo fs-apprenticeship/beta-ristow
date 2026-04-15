@@ -42,7 +42,10 @@ const config = {
     "model-name-pascal-case": ["error"],
 
     // Ensure array fields have a default empty array if not required
-    "require-default-empty-arrays": ["error"],
+    // "require-default-empty-arrays": ["error"],
+
+    // disable because Prisma relations cannot have defaults
+    "require-default-empty-arrays": "off",
 
     // Prevent usage of certain fields entirely
     // "forbid-field": ["error"],
