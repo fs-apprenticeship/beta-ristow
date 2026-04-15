@@ -8,7 +8,7 @@ interface SaveSubmissionInput {
 
 export async function saveSubmission({
   challengeId,
-  userCode
+  userCode,
 }: SaveSubmissionInput) {
   const prisma = getClient();
 

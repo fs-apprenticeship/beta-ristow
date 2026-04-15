@@ -15,7 +15,7 @@ export async function submitChallengeAction(
 
   const submission = await saveSubmission({
     challengeId,
-    userCode
+    userCode,
   });
 
   return submission;
