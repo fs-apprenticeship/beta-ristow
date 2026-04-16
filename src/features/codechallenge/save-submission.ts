@@ -1,28 +1,39 @@
+import getCurrentUserId from "@/lib/clerk/get-current-user-id";
 import getClient from "@/lib/prisma/get-client";
 
 interface SaveSubmissionInput {
   challengeId: string;
+  correct: boolean;
+  feedback: string;
   userCode: string;
 }
 
 export async function saveSubmission({
   challengeId,
+  correct,
+  feedback,
   userCode,
 }: SaveSubmissionInput) {
   const prisma = getClient();
-  if (!challengeId) {
-    throw new Error("Missing challengeId");
+
+  const clerkUserId = await getCurrentUserId();
+
+  if (!clerkUserId) {
+    throw new Error("Unauthorized!");
   }
 
-  if (!userCode) {
-    throw new Error("Missing userCode");
-  }
+  const account = await prisma.account.findUniqueOrThrow({
+    where: {
+      clerkUserId,
+    },
+  });
 
   const submission = await prisma.challengeSubmission.create({
     data: {
+      accountId: account.id,
       challengeId,
-      correct: false,
-      feedback: "Pending evaluation",
+      correct: correct,
+      feedback: feedback ?? "",
       userCode,
     },
   });
