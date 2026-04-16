@@ -3,7 +3,7 @@ import { z } from "zod";
 import generateText from "@/lib/openai/generate-text";
 import parseJsonResponse from "@/lib/openai/parse-json-response";
 
-import type { GeneratedReflection, ReflectionContext } from "./types.ts";
+import type { GeneratedReflection, ReflectionContext } from "./types.js";
 
 const reflectionQuestionSchema = z.object({
   id: z.string(),

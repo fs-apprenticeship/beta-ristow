@@ -8,6 +8,10 @@ export type ReflectionAnswer = {
   questionId: string;
 };
 
+export type ReflectionAnswers = {
+  answers: ReflectionAnswer[];
+};
+
 export type ReflectionContext = {
   content: string;
   questionCount?: number;
@@ -23,8 +27,14 @@ export type ReflectionQuestion = {
   prompt: string;
 };
 
+export type ReflectionSessionStatus =
+  | "answering"
+  | "error"
+  | "submitted"
+  | "submitting";
+
 export type ReflectionSubmission = {
   answers: ReflectionAnswer[];
   context: ReflectionContext;
-  reflection: GeneratedReflection;
+  reflectionQuestions: GeneratedReflection;
 };

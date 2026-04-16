@@ -5,8 +5,8 @@ import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
 import onboard from "@/features/onboarding/onboard";
 import buildReflectionContext from "@/features/reflection/build-reflection-context";
-import ReflectionForm from "@/features/reflection/components/reflection-form";
-import generateReflection from "@/features/reflection/generate-reflection";
+import ReflectionSession from "@/features/reflection/components/reflection-session";
+import generateReflection from "@/features/reflection/generate-reflection-questions";
 
 export const dynamic = "force-dynamic";
 
@@ -32,12 +32,11 @@ export default async function LessonReflectionPage({
 
   const lesson = await getLesson(course.id, lessonSlug);
   const context = buildReflectionContext(lesson);
-  const reflection = await generateReflection(context);
+  const reflectionQuestions = await generateReflection(context);
 
   return (
     <main>
-      <h1>{reflection.title}</h1>
-      <ReflectionForm reflection={reflection} />
+      <ReflectionSession context={context} reflectionQuestions={reflectionQuestions} />
     </main>
   );
 }
