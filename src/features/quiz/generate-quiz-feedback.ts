@@ -44,11 +44,32 @@ export default async function generateQuizFeedback({
   const result = await generateText({ instructions, prompt });
 
   const parsed = parseJsonResponse(result);
-
   const validatedFeedback = quizFeedbackSchema.safeParse(parsed);
 
   if (!validatedFeedback.success) {
     throw new Error("Quiz feedback generator returned an invalid shape.");
+  }
+
+  const submittedQuestionIds = new Set(
+    answers.map((answer) => answer.questionId),
+  );
+
+  const returnedQuestionIds = new Set<string>();
+
+  for (const item of validatedFeedback.data.questionFeedback) {
+    if (!submittedQuestionIds.has(item.questionId)) {
+      throw new Error(
+        `Quiz feedback generator returned unknown questionId: ${item.questionId}`,
+      );
+    }
+
+    if (returnedQuestionIds.has(item.questionId)) {
+      throw new Error(
+        `Quiz feedback generator returned duplicate questionId: ${item.questionId}`,
+      );
+    }
+
+    returnedQuestionIds.add(item.questionId);
   }
 
   return validatedFeedback.data;

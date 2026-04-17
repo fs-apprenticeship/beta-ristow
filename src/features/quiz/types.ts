@@ -1,17 +1,6 @@
 export type GeneratedQuiz = {
-  questions: GeneratedQuizQuestion[];
+  questions: QuizQuestion[];
   title: string;
-};
-
-export type GeneratedQuizOption = {
-  id: string;
-  text: string;
-};
-
-export type GeneratedQuizQuestion = {
-  id: string;
-  options: GeneratedQuizOption[];
-  prompt: string;
 };
 
 export type PersistedQuizFeedback = QuizFeedback & {
