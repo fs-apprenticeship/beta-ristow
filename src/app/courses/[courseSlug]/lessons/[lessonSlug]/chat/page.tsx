@@ -3,6 +3,8 @@
 import React, { useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
+import requestStream from "@/lib/stream/request-stream";
+
 import CodeBlock from "./codeblock";
 interface Conversation {
   content: string;
@@ -27,22 +29,41 @@ export default function Home({
 
   const sendMessage = async (message: string) => {
     const chatHistory = [...conversation, { content: message, role: "user" }];
-    const response = await fetch(
+    setValue("");
+    setConversation([...chatHistory, { content: "", role: "assistant" }]);
+
+    let assistantMessage = "";
+    let buffer = "";
+
+    const abort = requestStream(
       `/api/courses/${params.courseSlug}/lessons/${params.lessonSlug}/chat`,
+      async (chunk: string) => {
+        buffer += chunk;
+        const lines = buffer.split("\n");
+
+        // Keep the last incomplete line in the buffer
+        buffer = lines[lines.length - 1];
+
+        for (let i = 0; i < lines.length - 1; i++) {
+          const line = lines[i];
+          if (line.startsWith("data: ")) {
+            // Extract the text delta from the "data: ${text}" format
+            const textDelta = line.slice(6);
+            assistantMessage += textDelta;
+
+            setConversation((prev) => [
+              ...prev.slice(0, -1),
+              { content: assistantMessage, role: "assistant" },
+            ]);
+          }
+        }
+      },
       {
         body: JSON.stringify({ messages: chatHistory }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
       },
     );
-
-    const data = await response.json();
-
-    setValue("");
-    setConversation([
-      ...chatHistory,
-      { content: data.result.choices[0].message.content, role: "assistant" },
-    ]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -203,11 +224,9 @@ export default function Home({
                   className={`chat-bubble ${isUser ? "chat-user" : "chat-assistant"}`}
                 >
                   <span className="bubble-label">{isUser ? "YOU" : "AVA"}</span>
-                  <p
+                  <div
                     style={{
                       margin: 0,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
                     }}
                   >
                     <ReactMarkdown
@@ -217,7 +236,7 @@ export default function Home({
                     >
                       {item.content}
                     </ReactMarkdown>
-                  </p>
+                  </div>
                 </article>
               </div>
             );

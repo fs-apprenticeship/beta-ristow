@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY ?? "missing-key",
-});
+import generateTextStream from "@/lib/openai/generate-text-stream";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,36 +18,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const completion = await openai.responses.create({
-      input: messages,
-      model: "gpt-4o-mini",
+    // Extract instructions and prompt from messages
+    const systemMessage = messages.find((msg) => msg.role === "system");
+    const instructions = systemMessage ? systemMessage.content : "";
+    const prompt = messages
+      .filter((msg) => msg.role !== "system")
+      .map((msg) => msg.content)
+      .join(" ");
+
+    // Use the helper to generate the stream
+    const textStream = generateTextStream({ instructions, prompt });
+
+    // Create a ReadableStream to properly format the streaming response
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const delta of textStream) {
+            controller.enqueue(`data: ${delta}\n\n`);
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
     });
 
-    const transformedResponse = {
-      choices: [
-        {
-          message: {
-            content: completion.output_text,
-            role: "assistant",
-          },
-        },
-      ],
-    };
-
-    return NextResponse.json({ result: transformedResponse });
-  } catch (error) {
-    // Properly typed error handling
-    console.error("API ERROR:", error);
-
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
-
-    return NextResponse.json(
-      {
-        details: errorMessage,
-        error: "Server error",
+    return new Response(stream, {
+      headers: {
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Content-Type": "text/event-stream",
       },
-      { status: 500 },
-    );
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+    }
   }
 }
