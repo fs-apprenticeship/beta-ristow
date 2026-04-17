@@ -2,8 +2,8 @@
 
 import type { QuizFeedback, QuizSubmission } from "../types";
 
+import saveQuizAttempt from "../data/save-quiz-attempt";
 import generateQuizFeedback from "../generate-quiz-feedback";
-import persistQuizFeedback from "./persist-quiz-feedback";
 
 type SubmitQuizInput = {
   learnerId: string;
@@ -11,30 +11,22 @@ type SubmitQuizInput = {
   submission: QuizSubmission;
 };
 
+type SubmitQuizResult = QuizFeedback & {
+  score: number;
+  totalQuestions: number;
+};
+
 export default async function submitQuiz({
   learnerId,
   lessonId,
   submission,
-}: SubmitQuizInput): Promise<
-  QuizFeedback & { score: number; totalQuestions: number }
-> {
+}: SubmitQuizInput): Promise<SubmitQuizResult> {
   const feedback = await generateQuizFeedback(submission);
 
-  const answeredCorrectly = feedback.questionFeedback.filter(
-    (item) => item.isCorrect === true,
-  ).length;
-
   const totalQuestions = submission.quiz.questions.length;
+  const score = calculateQuizScore(feedback, totalQuestions);
 
-  const score = Math.round((answeredCorrectly / totalQuestions) * 100);
-
-  const result = {
-    ...feedback,
-    score,
-    totalQuestions,
-  };
-
-  await persistQuizFeedback({
+  await saveQuizAttempt({
     feedback,
     learnerId,
     lessonId,
@@ -43,5 +35,24 @@ export default async function submitQuiz({
     totalQuestions,
   });
 
-  return result;
+  return {
+    ...feedback,
+    score,
+    totalQuestions,
+  };
+}
+
+function calculateQuizScore(
+  feedback: QuizFeedback,
+  totalQuestions: number,
+): number {
+  if (totalQuestions === 0) {
+    return 0;
+  }
+
+  const answeredCorrectly = feedback.questionFeedback.filter(
+    (item) => item.isCorrect === true,
+  ).length;
+
+  return Math.round((answeredCorrectly / totalQuestions) * 100);
 }

@@ -4,19 +4,19 @@ import type { QuizFeedback, QuizSubmission } from "../types";
 
 import submitQuiz from "./submit-quiz";
 
-const { generateQuizFeedbackMock, persistQuizFeedbackMock } = vi.hoisted(
-  () => ({
-    generateQuizFeedbackMock: vi.fn(),
-    persistQuizFeedbackMock: vi.fn(),
-  }),
-);
+vi.mock("server-only", () => ({}));
+
+const { generateQuizFeedbackMock, saveQuizAttemptkMock } = vi.hoisted(() => ({
+  generateQuizFeedbackMock: vi.fn(),
+  saveQuizAttemptkMock: vi.fn(),
+}));
 
 vi.mock("../generate-quiz-feedback", () => ({
   default: generateQuizFeedbackMock,
 }));
 
-vi.mock("./persist-quiz-feedback", () => ({
-  default: persistQuizFeedbackMock,
+vi.mock("../data/save-quiz-attempt", () => ({
+  default: saveQuizAttemptkMock,
 }));
 
 describe("submitQuiz", () => {
@@ -94,7 +94,7 @@ describe("submitQuiz", () => {
     expect(result.totalQuestions).toBe(2);
 
     // persistence called with correct data
-    expect(persistQuizFeedbackMock).toHaveBeenCalledWith({
+    expect(saveQuizAttemptkMock).toHaveBeenCalledWith({
       feedback,
       learnerId: "learner-1",
       lessonId: "lesson-1",
