@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
 import requestStream from "@/lib/stream/request-stream";
 
 import CodeBlock from "./codeblock";
+
 interface Conversation {
   content: string;
   role: string;
@@ -14,17 +15,29 @@ interface Conversation {
 export default function Home({
   params,
 }: {
-  params: { courseSlug: string; lessonSlug: string };
+  params: Promise<{ courseSlug: string; lessonSlug: string }>;
 }) {
+  const { courseSlug, lessonSlug } = React.use(params);
   const [value, setValue] = React.useState<string>("");
   const [conversation, setConversation] = React.useState<Conversation[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const lastUserMessageRef = useRef<HTMLDivElement>(null);
+
+  const autoGrow = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    }
+  }, []);
 
   const handleInput = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setValue(e.target.value);
+      autoGrow();
     },
-    [],
+    [autoGrow],
   );
 
   const sendMessage = async (message: string) => {
@@ -32,11 +45,17 @@ export default function Home({
     setValue("");
     setConversation([...chatHistory, { content: "", role: "assistant" }]);
 
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "auto";
+        }
+      }, 10);
+    
     let assistantMessage = "";
     let buffer = "";
 
     const abort = requestStream(
-      `/api/courses/${params.courseSlug}/lessons/${params.lessonSlug}/chat`,
+      `/api/courses/${courseSlug}/lessons/${lessonSlug}/chat`,
       async (chunk: string) => {
         buffer += chunk;
         const lines = buffer.split("\n");
@@ -72,8 +91,9 @@ export default function Home({
     );
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && value.trim()) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey && value.trim()) {
+      e.preventDefault();
       sendMessage(value.trim());
     }
   };
@@ -84,162 +104,128 @@ export default function Home({
     }
   };
 
+  useEffect(() => {
+    autoGrow();
+  }, [value, autoGrow]);
+
+  useEffect(() => {
+    if (lastUserMessageRef.current && chatContainerRef.current) {
+      const container = chatContainerRef.current;
+      const element = lastUserMessageRef.current;
+      const scrollTarget = element.offsetTop - container.offsetTop;
+      if (typeof container.scrollTo === "function") {
+        container.scrollTo({ behavior: "smooth", top: scrollTarget });
+      }
+    }
+  }, [conversation]);
+
   return (
     <>
       <style>{`
-      .chat-page {
-        min-height: 100vh;
-      }
-      .chat-header {
-        text-align: center;
-        padding: var(--pico-spacing) 0 calc(var(--pico-spacing) * 3);
-      }
-      .chat-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: var(--pico-spacing);
-      }
-      .chat-header p {
-        opacity: 0.7;
-        font-size: 1.1rem;
-      }
-      .chat-area {
-        min-height: 500px;
-        margin-bottom: calc(var(--pico-spacing) * 4);
-        padding: var(--pico-spacing);
-        border-radius: var(--pico-border-radius);
-        gap: var(--pico-spacing);
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* soft inner shadow */
-      }
-      .chat-empty {
-        text-align: center;
-        opacity: 0.6;
-        padding: calc(var(--pico-spacing) * 6) 0;
-        font-size: 1.1rem;
-      }
-      .chat-row {
-        display: flex;
-        width: 100%;
-        margin-bottom: calc(var(--pico-spacing) * 1.5);
-      }
-      .chat-row.user { justify-content: flex-end; }
-      .chat-row.assistant { justify-content: flex-start; }
-      .chat-bubble {
-        max-width: 65%;
-        padding: var(--pico-spacing) calc(var(--pico-spacing) * 1.25);
-        border-radius: var(--pico-border-radius);
-        line-height: 1.6;
-        font-size: 0.97rem;
-        margin: 0;
-        border: 1px solid var(--pico-muted-border-color);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      }
-
-      .chat-bubble pre {
-        background-color: var(--pico-code-background-color);
-        border-radius: var(--pico-border-radius);
-        padding: var(--pico-spacing);
-        font-size: 0.85rem;
-      }
-
-      .chat-bubble code {
-        background-color: var(--pico-code-background-color);
-        padding: 2px 6px;
-        border-radius: calc(var(--pico-border-radius) / 2);
-      }
-
-      .chat-user {
-        background-color: var(--pico-secondary-background);
-        color: var(--pico-secondary-inverse);
-        border-bottom-left-radius: 4px;
-      }
-      .chat-assistant {
-        background-color: var(--pico--card-background-color);
-        color: var(--pico-color);
-        border-bottom-right-radius: 4px;
-      }
-      .bubble-label {
-        display: block;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        opacity: 0.75;
-        margin-bottom: calc(var(--pico-spacing) * 0.5);
-      }
-      .chat-input-area {
-        position: sticky;
-        bottom: 0;
-        background: var(--pico-background-color);
-        padding: var(--pico-spacing);
-        border-top: 1px solid var(--pico-muted-border-color);
-        box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
-      }
-      .chat-input-row {
-        display: flex;
-        gap: var(--pico-spacing);
-        align-items: center;
-      }
-      .chat-input-row input {
-        flex: 1;
-        margin: 0;
-      }
-
-      .chat-input-row input:focus {
-        border-color: var(--pico-color);
-        box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
-      }
-
-      .chat-input-row button {
-        margin: 0;
-        width: auto;
-        padding: 0.5em 1.2em;
-        border-radius: var(--pico-border-radius);
-        background-color: var(--pico-color);
-        color: var(--pico-background-color);
-        border: none;
-        cursor: pointer;
-        transition: background 0.2s ease;
-      }
-      .chat-hint {
-        text-align: center;
-        font-size: 0.75rem;
-        opacity: 0.5;
-        margin-top: calc(var(--pico-spacing) * 0.5);
-      }
+        .chat-area {
+          overflow-y: auto;
+          max-height: calc(100vh - 260px);
+          margin-bottom: calc(var(--pico-spacing) * 4);
+        }
+        .chat-row {
+          display: flex;
+          width: 100%;
+          margin-bottom: var(--pico-spacing);
+        }
+        .chat-row.user { justify-content: flex-end; }
+        .chat-row.assistant { justify-content: flex-start; }
+        .chat-bubble {
+          max-width: 65%;
+          margin: 0;
+        }
+        .chat-input-area {
+          position: sticky;
+          bottom: 0;
+          background: var(--pico-background-color);
+          padding: var(--pico-spacing);
+          border-top: 1px solid var(--pico-muted-border-color);
+          box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
+        }
+        .chat-input-row {
+          display: flex;
+          gap: var(--pico-spacing);
+          align-items: flex-end;
+        }
+        .chat-input-row textarea {
+          flex: 1;
+          margin: 0;
+          resize: none;
+          min-height: 52px;
+          max-height: 200px;
+          overflow-y: auto;
+          font-family: inherit;
+        }
+        .chat-input-row button {
+          margin: 0;
+          width: auto;
+          height: fit-content;
+          align-self: flex-end;
+        }
+        .bubble-label {
+          font-size: 0.65rem;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          opacity: 0.75;
+          display: block;
+          margin-bottom: calc(var(--pico-spacing) * 0.5);
+        }
       `}</style>
 
-      <main className="container chat-page">
-        <section className="chat-header">
+      <main className="container">
+        {/* Header */}
+        <header
+          style={{
+            padding: "var(--pico-spacing) 0 calc(var(--pico-spacing) * 3)",
+            textAlign: "center",
+          }}
+        >
           <h1>Hi there, I am AVA</h1>
-          <p>Ask me anything</p>
-        </section>
+          <p>
+            <small>Ask me anything</small>
+          </p>
+        </header>
 
-        <div className="chat-area">
+        {/* Chat area */}
+        <div className="chat-area" ref={chatContainerRef}>
           {conversation.length === 0 && (
-            <p className="chat-empty">Your conversation will appear here...</p>
+            <p
+              style={{
+                opacity: 0.6,
+                padding: "calc(var(--pico-spacing) * 6) 0",
+                textAlign: "center",
+              }}
+            >
+              <small>Your conversation will appear here...</small>
+            </p>
           )}
+
           {conversation.map((item, index) => {
             const isUser = item.role === "user";
+            const isLastUser =
+              isUser &&
+              index ===
+                [...conversation].map((c) => c.role).lastIndexOf("user");
+
             return (
               <div
                 className={`chat-row ${isUser ? "user" : "assistant"}`}
                 key={index}
+                ref={isLastUser ? lastUserMessageRef : null}
               >
-                <article
-                  className={`chat-bubble ${isUser ? "chat-user" : "chat-assistant"}`}
-                >
-                  <span className="bubble-label">{isUser ? "YOU" : "AVA"}</span>
+                <article className="chat-bubble">
+                  <span className="bubble-label">{isUser ? "You" : "AVA"}</span>
                   <div
                     style={{
                       margin: 0,
                     }}
                   >
-                    <ReactMarkdown
-                      components={{
-                        code: CodeBlock,
-                      }}
-                    >
+                    <ReactMarkdown components={{ code: CodeBlock }}>
                       {item.content}
                     </ReactMarkdown>
                   </div>
@@ -249,19 +235,31 @@ export default function Home({
           })}
         </div>
 
+        {/* Input area */}
         <div className="chat-input-area">
           <div className="chat-input-row">
-            <input
+            <textarea
               onChange={handleInput}
               onKeyDown={handleKeyDown}
-              placeholder="Enter a message"
-              ref={inputRef}
-              type="text"
+              placeholder={
+                "Type your message here...\nPress Enter to send • Shift + Enter for new line"
+              }
+              ref={textareaRef}
               value={value}
             />
             <button onClick={handleSend}>Send</button>
           </div>
-          <p className="chat-hint">Press Enter to send</p>
+          <p
+            style={{
+              marginTop: "calc(var(--pico-spacing) * 0.5)",
+              textAlign: "center",
+            }}
+          >
+            <small>
+              You can paste multi-line code directly. AVA will see the
+              formatting.
+            </small>
+          </p>
         </div>
       </main>
     </>

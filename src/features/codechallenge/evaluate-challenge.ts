@@ -1,16 +1,18 @@
-import OpenAI from "openai";
+import generateStructuredOutput from "@/lib/openai/generate-structured-output";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-interface EvaluationResult {
+type EvaluationResult = {
   correct: boolean;
+  errorCode?: string;
+  expectedOutput?: string[];
   feedback: string;
-}
+  output?: string[];
+  stdout?: string[];
+  testExamples?: string[];
+};
 
 /**
  * Evaluates user code against a coding challenge prompt.
  */
-
 export async function evaluateChallenge(
   prompt: string,
   userCode: string,
@@ -19,55 +21,88 @@ export async function evaluateChallenge(
     return { correct: false, feedback: "Missing prompt or user code." };
   }
 
-  const evalPrompt = `
-You are a strict coding evaluator.
+  const schema = {
+    additionalProperties: false,
+    properties: {
+      correct: { type: "boolean" },
+      errorCode: { type: "string" },
+      expectedOutput: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
 
-Challenge:
-${prompt}
+      feedback: { type: "string" },
+      output: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
+      stdout: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
+      testExamples: {
+        items: { type: "string" },
+        maxItems: 3,
+        minItems: 3,
+        type: "array",
+      },
+    },
+    required: [
+      "correct",
+      "errorCode",
+      "feedback",
+      "testExamples",
+      "expectedOutput",
+      "output",
+      "stdout",
+    ],
+    type: "object",
+  } as const;
 
-User Code:
-${userCode}
+  const instructions = `
+You are a strict code evaluator.
 
-Instructions:
-- Return true ONLY if the user's code fully solves the problem.
-- Consider edge cases.
-- Evaluate logic and correctness.
-- Line number of error code if it is error.
-- print any prints or console logs.
-- return the output if the code is run.
-- If the code runs, accept the code and provide feedback for an optimal solution.
-- Return JSON only in this format:
-{
-    "correct": true|false,
-    "stdout": "if there are prints or console logs, print it out"
-    "error-code": "error description and line of the error code"
-    "output": "If the code runs, provide the output"
-    "feedback": "Explain why the solution is correct or what is missing."
-}
+Return a JSON object that matches the schema exactly.
+
+Rules:
+- Generate EXACTLY 3 test examples.
+- testExamples must contain the inputs.
+- expectedOutput must contain the correct outputs for each test.
+- output must contain the user's code results.
+- stdout must contain any console logs (or empty string if none).
+
+- All arrays MUST have exactly 3 items and align by index:
+  index 0 = Test 1
+  index 1 = Test 2
+  index 2 = Test 3
+
+- Include:
+  1 normal case
+  1 edge case
+  1 corner/tricky case
+
+- "correct" is true ONLY if all outputs match expectedOutput.
+
+- Do NOT leave any array empty.
+- Use empty string "" if no stdout exists.
 `;
 
   try {
-    const response = await openai.chat.completions.create({
-      messages: [{ content: evalPrompt, role: "user" }],
-      model: "gpt-4.1",
-      temperature: 0,
+    const response = await generateStructuredOutput<EvaluationResult>({
+      formatSchema: schema,
+      instructions,
+      prompt,
     });
-
-    const content = response.choices?.[0].message?.content;
-
-    if (!content) {
-      return { correct: false, feedback: "AI returned an empty response." };
-    }
-
-    try {
-      // Parse JSON returned by AI
-      return JSON.parse(content.trim());
-    } catch {
-      console.warn("AI returned invalid JSON:", content);
-      return { correct: false, feedback: "AI returned invalid JSON." };
-    }
+    console.log("Evaluation response:", response);
+    return response;
   } catch (err) {
-    console.error("OpenAI evaluation error:", err);
-    return { correct: false, feedback: "AI evaluation failed." };
+    console.error("Error during challenge evaluation:", err);
+    return { correct: false, feedback: "Error evaluating code." };
   }
 }
