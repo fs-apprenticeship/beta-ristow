@@ -19,7 +19,7 @@ export default async function generateReflection(
   context: ReflectionContext,
 ): Promise<GeneratedReflection> {
   const instructions = `
-You generate open-ended questions for reflection quiz in strict JSON format.
+You generate open-ended questions for reflection form in strict JSON format.
 
 Rules:
 - Return JSON only.
@@ -32,7 +32,7 @@ Rules:
 `;
 
   const prompt = `
-Generate a reflection quiz from this lesson context.
+Generate a reflection form from this lesson context.
 
 Return JSON in exactly this shape:
 {

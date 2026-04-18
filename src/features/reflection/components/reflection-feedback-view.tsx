@@ -5,12 +5,14 @@ import { ReflectionFeedback } from "../types";
 type ReflectionFeedbackViewProps = {
   feedback: ReflectionFeedback;
   lessonTitle: string;
+  onBackToHome: () => void;
   onBackToReflection: () => void;
 };
 
 export default function ReflectionFeedbackView({
   feedback,
   lessonTitle,
+  onBackToHome,
   onBackToReflection,
 }: ReflectionFeedbackViewProps) {
   return (
@@ -24,10 +26,15 @@ export default function ReflectionFeedbackView({
       <p>
         <strong>Feedback:</strong> {feedback.overallFeedback}
       </p>
-
-      <button onClick={onBackToReflection} type="button">
-        Back to Reflection Questions
-      </button>
+      <hr />
+      <div style={{ display: "flex", gap: "var(--pico-spacing)" }}>
+        <button onClick={onBackToReflection} type="button">
+          Back to Reflection Questions
+        </button>
+        <button onClick={onBackToHome} type="button">
+          Back to Home
+        </button>
+      </div>
     </section>
   );
 }

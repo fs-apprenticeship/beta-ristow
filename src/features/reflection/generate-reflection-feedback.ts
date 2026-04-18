@@ -43,13 +43,20 @@ Rules:
 - Be positive and encouraging but not dishonest. If the answers demonstrate misunderstandings, reflect that in the feedback while still being constructive.
 `;
 
-function generatePrompt({ answers, context, reflectionQuestions }: ReflectionSubmission): string {
+function generatePrompt({
+  answers,
+  context,
+  reflectionQuestions,
+}: ReflectionSubmission): string {
   const answerDetails = answers.map((answer) => {
-    return reflectionQuestions.questions.find(
+    const question = reflectionQuestions.questions.find(
       (item) => item.id === answer.questionId,
     );
+    return {
+      answer: answer.answer,
+      question: question?.prompt,
+    };
   });
-
   return `
 Evaluate the following reflection submission.
 

@@ -1,9 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import submitReflectionForm from "../actions/submit-reflection-form";
-import { GeneratedReflection, ReflectionAnswers, ReflectionContext, ReflectionFeedback , ReflectionSessionStatus } from "../types";
+import {
+  GeneratedReflection,
+  ReflectionAnswer,
+  ReflectionAnswers,
+  ReflectionContext,
+  ReflectionFeedback,
+  ReflectionSessionStatus,
+} from "../types";
 import ReflectionFeedbackView from "./reflection-feedback-view";
 import ReflectionFormView from "./reflection-form-view";
 
@@ -12,24 +20,27 @@ type ReflectionSessionProps = {
   reflectionQuestions: GeneratedReflection;
 };
 
-export default function ReflectionSession({ context, reflectionQuestions }: ReflectionSessionProps) {
+export default function ReflectionSession({
+  context,
+  reflectionQuestions,
+}: ReflectionSessionProps) {
+  const router = useRouter();
   const [status, setStatus] = useState<ReflectionSessionStatus>("answering");
   const [feedback, setFeedback] = useState<null | ReflectionFeedback>(null);
-  const [submittedAnswers, setSubmittedAnswers] = useState<null | ReflectionAnswers>(
-    null,
-  );
+  const [submittedAnswers, setSubmittedAnswers] = useState<
+    null | ReflectionAnswer[]
+  >(null);
 
-  const handleSubmit = async (answers: ReflectionAnswers) => {
-    console.log("Submitting reflection answers:", answers);
+  const handleSubmit = async ({ answers }: ReflectionAnswers) => {
     setSubmittedAnswers(answers);
-
-    // next step:
     setStatus("submitting");
     try {
       setSubmittedAnswers(answers);
-
-      // call server-side feedback generation
-      const result = await submitReflectionForm({ answers, context, reflectionQuestions });
+      const result = await submitReflectionForm({
+        answers,
+        context,
+        reflectionQuestions,
+      });
       setFeedback(result);
       setStatus("submitted");
     } catch (error) {
@@ -43,10 +54,24 @@ export default function ReflectionSession({ context, reflectionQuestions }: Refl
       <ReflectionFeedbackView
         feedback={feedback}
         lessonTitle={reflectionQuestions.title}
-        onBackToReflection={() => setStatus("answering")}
+        onBackToHome={() => {
+          router.push("/");
+        }}
+        onBackToReflection={() => {
+          setStatus("answering");
+          setSubmittedAnswers(null);
+          setFeedback(null);
+        }}
       />
     );
   }
 
-  return <ReflectionFormView context={context} onSubmit={handleSubmit} reflectionQuestions={reflectionQuestions} status={status} />;
+  return (
+    <ReflectionFormView
+      context={context}
+      onSubmit={handleSubmit}
+      reflectionQuestions={reflectionQuestions}
+      status={status}
+    />
+  );
 }
