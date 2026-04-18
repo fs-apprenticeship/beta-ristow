@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       async start(controller) {
         try {
           for await (const delta of textStream) {
-            controller.enqueue(`data: ${delta}\n\n`);
+            // JSON-encode so embedded newlines don't break SSE framing
+            controller.enqueue(`data: ${JSON.stringify(delta)}\n\n`);
           }
           controller.close();
         } catch (error) {

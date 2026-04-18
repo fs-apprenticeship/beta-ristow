@@ -48,13 +48,19 @@ export default function Home({
           const line = lines[i];
           if (line.startsWith("data: ")) {
             // Extract the text delta from the "data: ${text}" format
-            const textDelta = line.slice(6);
-            assistantMessage += textDelta;
+            const raw = line.slice(6).trim();
+            if (!raw) continue;
+            try {
+              const textDelta = JSON.parse(raw); // decode the JSON string
+              assistantMessage += textDelta;
 
-            setConversation((prev) => [
-              ...prev.slice(0, -1),
-              { content: assistantMessage, role: "assistant" },
-            ]);
+              setConversation((prev) => [
+                ...prev.slice(0, -1),
+                { content: assistantMessage, role: "assistant" },
+              ]);
+            } catch (error) {
+              console.error("Failed to parse text delta:", error);
+            }
           }
         }
       },

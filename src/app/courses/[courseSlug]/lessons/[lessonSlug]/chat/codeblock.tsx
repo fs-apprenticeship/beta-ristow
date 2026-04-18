@@ -6,12 +6,13 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 type Props = {
   children?: React.ReactNode;
   className?: string;
-  inline?: boolean;
+  node?: unknown; // react-markdown passes this for block-level code
 };
 
-export default function CodeBlock({ children, className, inline }: Props) {
+export default function CodeBlock({ children, className, node }: Props) {
   const [copied, setCopied] = useState(false);
   const match = /language-(\w+)/.exec(className || "");
+  const inline = !node; // block code always has a node
   const code = String(children).replace(/\n$/, "");
 
   const handleCopy = async () => {
