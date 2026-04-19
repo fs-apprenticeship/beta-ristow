@@ -7,7 +7,13 @@ import {
 } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import requestStream from "@/lib/stream/request-stream";
+
 import Home from "./page";
+
+vi.mock("@/lib/stream/request-stream", () => ({
+  default: vi.fn(),
+}));
 
 vi.mock("react-markdown", () => ({
   default: ({ children }: { children: string }) => (
@@ -21,9 +27,6 @@ vi.mock("./codeblock", () => ({
   ),
 }));
 
-const mockFetch = vi.fn();
-globalThis.fetch = mockFetch as typeof fetch;
-
 describe("Chat Page (AVA)", () => {
   const mockParams = {
     params: Promise.resolve({
@@ -34,7 +37,6 @@ describe("Chat Page (AVA)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockFetch.mockReset();
   });
 
   it("renders the initial UI correctly with header and empty state", async () => {
@@ -52,23 +54,14 @@ describe("Chat Page (AVA)", () => {
   });
 
   it("sends a message when Enter is pressed and shows user + assistant messages", async () => {
-    const mockResponse = {
-      json: async () => ({
-        result: {
-          choices: [
-            {
-              message: {
-                content:
-                  "Yes, you can install Python from the official website.",
-              },
-            },
-          ],
-        },
-      }),
-      ok: true,
-    } as Response;
-
-    mockFetch.mockResolvedValueOnce(mockResponse);
+    (requestStream as ReturnType<typeof vi.fn>).mockImplementation(
+      (_url: string, onChunk: (chunk: string) => void) => {
+        const message =
+          "Yes, you can install Python from the official website.";
+        onChunk(`data: ${JSON.stringify(message)}\n\n`);
+        return () => {};
+      },
+    );
 
     await act(async () => {
       render(<Home params={mockParams.params} />);
@@ -97,8 +90,9 @@ describe("Chat Page (AVA)", () => {
       ).toBeInTheDocument();
     });
 
-    expect(mockFetch).toHaveBeenCalledWith(
+    expect(requestStream).toHaveBeenCalledWith(
       "/api/courses/intro-to-python/lessons/set-up-your-environment/chat",
+      expect.any(Function),
       expect.objectContaining({
         headers: { "Content-Type": "application/json" },
         method: "POST",
