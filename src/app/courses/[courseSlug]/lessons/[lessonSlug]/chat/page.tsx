@@ -3,6 +3,8 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
+import requestStream from "@/lib/stream/request-stream";
+
 import CodeBlock from "./codeblock";
 
 interface Conversation {
@@ -40,31 +42,53 @@ export default function Home({
 
   const sendMessage = async (message: string) => {
     const chatHistory = [...conversation, { content: message, role: "user" }];
-
     setValue("");
-    setConversation(chatHistory);
+    setConversation([...chatHistory, { content: "", role: "assistant" }]);
 
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
-    }, 10);
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "auto";
+        }
+      }, 10);
+    
+    let assistantMessage = "";
+    let buffer = "";
 
-    const response = await fetch(
+    const abort = requestStream(
       `/api/courses/${courseSlug}/lessons/${lessonSlug}/chat`,
+      async (chunk: string) => {
+        buffer += chunk;
+        const lines = buffer.split("\n");
+
+        // Keep the last incomplete line in the buffer
+        buffer = lines[lines.length - 1];
+
+        for (let i = 0; i < lines.length - 1; i++) {
+          const line = lines[i];
+          if (line.startsWith("data: ")) {
+            // Extract the text delta from the "data: ${text}" format
+            const raw = line.slice(6).trim();
+            if (!raw) continue;
+            try {
+              const textDelta = JSON.parse(raw); // decode the JSON string
+              assistantMessage += textDelta;
+
+              setConversation((prev) => [
+                ...prev.slice(0, -1),
+                { content: assistantMessage, role: "assistant" },
+              ]);
+            } catch (error) {
+              console.error("Failed to parse text delta:", error);
+            }
+          }
+        }
+      },
       {
         body: JSON.stringify({ messages: chatHistory }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
       },
     );
-
-    const data = await response.json();
-
-    setConversation([
-      ...chatHistory,
-      { content: data.result.choices[0].message.content, role: "assistant" },
-    ]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -199,8 +223,6 @@ export default function Home({
                   <div
                     style={{
                       margin: 0,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
                     }}
                   >
                     <ReactMarkdown components={{ code: CodeBlock }}>
