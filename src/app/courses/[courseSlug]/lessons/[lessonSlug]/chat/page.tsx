@@ -45,16 +45,16 @@ export default function Home({
     setValue("");
     setConversation([...chatHistory, { content: "", role: "assistant" }]);
 
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.style.height = "auto";
-        }
-      }, 10);
-    
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
+    }, 10);
+
     let assistantMessage = "";
     let buffer = "";
 
-    const abort = requestStream(
+    requestStream(
       `/api/courses/${courseSlug}/lessons/${lessonSlug}/chat`,
       async (chunk: string) => {
         buffer += chunk;
@@ -64,7 +64,7 @@ export default function Home({
         buffer = lines[lines.length - 1];
 
         for (let i = 0; i < lines.length - 1; i++) {
-          const line = lines[i];
+          const line = lines.at(i) ?? "";
           if (line.startsWith("data: ")) {
             // Extract the text delta from the "data: ${text}" format
             const raw = line.slice(6).trim();
