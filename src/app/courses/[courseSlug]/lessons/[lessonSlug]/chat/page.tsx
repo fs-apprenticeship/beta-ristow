@@ -121,62 +121,6 @@ export default function Home({
 
   return (
     <>
-      <style>{`
-        .chat-area {
-          overflow-y: auto;
-          max-height: calc(100vh - 260px);
-          margin-bottom: calc(var(--pico-spacing) * 4);
-        }
-        .chat-row {
-          display: flex;
-          width: 100%;
-          margin-bottom: var(--pico-spacing);
-        }
-        .chat-row.user { justify-content: flex-end; }
-        .chat-row.assistant { justify-content: flex-start; }
-        .chat-bubble {
-          max-width: 65%;
-          margin: 0;
-        }
-        .chat-input-area {
-          position: sticky;
-          bottom: 0;
-          background: var(--pico-background-color);
-          padding: var(--pico-spacing);
-          border-top: 1px solid var(--pico-muted-border-color);
-          box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
-        }
-        .chat-input-row {
-          display: flex;
-          gap: var(--pico-spacing);
-          align-items: flex-end;
-        }
-        .chat-input-row textarea {
-          flex: 1;
-          margin: 0;
-          resize: none;
-          min-height: 52px;
-          max-height: 200px;
-          overflow-y: auto;
-          font-family: inherit;
-        }
-        .chat-input-row button {
-          margin: 0;
-          width: auto;
-          height: fit-content;
-          align-self: flex-end;
-        }
-        .bubble-label {
-          font-size: 0.65rem;
-          font-weight: 700;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          opacity: 0.75;
-          display: block;
-          margin-bottom: calc(var(--pico-spacing) * 0.5);
-        }
-      `}</style>
-
       <main className="container">
         {/* Header */}
         <header
@@ -212,23 +156,35 @@ export default function Home({
               index ===
                 [...conversation].map((c) => c.role).lastIndexOf("user");
 
-            return (
+            const body = (
+              <ReactMarkdown components={{ code: CodeBlock }}>
+                {item.content}
+              </ReactMarkdown>
+            );
+
+            return isUser ? (
               <div
-                className={`chat-row ${isUser ? "user" : "assistant"}`}
+                className="grid"
                 key={index}
-                ref={isLastUser ? lastUserMessageRef : null}
+                style={{ justifyItems: "end", marginBottom: "8px" }}
               >
-                <article className="chat-bubble">
-                  <span className="bubble-label">{isUser ? "You" : "AVA"}</span>
-                  <div
-                    style={{
-                      margin: 0,
-                    }}
-                  >
-                    <ReactMarkdown components={{ code: CodeBlock }}>
-                      {item.content}
-                    </ReactMarkdown>
-                  </div>
+                <article
+                  ref={isLastUser ? lastUserMessageRef : null}
+                  style={{ maxWidth: "70%" }}
+                >
+                  <span className="bubble-label">You</span>
+                  {body}
+                </article>
+              </div>
+            ) : (
+              <div
+                className="grid"
+                key={index}
+                style={{ justifyItems: "start", marginBottom: "8px" }}
+              >
+                <article style={{ maxWidth: "70%" }}>
+                  <span className="bubble-label">AVA</span>
+                  {body}
                 </article>
               </div>
             );
