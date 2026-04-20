@@ -23,14 +23,12 @@ export default async function IntroPage({
   const storedArticle = await getLessonArticle(lesson.id);
 
   return (
-    <main>
-      <h1>{course.title}</h1>
-      <h2>{lesson.title} (Article)</h2>
-      <LessonArticle
-        courseSlug={course.slug}
-        initialArticle={storedArticle}
-        lessonSlug={lesson.slug}
-      />
-    </main>
+    <LessonArticle
+      courseSlug={course.slug}
+      headerSubtitle={course.title}
+      headerTitle={lesson.title}
+      initialArticle={storedArticle}
+      lessonSlug={lesson.slug}
+    />
   );
 }

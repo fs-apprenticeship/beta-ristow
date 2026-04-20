@@ -4,15 +4,23 @@ import { useEffect, useState } from "react";
 
 import type { LessonArticleContent } from "@/features/article/get-lesson-article";
 
-export default function LessonArticle({
-  courseSlug,
-  initialArticle,
-  lessonSlug,
-}: {
+import { LessonArticleBody } from "./lesson-article-body";
+
+type LessonArticleProps = {
   courseSlug: string;
+  headerSubtitle: string;
+  headerTitle: string;
   initialArticle: LessonArticleContent | null;
   lessonSlug: string;
-}) {
+};
+
+export default function LessonArticle({
+  courseSlug,
+  headerSubtitle,
+  headerTitle,
+  initialArticle,
+  lessonSlug,
+}: LessonArticleProps) {
   const [article, setArticle] = useState<LessonArticleContent | null>(
     initialArticle,
   );
@@ -51,28 +59,56 @@ export default function LessonArticle({
     };
   }, [initialArticle, courseSlug, lessonSlug]);
 
-  if (error) {
-    return (
-      <p className="lesson-article-error" role="alert">
-        {error}
-      </p>
-    );
-  }
-
-  if (!article) {
-    return <p className="lesson-article-loading">Loading article…</p>;
-  }
+  const showLoading = !error && article === null;
+  const showBody = !error && article !== null;
+  const showError = error !== null;
 
   return (
-    <article className="lesson-article max-w-3xl">
-      <div className="whitespace-pre-wrap">{article.intro}</div>
-      {article.sections.map((section, index) => (
-        <section key={`${section.heading}-${index}`}>
-          <h3>{section.heading}</h3>
-          <div className="whitespace-pre-wrap">{section.content}</div>
-        </section>
-      ))}
-      <div className="whitespace-pre-wrap">{article.conclusion}</div>
-    </article>
+    <>
+      <main className="container">
+        {/* Header */}
+        <header
+          style={{
+            padding: "var(--pico-spacing) 0 calc(var(--pico-spacing) * 3)",
+            textAlign: "center",
+          }}
+        >
+          <h1>{headerTitle}</h1>
+          <p>
+            <small>{headerSubtitle}</small>
+          </p>
+        </header>
+
+        {/* Full-page scroll: no inner overflow (unlike chat’s .chat-area) */}
+        <div style={{ marginBottom: "calc(var(--pico-spacing) * 4)" }}>
+          {showError ? (
+            <p
+              role="alert"
+              style={{
+                opacity: 0.85,
+                padding: "calc(var(--pico-spacing) * 6) 0",
+                textAlign: "center",
+              }}
+            >
+              <small>{error}</small>
+            </p>
+          ) : null}
+
+          {showLoading ? (
+            <p
+              style={{
+                opacity: 0.6,
+                padding: "calc(var(--pico-spacing) * 6) 0",
+                textAlign: "center",
+              }}
+            >
+              <small>Loading article…</small>
+            </p>
+          ) : null}
+
+          {showBody ? <LessonArticleBody article={article} /> : null}
+        </div>
+      </main>
+    </>
   );
 }
