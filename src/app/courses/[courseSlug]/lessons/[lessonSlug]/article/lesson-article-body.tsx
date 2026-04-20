@@ -6,10 +6,26 @@ import ReactMarkdown from "react-markdown";
 
 import type { LessonArticleContent } from "@/features/article/get-lesson-article";
 
-import ArticleCodeBlock from "./article-codeblock";
+import CodeBlock from "@/components/ui/codeblock";
 
 const markdownComponents = {
-  code: ArticleCodeBlock,
+  code({
+    children,
+    className,
+    inline,
+    node,
+  }: {
+    children?: ReactNode;
+    className?: string;
+    inline?: boolean;
+    node?: unknown;
+  }) {
+    return (
+      <CodeBlock className={className} node={inline ? undefined : node}>
+        {children}
+      </CodeBlock>
+    );
+  },
   pre({ children }: { children?: ReactNode }) {
     return <>{children}</>;
   },

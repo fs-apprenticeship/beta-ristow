@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import type { LessonArticleContent } from "@/features/article/get-lesson-article";
 
 import { LessonArticleBody } from "./lesson-article-body";
-import { lessonArticleShellStyles } from "./lesson-article.styles";
 
 type LessonArticleProps = {
   courseSlug: string;
@@ -66,22 +65,46 @@ export default function LessonArticle({
 
   return (
     <>
-      <style>{lessonArticleShellStyles}</style>
-
-      <main className="container chat-page">
-        <section className="chat-header">
+      <main className="container">
+        {/* Header */}
+        <header
+          style={{
+            padding: "var(--pico-spacing) 0 calc(var(--pico-spacing) * 3)",
+            textAlign: "center",
+          }}
+        >
           <h1>{headerTitle}</h1>
-          <p>{headerSubtitle}</p>
-        </section>
+          <p>
+            <small>{headerSubtitle}</small>
+          </p>
+        </header>
 
-        <div className="chat-area">
+        {/* Full-page scroll: no inner overflow (unlike chat’s .chat-area) */}
+        <div style={{ marginBottom: "calc(var(--pico-spacing) * 4)" }}>
           {showError ? (
-            <p className="lesson-article-error" role="alert">
-              {error}
+            <p
+              role="alert"
+              style={{
+                opacity: 0.85,
+                padding: "calc(var(--pico-spacing) * 6) 0",
+                textAlign: "center",
+              }}
+            >
+              <small>{error}</small>
             </p>
           ) : null}
 
-          {showLoading ? <p className="chat-empty">Loading article…</p> : null}
+          {showLoading ? (
+            <p
+              style={{
+                opacity: 0.6,
+                padding: "calc(var(--pico-spacing) * 6) 0",
+                textAlign: "center",
+              }}
+            >
+              <small>Loading article…</small>
+            </p>
+          ) : null}
 
           {showBody ? <LessonArticleBody article={article} /> : null}
         </div>
