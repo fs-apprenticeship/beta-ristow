@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 
-import { getChallengeByIdAction } from "../_actions/get-challenge-action";
+// import { getChallengeByIdAction } from "../_actions/get-challenge-action";
+import { getChallenge } from "@/features/codechallenge/get-challenge";
+
 import ChallengePageClient from "../_components/challenge-page-client";
 
 interface Params {
@@ -12,7 +14,7 @@ export default async function ChallengePage({ params }: { params: Params }) {
 
   let challenge;
   try {
-    challenge = await getChallengeByIdAction(id);
+    challenge = await getChallenge(id);
   } catch {
     return notFound();
   }

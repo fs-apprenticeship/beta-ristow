@@ -104,6 +104,9 @@ model Lesson {
   lessonArticle LessonArticle?
   course        Course         @relation(fields: [courseId], references: [id])
 
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  quizzes Quiz[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -178,4 +181,58 @@ model ChallengeSubmission {
 
   @@index([challengeId])
   @@map("challenge_submissions")
+}
+
+model Quiz {
+  id       String @id @default(uuid()) @db.Uuid
+  lessonId String @map("lesson_id") @db.Uuid
+
+  title  String
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  questions QuizQuestion[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([lessonId])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id     String @id @default(uuid()) @db.Uuid
+  quizId String @map("quiz_id") @db.Uuid
+
+  prompt   String @db.Text
+  position Int
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  options QuizOption[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([quizId, position])
+  @@index([quizId])
+  @@map("quiz_questions")
+}
+
+model QuizOption {
+  id         String @id @default(uuid()) @db.Uuid
+  questionId String @map("question_id") @db.Uuid
+
+  text     String @db.Text
+  position Int
+
+  question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([questionId, position])
+  @@index([questionId])
+  @@map("quiz_options")
 }
