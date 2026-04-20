@@ -3,9 +3,8 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 
+import CodeBlock from "@/components/ui/codeblock";
 import requestStream from "@/lib/stream/request-stream";
-
-import CodeBlock from "./codeblock";
 
 interface Conversation {
   content: string;
