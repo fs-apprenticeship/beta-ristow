@@ -10,9 +10,9 @@ export default function mapQuizToUIQuiz(quiz: PersistedQuiz): Quiz {
   return {
     id: quiz.id,
     questions: quiz.questions.map((question) => ({
-      id: question.id,
+      id: question.position.toString(),
       options: question.options.map((option) => ({
-        id: option.id,
+        id: option.position.toString(),
         text: option.text,
       })),
       prompt: question.prompt,
