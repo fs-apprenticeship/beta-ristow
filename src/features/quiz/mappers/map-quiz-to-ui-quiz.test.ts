@@ -10,22 +10,22 @@ describe("mapQuizToUIQuiz", () => {
       id: "quiz-db-id",
       questions: [
         {
-          id: "0",
+          id: "question-1-db-id",
           options: [
-            { id: "0", text: "A programming language" },
-            { id: "1", text: "A database" },
-            { id: "2", text: "An operating system" },
-            { id: "3", text: "A browser" },
+            { id: "option-1-db-id", text: "A programming language" },
+            { id: "option-2-db-id", text: "A database" },
+            { id: "option-3-db-id", text: "An operating system" },
+            { id: "option-4-db-id", text: "A browser" },
           ],
           prompt: "What is Java?",
         },
         {
-          id: "1",
+          id: "question-2-db-id",
           options: [
-            { id: "0", text: "class" },
-            { id: "1", text: "new" },
-            { id: "2", text: "void" },
-            { id: "3", text: "this" },
+            { id: "option-5-db-id", text: "class" },
+            { id: "option-6-db-id", text: "new" },
+            { id: "option-7-db-id", text: "void" },
+            { id: "option-8-db-id", text: "this" },
           ],
           prompt: "Which keyword creates an object in Java?",
         },

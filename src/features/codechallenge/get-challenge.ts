@@ -12,11 +12,11 @@ export interface Challenge {
 export async function getChallenge(challengeId: string): Promise<Challenge> {
   const prisma = getClient();
 
-  const challenge = await prisma.challenge.findUnique({
+  const challenge = await prisma.challenge.findUniqueOrThrow({
     where: { id: challengeId },
   });
 
-  if (!challenge) throw new Error("Challenge not found");
+  // if (!challenge) throw new Error("Challenge not found");
 
   return challenge;
 }

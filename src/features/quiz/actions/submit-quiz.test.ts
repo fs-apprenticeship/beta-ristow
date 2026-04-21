@@ -8,7 +8,7 @@ vi.mock("server-only", () => ({}));
 
 const { generateQuizFeedbackMock, saveQuizAttemptkMock } = vi.hoisted(() => ({
   generateQuizFeedbackMock: vi.fn(),
-  saveQuizAttemptkMock: vi.fn(),
+  saveQuizAttemptMock: vi.fn(),
 }));
 
 vi.mock("../generate-quiz-feedback", () => ({
@@ -16,7 +16,7 @@ vi.mock("../generate-quiz-feedback", () => ({
 }));
 
 vi.mock("../data/save-quiz-attempt", () => ({
-  default: saveQuizAttemptkMock,
+  default: saveQuizAttemptMock,
 }));
 
 describe("submitQuiz", () => {
@@ -94,7 +94,7 @@ describe("submitQuiz", () => {
     expect(result.totalQuestions).toBe(2);
 
     // persistence called with correct data
-    expect(saveQuizAttemptkMock).toHaveBeenCalledWith({
+    expect(saveQuizAttemptMock).toHaveBeenCalledWith({
       feedback,
       learnerId: "learner-1",
       lessonId: "lesson-1",
