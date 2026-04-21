@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 import type { QuizFeedback, QuizSubmission } from "../types";
 
 import submitQuiz from "./submit-quiz";
 
-vi.mock("server-only", () => ({}));
-
-const { generateQuizFeedbackMock, saveQuizAttemptkMock } = vi.hoisted(() => ({
+const { generateQuizFeedbackMock, saveQuizAttemptMock } = vi.hoisted(() => ({
   generateQuizFeedbackMock: vi.fn(),
   saveQuizAttemptMock: vi.fn(),
 }));
@@ -86,14 +86,10 @@ describe("submitQuiz", () => {
       submission,
     });
 
-    // called correctly
     expect(generateQuizFeedbackMock).toHaveBeenCalledWith(submission);
-
-    // score = 2/2 = 100
     expect(result.score).toBe(100);
     expect(result.totalQuestions).toBe(2);
 
-    // persistence called with correct data
     expect(saveQuizAttemptMock).toHaveBeenCalledWith({
       feedback,
       learnerId: "learner-1",
@@ -103,7 +99,6 @@ describe("submitQuiz", () => {
       totalQuestions: 2,
     });
 
-    // returns enriched feedback
     expect(result).toEqual({
       ...feedback,
       score: 100,
@@ -126,7 +121,6 @@ describe("submitQuiz", () => {
       submission,
     });
 
-    // 1/2 = 50
     expect(result.score).toBe(50);
     expect(result.totalQuestions).toBe(2);
   });
