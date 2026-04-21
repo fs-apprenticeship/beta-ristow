@@ -3,17 +3,6 @@ export type GeneratedQuiz = {
   title: string;
 };
 
-export type GeneratedQuizOption = {
-  id: string;
-  text: string;
-};
-
-export type GeneratedQuizQuestion = {
-  id: string;
-  options: GeneratedQuizOption[];
-  prompt: string;
-};
-
 export type PersistedQuizFeedback = QuizFeedback & {
   score: number;
   totalQuestions: number;

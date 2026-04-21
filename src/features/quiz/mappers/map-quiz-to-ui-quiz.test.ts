@@ -40,8 +40,8 @@ describe("mapQuizToUIQuiz", () => {
     const result = mapQuizToUIQuiz(quiz);
 
     expect(result.id).toBe("quiz-db-id");
-    expect(result.questions[0].id).toBe("question-1-db-id");
-    expect(result.questions[0].options[0].id).toBe("option-1-db-id");
+    expect(result.questions[0].id).toBe("0");
+    expect(result.questions[0].options[0].id).toBe("0");
   });
 });
 
