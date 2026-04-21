@@ -29,26 +29,15 @@ describe("generateQuizFeedback", () => {
       title: "Java Basics",
     },
     quiz: {
+      id: "quiz-1",
       questions: [
         {
           id: "q1",
           options: [
             { id: "a", text: "A stored value" },
             { id: "b", text: "A loop" },
-            { id: "c", text: "A class" },
-            { id: "d", text: "A method" },
           ],
           prompt: "What is a variable?",
-        },
-        {
-          id: "q2",
-          options: [
-            { id: "a", text: "String" },
-            { id: "b", text: "int" },
-            { id: "c", text: "Array" },
-            { id: "d", text: "Object" },
-          ],
-          prompt: "Which is a primitive type in Java?",
         },
       ],
       title: "Java Basics Quiz",
@@ -71,7 +60,7 @@ describe("generateQuizFeedback", () => {
           chosenAnswer: "A storage location for data",
           feedback: "Correct.",
           isCorrect: true,
-          question: "What is a variable?",
+          questionId: "q1",
         },
       ],
     };
@@ -88,7 +77,7 @@ describe("generateQuizFeedback", () => {
       "Great job. You understood the main concepts well.",
     );
     expect(result.passed).toBe(true);
-    expect(result.questionFeedback[0]?.question).toBe("What is a variable?");
+    expect(result.questionFeedback[0]?.questionId).toBe("q1");
     expect(result.questionFeedback[0]?.chosenAnswer).toBe(
       "A storage location for data",
     );

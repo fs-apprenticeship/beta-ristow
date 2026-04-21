@@ -1,16 +1,18 @@
 "use client";
 
-import { QuizFeedback } from "../types";
+import type { PersistedQuizFeedback, Quiz } from "../types";
 
 type QuizFeedbackViewProps = {
-  feedback: QuizFeedback;
+  feedback: PersistedQuizFeedback;
   onBackToQuiz: () => void;
+  quiz: Quiz;
   quizTitle: string;
 };
 
 export default function QuizFeedbackView({
   feedback,
   onBackToQuiz,
+  quiz,
   quizTitle,
 }: QuizFeedbackViewProps) {
   return (
@@ -27,33 +29,52 @@ export default function QuizFeedbackView({
 
       {typeof feedback.passed === "boolean" && (
         <p>
-          <strong>Result:</strong> {feedback.passed ? "Passed" : "Not Passed"}
+          <strong>Result:</strong>{" "}
+          <span style={{ color: feedback.passed ? "green" : "red" }}>
+            {feedback.score}% — {feedback.passed ? "Passed" : "Failed"}
+          </span>
         </p>
       )}
 
       <h3>Question Feedback</h3>
 
       <ul>
-        {feedback.questionFeedback.map((item, index) => (
-          <li key={`${item.question}-${index}`}>
-            <p>
-              <strong>Question:</strong> {item.question}
-            </p>
-            <p>
-              <strong>Chosen Answer:</strong> {item.chosenAnswer}
-            </p>
-            {typeof item.isCorrect === "boolean" && (
-              <p>
-                <strong>Correct:</strong> {item.isCorrect ? "Yes" : "No"}
-              </p>
-            )}
-            <p>
-              <strong>Feedback:</strong> {item.feedback}
-            </p>
-          </li>
-        ))}
-      </ul>
+        {feedback.questionFeedback.map((item, index) => {
+          const question = quiz.questions.find((q) => q.id === item.questionId);
 
+          return (
+            <li
+              key={item.questionId}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                listStyleType: "none",
+                marginBottom: "1.5rem",
+                padding: "1rem",
+              }}
+            >
+              <p>
+                <strong>Question {index + 1}:</strong> {question?.prompt}
+              </p>
+
+              <p>
+                <strong>Your Answer:</strong> {item.chosenAnswer}
+              </p>
+
+              <p>
+                <strong>Result:</strong>{" "}
+                <span style={{ color: item.isCorrect ? "green" : "red" }}>
+                  {item.isCorrect ? "Correct" : "Incorrect"}
+                </span>
+              </p>
+
+              <p>
+                <strong>Feedback:</strong> {item.feedback}
+              </p>
+            </li>
+          );
+        })}
+      </ul>
       <button onClick={onBackToQuiz} type="button">
         Back to Quiz
       </button>
