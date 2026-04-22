@@ -1,5 +1,5 @@
 export type GeneratedQuiz = {
-  questions: GeneratedQuizQuestion[];
+  questions: QuizQuestion[];
   title: string;
 };
 
