@@ -8,6 +8,7 @@ import { submitChallengeAction } from "../_actions/submit-action";
 import CodeEditor from "./code-editor";
 import EvaluationPanel from "./evaluation-panel";
 import { RunButton } from "./run-button";
+import SubmissionList from "./submission-list";
 import { SubmitButton } from "./submit-button";
 
 interface Evaluation {
@@ -26,7 +27,7 @@ interface Props {
 
 interface Submission {
   correct: boolean;
-  createdAt: Date;
+  createdAt: string;
   feedback: string;
   id: string;
   userCode: string;
@@ -94,33 +95,7 @@ export default function ChallengePageClient({
         />
       </div>
 
-      <div style={{ marginTop: "2rem" }}>
-        <h3>Submissions</h3>
-
-        {submissions.length === 0 ? (
-          <p>No submissions yet.</p>
-        ) : (
-          submissions.map((sub) => (
-            <div
-              key={sub.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                marginBottom: "1rem",
-                padding: "1rem",
-              }}
-            >
-              <p>
-                <strong>{sub.correct ? "✅ Correct" : "❌ Incorrect"}</strong>
-              </p>
-
-              <p>{sub.feedback}</p>
-
-              <pre>{sub.userCode}</pre>
-            </div>
-          ))
-        )}
-      </div>
+      <SubmissionList submissions={submissions} />
     </div>
   );
 }
