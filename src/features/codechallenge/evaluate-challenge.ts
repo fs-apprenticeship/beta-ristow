@@ -16,6 +16,7 @@ type EvaluationResult = {
 export async function evaluateChallenge(
   prompt: string,
   userCode: string,
+  language: string,
 ): Promise<EvaluationResult> {
   if (!prompt || !userCode) {
     return { correct: false, feedback: "Missing prompt or user code." };
@@ -32,8 +33,12 @@ export async function evaluateChallenge(
         minItems: 3,
         type: "array",
       },
-
       feedback: { type: "string" },
+      language: {
+        const: language,
+        type: "string",
+      },
+
       output: {
         items: { type: "string" },
         maxItems: 3,
@@ -52,8 +57,14 @@ export async function evaluateChallenge(
         minItems: 3,
         type: "array",
       },
+      userCode: {
+        const: userCode,
+        type: "string",
+      },
     },
     required: [
+      "userCode",
+      "language",
       "correct",
       "errorCode",
       "feedback",

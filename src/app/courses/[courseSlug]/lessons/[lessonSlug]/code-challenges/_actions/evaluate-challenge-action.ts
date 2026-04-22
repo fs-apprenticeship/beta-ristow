@@ -23,7 +23,11 @@ export async function evaluateChallengeAction(
 
   // Evaluate code
   try {
-    const result = await evaluateChallenge(challenge.prompt, userCode);
+    const result = await evaluateChallenge(
+      challenge.prompt,
+      userCode,
+      challenge.language,
+    );
     return result;
   } catch (err) {
     console.error("Challenge evaluation error:", err);
