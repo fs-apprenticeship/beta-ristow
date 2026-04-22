@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { evaluateChallengeAction } from "../_actions/evaluate-challenge-action";
+import { getChallengeSubmissionsAction } from "../_actions/get-challenge-submissions-action";
 import { submitChallengeAction } from "../_actions/submit-action";
 import CodeEditor from "./code-editor";
 import EvaluationPanel from "./evaluation-panel";
@@ -23,6 +24,14 @@ interface Props {
   starterCode: string;
 }
 
+interface Submission {
+  correct: boolean;
+  createdAt: Date;
+  feedback: string;
+  id: string;
+  userCode: string;
+}
+
 export default function ChallengePageClient({
   challengeId,
   starterCode,
@@ -30,6 +39,18 @@ export default function ChallengePageClient({
   const [userCode, setUserCode] = useState(starterCode);
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await getChallengeSubmissionsAction(challengeId);
+
+      setSubmissions(data);
+
+      console.log("submissions:", data);
+    };
+    load();
+  }, [challengeId]);
 
   const handleRun = async () => {
     setEvaluation(null);
@@ -62,11 +83,43 @@ export default function ChallengePageClient({
       <div style={{ marginTop: "1rem" }}>
         <SubmitButton
           onSubmit={async () => {
-            await handleRun();
+            // await handleRun();
             await submitChallengeAction(challengeId, userCode);
+
+            const updated = await getChallengeSubmissionsAction(challengeId);
+
+            setSubmissions(updated);
           }}
           pendingText="Submitting..."
         />
+      </div>
+
+      <div style={{ marginTop: "2rem" }}>
+        <h3>Submissions</h3>
+
+        {submissions.length === 0 ? (
+          <p>No submissions yet.</p>
+        ) : (
+          submissions.map((sub) => (
+            <div
+              key={sub.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                marginBottom: "1rem",
+                padding: "1rem",
+              }}
+            >
+              <p>
+                <strong>{sub.correct ? "✅ Correct" : "❌ Incorrect"}</strong>
+              </p>
+
+              <p>{sub.feedback}</p>
+
+              <pre>{sub.userCode}</pre>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
