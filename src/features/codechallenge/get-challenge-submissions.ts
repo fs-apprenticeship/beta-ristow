@@ -3,7 +3,7 @@ import getClient from "@/lib/prisma/get-client";
 
 export interface ChallengeSubmission {
   correct: boolean;
-  createdAt: Date;
+  createdAt: string;
   feedback: string;
   id: string;
   userCode: string;
@@ -36,5 +36,11 @@ export async function getChallengeSubmissions(
     },
   });
 
-  return submissions;
+  return submissions.map((sub) => ({
+    correct: sub.correct,
+    createdAt: sub.createdAt.toISOString(), // 🔥 fix
+    feedback: sub.feedback,
+    id: sub.id,
+    userCode: sub.userCode,
+  }));
 }
