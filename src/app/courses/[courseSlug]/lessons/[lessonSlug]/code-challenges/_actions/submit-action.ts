@@ -1,7 +1,8 @@
 "use server";
 
-import { evaluateChallenge } from "@/features/codechallenge/evaluate-challenge";
 import { saveSubmission } from "@/features/codechallenge/save-submission";
+
+import { evaluateChallengeAction } from "./evaluate-challenge-action";
 
 export async function submitChallengeAction(
   challengeId: string,
@@ -15,7 +16,7 @@ export async function submitChallengeAction(
     throw new Error("User code is required");
   }
 
-  const evaluation = await evaluateChallenge(challengeId, userCode);
+  const evaluation = await evaluateChallengeAction(challengeId, userCode);
 
   const submission = await saveSubmission({
     challengeId,
