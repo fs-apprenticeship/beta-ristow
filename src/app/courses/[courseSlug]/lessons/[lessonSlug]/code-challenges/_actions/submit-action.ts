@@ -1,7 +1,7 @@
 "use server";
 
-import { evaluateChallengeAction } from "./evaluate-challenge-action";
 import { saveSubmission } from "@/features/codechallenge/save-submission";
+import { evaluateChallengeAction } from "./evaluate-challenge-action";
 
 export async function submitChallengeAction(
   challengeId: string,
