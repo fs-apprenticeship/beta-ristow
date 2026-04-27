@@ -22,6 +22,8 @@ export async function evaluateChallenge(
     return { correct: false, feedback: "Missing prompt or user code." };
   }
 
+  console.log(userCode)
+
   const schema = {
     additionalProperties: false,
     properties: {
