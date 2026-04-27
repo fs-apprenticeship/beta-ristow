@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import requireCurrentAccount from "@/features/identity/actions/require-current-account";
 import generateTextStream from "@/lib/openai/generate-text-stream";
 
 export async function POST(request: NextRequest) {
   try {
     console.log("Received POST request");
+
+    await requireCurrentAccount();
 
     const body = await request.json();
     console.log("Body:", body);
@@ -26,15 +29,12 @@ export async function POST(request: NextRequest) {
       .map((msg) => msg.content)
       .join(" ");
 
-    // Use the helper to generate the stream
     const textStream = generateTextStream({ instructions, prompt });
 
-    // Create a ReadableStream to properly format the streaming response
     const stream = new ReadableStream({
       async start(controller) {
         try {
           for await (const delta of textStream) {
-            // JSON-encode so embedded newlines don't break SSE framing
             controller.enqueue(`data: ${JSON.stringify(delta)}\n\n`);
           }
           controller.close();
@@ -52,8 +52,22 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    console.error("API Error:", error);
+
+    // Return proper 401 for unauthenticated users
     if (error instanceof Error) {
-      console.log(error.message);
+      if (
+        error.message.includes("Unable to get account") ||
+        error.message.includes("clerkUserId")
+      ) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
     }
+
+    // Any other error
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

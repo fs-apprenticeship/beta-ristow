@@ -27,7 +27,7 @@ vi.mock("./codeblock", () => ({
   ),
 }));
 
-describe("Chat Page (AVA)", () => {
+describe("Chat Page", () => {
   const mockParams = {
     params: Promise.resolve({
       courseSlug: "intro-to-python",
@@ -98,5 +98,44 @@ describe("Chat Page (AVA)", () => {
         method: "POST",
       }),
     );
+  });
+
+  it("attempts to call the API even when user is not authenticated (auth is enforced on server)", async () => {
+    (requestStream as ReturnType<typeof vi.fn>).mockImplementation(
+      (
+        _url: string,
+        _onChunk: (chunk: string) => void,
+        options?: { onError?: (error: Error) => void },
+      ) => {
+        // Simulate 401 response from the protected API
+        if (options?.onError) {
+          options.onError(new Error("Unauthorized"));
+        }
+        return () => {};
+      },
+    );
+
+    await act(async () => {
+      render(<Home params={mockParams.params} />);
+    });
+
+    const textarea = screen.getByRole("textbox");
+
+    fireEvent.change(textarea, {
+      target: { value: "Hello, how are you?" },
+    });
+    fireEvent.keyDown(textarea, {
+      code: "Enter",
+      key: "Enter",
+      shiftKey: false,
+    });
+
+    // The request is still made (auth is enforced server-side)
+    await waitFor(() => {
+      expect(requestStream).toHaveBeenCalled();
+    });
+
+    // User message should still appear
+    expect(screen.getByText("Hello, how are you?")).toBeInTheDocument();
   });
 });
