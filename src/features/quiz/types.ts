@@ -45,6 +45,32 @@ export type Quiz = {
   title: string;
 };
 
+export type QuizAttemptDetail = {
+  answers: {
+    feedback: null | string;
+    id: string;
+    isCorrect: boolean;
+    questionPrompt: string;
+    selectedOptionText: string;
+  }[];
+  createdAt: Date;
+  id: string;
+  overallFeedback: string;
+  passed: boolean;
+  quizTitle: string;
+  score: number;
+  totalQuestions: number;
+};
+
+export type QuizAttemptListItem = {
+  createdAt: Date;
+  id: string;
+  passed: boolean;
+  quizTitle: string;
+  score: number;
+  totalQuestions: number;
+};
+
 export type QuizContext = {
   content: string;
   extraInstructions?: string;
@@ -70,7 +96,6 @@ export type QuizOption = {
   id: string;
   text: string;
 };
-
 export type QuizQuestion = {
   id: string;
   options: QuizOption[];
@@ -82,6 +107,7 @@ export type QuizSubmission = {
   context: QuizContext;
   quiz: Quiz;
 };
+
 export type UserAnswer = {
   questionId: string;
   selectedOptionId: string;
