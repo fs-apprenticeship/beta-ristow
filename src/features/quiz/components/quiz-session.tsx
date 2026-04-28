@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import type {
@@ -16,17 +17,22 @@ import QuizFormView from "./quiz-form-view";
 
 type QuizSessionProps = {
   context: QuizContext;
+  courseSlug: string;
   learnerId: string;
   lessonId: string;
+  lessonSlug: string;
   quiz: Quiz;
 };
 
 export default function QuizSession({
   context,
+  courseSlug,
   learnerId,
   lessonId,
+  lessonSlug,
   quiz,
 }: QuizSessionProps) {
+  const router = useRouter();
   const [status, setStatus] = useState<QuizSessionStatus>("answering");
   const [feedback, setFeedback] = useState<null | PersistedQuizFeedback>(null);
   const [submittedAnswers, setSubmittedAnswers] = useState<null | UserAnswer[]>(
@@ -60,7 +66,9 @@ export default function QuizSession({
     return (
       <QuizFeedbackView
         feedback={feedback}
-        onBackToQuiz={() => setStatus("answering")}
+        onBackToQuiz={() =>
+          router.push(`/courses/${courseSlug}/lessons/${lessonSlug}/quizzes`)
+        }
         quiz={quiz}
         quizTitle={quiz.title}
       />

@@ -48,8 +48,10 @@ export default async function PersistedQuizPage({
     <main>
       <QuizSession
         context={context}
+        courseSlug={courseSlug}
         learnerId={learnerId}
         lessonId={lesson.id}
+        lessonSlug={lessonSlug}
         quiz={persistedQuiz.quiz}
       />
     </main>

@@ -51,8 +51,10 @@ export default async function LessonQuizPage({
     <main>
       <QuizSession
         context={context}
+        courseSlug={courseSlug}
         learnerId={learnerId}
         lessonId={lesson.id}
+        lessonSlug={lessonSlug}
         quiz={quiz}
       />
     </main>
