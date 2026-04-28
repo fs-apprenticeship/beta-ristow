@@ -3,36 +3,49 @@
 "use client";
 
 interface Evaluation {
-  correct: boolean;
-  expectedOutput?: string[];
-  feedback?: string;
-  output?: string[];
-  stdout?: string[];
-  testExamples?: string[];
+  results: {
+    output: string;
+    stdout: string;
+    passed: boolean;
+  }[];
+}
+
+interface TestCase {
+  input: string;
+  expectedOutput: string;
 }
 
 interface Props {
   activeTab: number;
   evaluation: Evaluation;
+  testCases: TestCase[];
   setActiveTab: (index: number) => void;
 }
 
 export default function EvaluationPanel({
   activeTab,
   evaluation,
+  testCases,
   setActiveTab,
 }: Props) {
-  // Check if a test failed
-  const normalize = (s: string) => s.trim().replace(/\r\n/g, "\n");
+  const results = evaluation.results;
 
-  const isTestFailing = (index: number) => {
-    if (!evaluation || !evaluation.output || !evaluation.expectedOutput)
-      return false;
-    return (
-      normalize(evaluation.output[index] || "") !==
-      normalize(evaluation.expectedOutput[index] || "")
-    );
-  };
+  // Safety guard
+  if (!results.length) return null
+
+  if (results.length !== testCases.length) {
+    console.warn("Mismatch between results and testCases");
+  }
+
+  const safeIndex = Math.min(activeTab, results.length - 1);
+  
+  const activeResult = results[safeIndex];
+  const activeTest = testCases[safeIndex];
+
+  const passedCount = results.filter(r => r.passed).length;
+  const total = results.length;
+  const allPassed = passedCount === total;
+ 
 
   return (
     <section
@@ -43,19 +56,21 @@ export default function EvaluationPanel({
         padding: "1rem",
       }}
     >
+      {/* Overall Result */}
       <p>
-        <strong>Correct:</strong> {evaluation.correct ? "✅ Yes" : "❌ No"}
+        <strong>Result:</strong>{" "}
+        {allPassed ? "✅ Passed" : "❌ Failed"} ({passedCount}/{total})
       </p>
 
       {/* Tabs */}
       <div
         style={{
-          borderBottom: "2px solid #ddd",
           display: "flex",
+          borderBottom: "2px solid #ddd",
           marginTop: "1rem",
         }}
       >
-        {["Test 1", "Test 2", "Test 3"].map((tab, index) => (
+        {results.map((result, index) => (
           <button
             key={index}
             onClick={() => setActiveTab(index)}
@@ -64,67 +79,61 @@ export default function EvaluationPanel({
               border: "none",
               borderBottom:
                 activeTab === index
-                  ? `3px solid ${isTestFailing(index) ? "red" : "blue"}`
+                  ? `3px solid ${result.passed ? "blue" : "red"}`
                   : "3px solid transparent",
               color:
                 activeTab === index
-                  ? isTestFailing(index)
-                    ? "red"
-                    : "blue"
+                  ? result.passed
+                    ? "blue"
+                    : "red"
                   : "#666",
               cursor: "pointer",
-              fontWeight: 500,
-              marginRight: "0.25rem",
-              padding: "0.5rem 1rem",
+              padding: "0.5rem 1rem"
             }}
           >
-            {tab}
+            Test {index + 1}
           </button>
         ))}
       </div>
 
-      {/* Content */}
-      {evaluation.testExamples && evaluation.testExamples[activeTab] && (
+      {/* Active Test Display */}
+      {activeResult && activeTest && (
         <div
           style={{
-            backgroundColor: isTestFailing(activeTab) ? "#ffe5e5" : "#f9f9f9",
+            backgroundColor: activeResult.passed ? "#f9f9f9" : "#ffe5e5",
             border: "1px solid",
-            borderColor: isTestFailing(activeTab) ? "red" : "#ccc",
+            borderColor: activeResult.passed ? "#ccc" : "red",
             borderRadius: "0.5rem",
             marginTop: "1rem",
             padding: "1rem",
           }}
         >
           <p>
-            <strong>Input Used:</strong>
+            <strong>Input:</strong>
             <pre style={{ whiteSpace: "pre-wrap" }}>
-              {evaluation.testExamples[activeTab]}
+              {activeTest.input}
             </pre>
           </p>
 
-          {evaluation.stdout?.[activeTab] && (
+          <p>
+            <strong>Expected Output:</strong>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {activeTest.expectedOutput}
+            </pre>
+          </p>
+
+          <p>
+            <strong>Your Output:</strong>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {activeResult.output}
+            </pre>
+          </p>
+
+          {activeResult.stdout && (
             <p>
               <strong>StdOut:</strong>
               <pre style={{ whiteSpace: "pre-wrap" }}>
-                {evaluation.stdout[activeTab]}
-              </pre>
-            </p>
-          )}
-
-          {evaluation.output?.[activeTab] && (
-            <p>
-              <strong>Output:</strong>
-              <pre style={{ whiteSpace: "pre-wrap" }}>
-                {evaluation.output[activeTab]}
-              </pre>
-            </p>
-          )}
-
-          {evaluation.expectedOutput?.[activeTab] && (
-            <p>
-              <strong>Expected Output:</strong>
-              <pre style={{ whiteSpace: "pre-wrap" }}>
-                {evaluation.expectedOutput[activeTab]}
+                {activeResult.stdout}
               </pre>
             </p>
           )}

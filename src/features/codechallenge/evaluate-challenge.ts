@@ -1,14 +1,12 @@
 import generateStructuredOutput from "@/lib/openai/generate-structured-output";
+import { evaluationResultSchema, challengeTestCaseSchema } from "./validation";
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
 
-type EvaluationResult = {
-  correct: boolean;
-  errorCode?: string;
-  expectedOutput?: string[];
-  feedback: string;
-  output?: string[];
-  stdout?: string[];
-  testExamples?: string[];
-};
+type TestCase = z.infer<typeof challengeTestCaseSchema>;
+type EvaluationResult = z.infer<typeof evaluationResultSchema>;
+
+const jsonSchema = zodToJsonSchema(evaluationResultSchema);
 
 /**
  * Evaluates user code against a coding challenge prompt.
@@ -17,105 +15,53 @@ export async function evaluateChallenge(
   prompt: string,
   userCode: string,
   language: string,
+  testCases: TestCase[]
 ): Promise<EvaluationResult> {
   if (!prompt || !userCode) {
-    return { correct: false, feedback: "Missing prompt or user code." };
+    return { results: [] };
   }
-
-  console.log(userCode)
-
-  const schema = {
-    additionalProperties: false,
-    properties: {
-      correct: { type: "boolean" },
-      errorCode: { type: "string" },
-      expectedOutput: {
-        items: { type: "string" },
-        maxItems: 3,
-        minItems: 3,
-        type: "array",
-      },
-      feedback: { type: "string" },
-      language: {
-        const: language,
-        type: "string",
-      },
-
-      output: {
-        items: { type: "string" },
-        maxItems: 3,
-        minItems: 3,
-        type: "array",
-      },
-      stdout: {
-        items: { type: "string" },
-        maxItems: 3,
-        minItems: 3,
-        type: "array",
-      },
-      testExamples: {
-        items: { type: "string" },
-        maxItems: 3,
-        minItems: 3,
-        type: "array",
-      },
-      userCode: {
-        const: userCode,
-        type: "string",
-      },
-    },
-    required: [
-      "userCode",
-      "language",
-      "correct",
-      "errorCode",
-      "feedback",
-      "testExamples",
-      "expectedOutput",
-      "output",
-      "stdout",
-    ],
-    type: "object",
-  } as const;
-
   const instructions = `
-You are a strict code evaluator.
+You are a strict code execution simulator.
 
-Return a JSON object that matches the schema exactly.
+For each test case:
+- Execute the user code mentally
+- Determine the output
+- Capture stdout (if any)
+- Compare with expectedOutput internally
+- Return whether it passed
 
-Rules:
-- Generate EXACTLY 3 test examples.
-- testExamples must contain the inputs.
-- expectedOutput must contain the correct outputs for each test.
-- output must contain the user's code results.
-- stdout must contain any console logs (or empty string if none).
+IMPORTANT:
+- DO NOT include input
+- DO NOT include expectedOutput
+- DO NOT include explanations
+- ONLY return: output, stdout, passed
 
-- All arrays MUST have exactly 3 items and align by index:
-  index 0 = Test 1
-  index 1 = Test 2
-  index 2 = Test 3
+Return valid JSON only.
+)
 
-- Include:
-  1 normal case
-  1 edge case
-  1 corner/tricky case
-
-- "correct" is true ONLY if all outputs match expectedOutput.
-
-- Do NOT leave any array empty.
-- Use empty string "" if no stdout exists.
-`;
+  `;
 
   try {
     const response = await generateStructuredOutput<EvaluationResult>({
-      formatSchema: schema,
+      formatSchema: jsonSchema,
       instructions,
-      prompt,
+      prompt: `
+Language: ${language}
+
+Problem:
+${prompt}
+
+User Code:
+${userCode}
+
+Test Cases:
+${JSON.stringify(testCases, null, 2)}
+      `,
     });
     console.log("Evaluation response:", response);
-    return response;
+    return evaluationResultSchema.parse(response);
   } catch (err) {
     console.error("Error during challenge evaluation:", err);
-    return { correct: false, feedback: "Error evaluating code." };
+    return { results: [] };
   }
 }

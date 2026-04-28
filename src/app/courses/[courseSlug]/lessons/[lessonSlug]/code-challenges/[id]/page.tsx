@@ -36,6 +36,7 @@ export default async function ChallengePage({ params }: { params: Params }) {
       <ChallengePageClient
         challengeId={challenge.id}
         starterCode={challenge.starterCode ?? ""}
+        testCases={challenge.testCases}
       />
     </div>
   );

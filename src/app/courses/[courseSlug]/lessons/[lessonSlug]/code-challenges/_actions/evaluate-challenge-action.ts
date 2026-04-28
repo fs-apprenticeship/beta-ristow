@@ -1,36 +1,38 @@
 "use server";
 
 import { evaluateChallenge } from "@/features/codechallenge/evaluate-challenge";
-
-import { getChallengeByIdAction } from "./get-challenge-action";
+import { getChallenge } from "@/features/codechallenge/get-challenge";
 
 export async function evaluateChallengeAction(
   challengeId: string,
   userCode: string,
 ) {
-  // Handle missing code
   if (!userCode) {
-    return { correct: false, feedback: "Missing user code." };
+    return { results: [] };
   }
 
-  // Fetch challenge
-  let challenge;
   try {
-    challenge = await getChallengeByIdAction(challengeId);
-  } catch {
-    return { correct: false, feedback: "Challenge not found" };
-  }
+    const challenge = await getChallenge(challengeId);
 
-  // Evaluate code
-  try {
+    if (!challenge) {
+      return { results: [] };
+    }
+
+    const cleanedTestCases = challenge.testCases.map(tc => ({
+      input: tc.input,
+      expectedOutput: tc.expectedOutput,
+    }));
+
     const result = await evaluateChallenge(
       challenge.prompt,
       userCode,
       challenge.language,
+      cleanedTestCases
     );
+
     return result;
   } catch (err) {
     console.error("Challenge evaluation error:", err);
-    return { correct: false, feedback: "Server error during evaluation." };
+    return { results: [] };
   }
 }
