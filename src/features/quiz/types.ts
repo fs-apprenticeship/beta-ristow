@@ -47,7 +47,9 @@ export type Quiz = {
 
 export type QuizContext = {
   content: string;
+  extraInstructions?: string;
   questionCount?: number;
+  quizTitle?: string;
   title: string;
 };
 

@@ -24,6 +24,10 @@ const generatedQuizSchema = z.object({
 export default async function generateQuiz(
   context: QuizContext,
 ): Promise<GeneratedQuiz> {
+  const customInstructions = context.extraInstructions
+    ? `\nAdditional user instructions:\n${context.extraInstructions}\n`
+    : "";
+
   const instructions = `
 You generate multiple-choice quizzes in strict JSON format.
 
@@ -37,10 +41,17 @@ Rules:
 - Questions must be based only on the provided lesson content.
 - Keep wording clear and concise.
 - Do not include answers or explanations.
+${customInstructions}
 `;
+
+  const customTitle = context.quizTitle
+    ? `Use this quiz title exactly: ${context.quizTitle}`
+    : `Create a clear quiz title based on the lesson title.`;
 
   const prompt = `
 Generate a quiz from this lesson context.
+
+${customTitle}
 
 Return JSON in exactly this shape:
 {

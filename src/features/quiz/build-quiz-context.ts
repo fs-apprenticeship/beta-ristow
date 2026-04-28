@@ -1,5 +1,11 @@
 import type { QuizContext } from "./types";
 
+type BuildQuizContextOptions = {
+  extraInstructions?: string;
+  questionCount?: number;
+  quizTitle?: string;
+};
+
 type LessonForQuizContext = {
   description: string;
   outcomes: string;
@@ -8,6 +14,7 @@ type LessonForQuizContext = {
 
 export default function buildQuizContext(
   lesson: LessonForQuizContext,
+  options: BuildQuizContextOptions = {},
 ): QuizContext {
   return {
     content: [
@@ -15,7 +22,9 @@ export default function buildQuizContext(
       `Description: ${lesson.description}`,
       `Outcomes: ${lesson.outcomes}`,
     ].join("\n\n"),
-    questionCount: 15,
+    extraInstructions: options.extraInstructions,
+    questionCount: options.questionCount ?? 15,
+    quizTitle: options.quizTitle,
     title: lesson.title,
   };
 }
