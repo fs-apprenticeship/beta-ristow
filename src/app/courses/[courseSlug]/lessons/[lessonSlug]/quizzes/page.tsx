@@ -38,7 +38,7 @@ export default async function LessonQuizzesPage({
   return (
     <main>
       <div style={{ marginBottom: "1rem" }}>
-        <Link href="./generate">New Quiz</Link>
+        <Link href="./quizzes/generate">New Quiz</Link>
       </div>
 
       <QuizListView quizList={quizList} />
