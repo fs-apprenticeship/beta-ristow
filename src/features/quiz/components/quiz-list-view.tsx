@@ -10,54 +10,48 @@ export default function QuizListView({ quizList }: QuizListViewProps) {
   const hasQuizzes = quizList.length > 0;
 
   return (
-    <section className="mx-auto w-full max-w-3xl space-y-6">
-      <header className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Quizzes</h1>
-          <p className="text-sm text-muted-foreground">
-            Review existing quizzes or take one for this lesson.
-          </p>
-        </div>
+    <section>
+      <header>
+        <h1>Quizzes</h1>
+        <p>Review existing quizzes or take one for this lesson.</p>
       </header>
 
       {!hasQuizzes && (
-        <div className="rounded-lg border border-dashed p-6 text-center">
-          <h2 className="text-base font-medium">No quizzes yet</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Generate a quiz to get started.
-          </p>
+        <div>
+          <h2>No quizzes yet</h2>
+          <p>Generate a quiz to get started.</p>
         </div>
       )}
 
       {hasQuizzes && (
-        <ul className="space-y-3">
+        <ul>
           {quizList.map((quiz, index) => (
             <li
-              className="flex items-center justify-between gap-4 rounded-lg border p-4"
               key={quiz.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                listStyleType: "none",
+                marginBottom: "1rem",
+                padding: "1rem",
+              }}
             >
-              <div className="min-w-0">
-                <h2 className="truncate text-base font-medium">
-                  Quiz {index + 1}: {quiz.title}
-                </h2>
+              <h2>
+                Quiz {index + 1}: {quiz.title}
+              </h2>
 
-                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                  <div>
-                    <span>Questions {quiz.questionCount}</span>
-                  </div>
+              <p>
+                <strong>Questions:</strong> {quiz.questionCount}
+              </p>
 
-                  <time dateTime={quiz.createdAt.toISOString()}>
-                    Created {quiz.createdAt.toLocaleDateString()}
-                  </time>
-                </div>
-              </div>
+              <p>
+                <strong>Created:</strong>{" "}
+                <time dateTime={quiz.createdAt.toISOString()}>
+                  {quiz.createdAt.toLocaleDateString()}
+                </time>
+              </p>
 
-              <Link
-                className="shrink-0 rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
-                href={`./quizzes/${quiz.id}`}
-              >
-                Take Quiz
-              </Link>
+              <Link href={`./quizzes/${quiz.id}`}>Take Quiz</Link>
             </li>
           ))}
         </ul>

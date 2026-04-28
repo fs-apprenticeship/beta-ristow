@@ -12,36 +12,39 @@ export default function QuizGenerationForm({
   lessonTitle,
 }: QuizGenerationFormProps) {
   return (
-    <section className="space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">Generate Quiz</h1>
+    <section>
+      <header>
+        <h1>Generate Quiz</h1>
 
-        <p className="text-sm text-muted-foreground">
-          Create a new quiz for{" "}
-          <span className="font-medium">{lessonTitle}</span>.
+        <p>
+          Create a new quiz for <strong>{lessonTitle}</strong>.
         </p>
       </header>
 
-      <form action={action} className="space-y-5 rounded-lg border p-5">
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="title">
-            Quiz title
+      <form action={action}>
+        <div>
+          <label htmlFor="title">
+            <strong>Quiz title</strong>
           </label>
 
+          <br />
+
           <input
-            className="w-full rounded-md border px-3 py-2 text-sm"
             id="title"
             name="title"
             placeholder="Optional custom title"
-            required
             type="text"
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="questionNumber">
-            Number of questions
+        <br />
+
+        <div>
+          <label htmlFor="questionCount">
+            <strong>Number of questions</strong>
           </label>
+
+          <br />
 
           <input
             defaultValue={5}
@@ -53,25 +56,25 @@ export default function QuizGenerationForm({
             type="number"
           />
 
-          <p className="text-xs text-muted-foreground">
-            Choose between 5 and 50 questions.
-          </p>
+          <p>Choose between 5 and 50 questions.</p>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="instructions">
-            Extra instructions
+        <div>
+          <label htmlFor="instructions">
+            <strong>Extra instructions</strong>
           </label>
 
+          <br />
+
           <textarea
-            className="w-full resize-y rounded-md border px-3 py-2 text-sm"
             id="instructions"
             name="instructions"
             placeholder="Optional: make it harder, focus on examples, include tricky questions, etc."
-            required
             rows={5}
           />
         </div>
+
+        <br />
 
         <SubmitButton />
       </form>
@@ -83,11 +86,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button
-      className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-      disabled={pending}
-      type="submit"
-    >
+    <button disabled={pending} type="submit">
       {pending ? "Generating..." : "Generate Quiz"}
     </button>
   );
