@@ -5,14 +5,14 @@ const prisma = getClient();
 export default async function getQuizById(quizId: string) {
   return await prisma?.quiz.findUnique({
     include: {
-        questions: {
-            include: {
-                options: {
-                    orderBy: { position: "asc" },
-                },
-            },
+      questions: {
+        include: {
+          options: {
             orderBy: { position: "asc" },
+          },
         },
+        orderBy: { position: "asc" },
+      },
     },
     where: { id: quizId },
   });
