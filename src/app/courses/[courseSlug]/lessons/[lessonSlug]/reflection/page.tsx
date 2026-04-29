@@ -7,6 +7,8 @@ import onboard from "@/features/onboarding/onboard";
 import buildReflectionContext from "@/features/reflection/build-reflection-context";
 import ReflectionSession from "@/features/reflection/components/reflection-session";
 import generateReflection from "@/features/reflection/generate-reflection-questions";
+import mapReflectionToUi from "@/features/reflection/map-reflection-to-ui";
+import saveReflection from "@/features/reflection/save-reflection";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,16 @@ export default async function LessonReflectionPage({
 
   const lesson = await getLesson(course.id, lessonSlug);
   const context = buildReflectionContext(lesson);
+  const generatedReflection = await generateReflection(context);
+  const savedReflection = await saveReflection({
+    lessonId: lesson.id,
+    reflection: generatedReflection,
+  });
+
+  if (!savedReflection) {
+    throw new Error("Failed to save reflection.");
+  }
+  
   const reflectionQuestions = await generateReflection(context);
 
   return (

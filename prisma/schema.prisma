@@ -107,6 +107,8 @@ model Lesson {
   /// prisma-lint-ignore-field require-default-empty-arrays
   quizzes Quiz[]
 
+  reflections Reflection[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -235,4 +237,36 @@ model QuizOption {
   @@unique([questionId, position])
   @@index([questionId])
   @@map("quiz_options")
+}
+
+model Reflection {
+  id       String @id @default(uuid()) @db.Uuid
+  lessonId String @map("lesson_id") @db.Uuid
+
+  title  String
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  questions ReflectionQuestion[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([lessonId])
+  @@map("reflections")
+}
+
+model ReflectionQuestion {
+  id     String @id @default(uuid()) @db.Uuid
+  reflectionId String @map("reflection_id") @db.Uuid
+
+  prompt   String @db.Text
+  position Int
+
+  reflection Reflection @relation(fields: [reflectionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([reflectionId, position])
+  @@index([reflectionId])
+  @@map("reflection_questions")
 }
