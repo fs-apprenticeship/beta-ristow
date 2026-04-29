@@ -36,7 +36,10 @@ export default async function LessonReflectionPage({
 
   return (
     <main>
-      <ReflectionSession context={context} reflectionQuestions={reflectionQuestions} />
+      <ReflectionSession
+        context={context}
+        reflectionQuestions={reflectionQuestions}
+      />
     </main>
   );
 }
