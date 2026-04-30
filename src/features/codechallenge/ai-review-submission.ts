@@ -36,11 +36,11 @@ Your task:
 2. Provide clear, actionable feedback
 
 STRICT RULES:
-- Do NOT metnion test cases
+- Do NOT mention test cases
 - Do NOT assume execution environment details
 - Focus on logic correctness, edge cases, and clarity
 - Be strict but fair
-If anything important is missing or incorrect, set correct = false
+- If anything important is missing or incorrect, set correct = false
 
 ### PROBLEM
 ${challenge.prompt}
