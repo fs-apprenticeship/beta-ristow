@@ -1,4 +1,4 @@
-import { setLessonContentVisibility } from "@/features/article/generate-article";
+import { getOrGenerateLessonVisibility } from "@/features/article/generate-article";
 import requireCurrentAccount from "@/features/identity/actions/require-current-account";
 import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
@@ -14,11 +14,7 @@ export async function GET(_request: Request, { params }: { params: Params }) {
   const course = await getCourse(courseSlug);
   const lesson = await getLesson(course.id, lessonSlug);
 
-  const visibility = await setLessonContentVisibility({
-    description: lesson.description,
-    outcomes: lesson.outcomes,
-    title: lesson.title,
-  });
+  const visibility = await getOrGenerateLessonVisibility(lesson.id);
 
   return new Response(JSON.stringify(visibility), {
     headers: { "Content-Type": "application/json" },

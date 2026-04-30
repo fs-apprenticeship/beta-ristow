@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { setLessonContentVisibility } from "@/features/article/generate-article";
+import { getOrGenerateLessonVisibility } from "@/features/article/generate-article";
 import requireCurrentAccount from "@/features/identity/actions/require-current-account";
 import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
@@ -20,11 +20,7 @@ export default async function IntroPage({
 
   const articlePath = `/courses/${courseSlug}/lessons/${lessonSlug}/article`;
 
-  const visibility = await setLessonContentVisibility({
-    description: lesson.description,
-    outcomes: lesson.outcomes,
-    title: lesson.title,
-  });
+  const visibility = await getOrGenerateLessonVisibility(lesson.id);
 
   return (
     <main className="container">

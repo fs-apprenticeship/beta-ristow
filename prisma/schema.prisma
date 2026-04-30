@@ -103,6 +103,9 @@ model Lesson {
   outcomes    String
   position    Int
 
+  quiz          Boolean? @map("quiz")
+  codeChallenge Boolean? @map("code_challenge")
+
   /// prisma-lint-ignore-field require-default-empty-arrays
   lessonItems   LessonItem[]
   lessonArticle LessonArticle?

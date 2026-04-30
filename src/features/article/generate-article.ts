@@ -90,6 +90,38 @@ export async function getOrGenerateLessonArticle(
   return generateAndPersistArticle(lessonId, courseId);
 }
 
+export async function getOrGenerateLessonVisibility(
+  lessonId: string,
+): Promise<LessonContentVisibility> {
+  const lesson = await prisma.lesson.findUniqueOrThrow({
+    select: {
+      codeChallenge: true,
+      description: true,
+      outcomes: true,
+      quiz: true,
+      title: true,
+    },
+    where: { id: lessonId },
+  });
+
+  if (lesson.quiz !== null && lesson.codeChallenge !== null) {
+    return { codeChallenge: lesson.codeChallenge, quiz: lesson.quiz };
+  }
+
+  const visibility = await setLessonContentVisibility({
+    description: lesson.description,
+    outcomes: lesson.outcomes,
+    title: lesson.title,
+  });
+
+  await prisma.lesson.update({
+    data: { codeChallenge: visibility.codeChallenge, quiz: visibility.quiz },
+    where: { id: lessonId },
+  });
+
+  return visibility;
+}
+
 function buildInstructions() {
   return `
     You are an instructional writer. The user prompt gives course context (title, description, outcomes)
