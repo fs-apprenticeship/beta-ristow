@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 
+import generateStructuredOutput from "@/lib/openai/generate-structured-output";
 import getClient from "@/lib/prisma/get-client";
 
 const prisma = getClient();
@@ -9,6 +10,45 @@ interface Article {
   conclusion: string;
   intro: string;
   sections: { content: string; heading: string }[];
+}
+
+// the visibility flags for lesson
+interface LessonContentVisibility {
+  codeChallenge: boolean;
+  quiz: boolean;
+}
+
+//  the output schema for the visibility flags
+const CONTENT_FLAGS_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    codeChallenge: { type: "boolean" },
+    quiz: { type: "boolean" },
+  },
+  required: ["quiz", "codeChallenge"],
+  type: "object",
+} as const;
+
+// generate the visibility flags for the lesson
+export async function setLessonContentVisibility(lesson: {
+  description: string;
+  outcomes: string;
+  title: string;
+}): Promise<LessonContentVisibility> {
+  return generateStructuredOutput<LessonContentVisibility>({
+    formatSchema: CONTENT_FLAGS_SCHEMA,
+    instructions: `You are a teacher, tasked with creating a curriculum for a new course. Given a lesson title, description, and outcomes,
+      decide whether the lesson warrants a quiz and/or a coding challenge.
+
+      quiz = true  → lesson teaches concepts, theory, or facts testable with multiple-choice questions.
+      codeChallenge = true → lesson teaches a programming skill that benefits from hands-on coding practice solve problem solving.
+
+      Both can be true (e.g. functions lesson, array in python). Both can be false (e.g. environment setup lesson).
+      Return only the JSON object with "quiz" and "codeChallenge" boolean fields.`,
+    prompt: `Title: ${lesson.title}
+Description: ${lesson.description}
+Outcomes: ${lesson.outcomes}`,
+  });
 }
 
 const ARTICLE_JSON_FORMAT = {
