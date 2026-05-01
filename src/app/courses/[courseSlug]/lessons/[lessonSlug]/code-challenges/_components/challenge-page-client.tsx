@@ -14,8 +14,8 @@ import { SubmitButton } from "./submit-button";
 interface Evaluation {
   results: {
     output: string;
-    stdout: string;
     passed: boolean;
+    stdout: string;
   }[];
 }
 
@@ -23,8 +23,8 @@ interface Props {
   challengeId: string;
   starterCode: string;
   testCases: {
-    input: string;
     expectedOutput: string;
+    input: string;
   }[];
 }
 
@@ -81,8 +81,8 @@ export default function ChallengePageClient({
         <EvaluationPanel
           activeTab={activeTab}
           evaluation={evaluation}
-          testCases={testCases}
           setActiveTab={setActiveTab}
+          testCases={testCases}
         />
       )}
 

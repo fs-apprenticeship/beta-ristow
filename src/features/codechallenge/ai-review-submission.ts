@@ -1,11 +1,9 @@
-import { zodToJsonSchema } from "zod-to-json-schema";
-
 import generateStructuredOutput from "@/lib/openai/generate-structured-output";
 import getClient from "@/lib/prisma/get-client";
 
 import { SubmissionReview, submissionReviewSchema } from "./validation";
 
-const jsonSchema = zodToJsonSchema(submissionReviewSchema);
+const jsonSchema = submissionReviewSchema;
 
 export async function aiReviewSubmission({
   challengeId,
@@ -51,7 +49,7 @@ ${userCode}
 \`\`\`
     `;
 
-  const result = await generateStructuredOutput<SubmissionReview>({
+  const result = await generateStructuredOutput({
     formatSchema: jsonSchema,
     instructions:
       "You are a strict but fair code reviewer for a coding education platform.",

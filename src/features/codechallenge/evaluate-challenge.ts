@@ -1,62 +1,57 @@
 import generateStructuredOutput from "@/lib/openai/generate-structured-output";
-import { evaluationResultSchema, challengeTestCaseSchema } from "./validation";
-import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
 
-type TestCase = z.infer<typeof challengeTestCaseSchema>;
-type EvaluationResult = z.infer<typeof evaluationResultSchema>;
+import type { ChallengeTestCase } from "./validation";
 
-const jsonSchema = zodToJsonSchema(evaluationResultSchema);
+import { EvaluationResult, evaluationResultSchema } from "./validation";
+
+const jsonSchema = evaluationResultSchema;
 
 /**
  * Evaluates user code against a coding challenge prompt.
  */
 export async function evaluateChallenge(
-  prompt: string,
+  challengePrompt: string,
   userCode: string,
   language: string,
-  testCases: TestCase[]
+  testCases: ChallengeTestCase[],
 ): Promise<EvaluationResult> {
-  if (!prompt || !userCode) {
+  if (!challengePrompt || !userCode) {
     return { results: [] };
   }
   const instructions = `
-You are a strict code execution simulator.
+    You are a strict code evaluator.
+    You run and evaluate user-submitted code against a coding challenge prompt and a set of test cases.
 
-For each test case:
-- Execute the user code mentally
-- Determine the output
-- Capture stdout (if any)
-- Compare with expectedOutput internally
-- Return whether it passed
+    Run the user's submitted code using the input from each test case and 
+    compare the user code output to the expected output for that test case. 
 
-IMPORTANT:
-- DO NOT include input
-- DO NOT include expectedOutput
-- DO NOT include explanations
-- ONLY return: output, stdout, passed
+    The user's code should produce output that matches the expected output of each test case.
 
-Return valid JSON only.
-)
+    IMPORTANT:
+    - If the user's code produces the expected output for a test case, mark that test case as passed.
+    - If the user's code does not produce the expected output for a test case, mark that test case as failed.
 
+    Return valid JSON only.
+    `;
+
+  const prompt = `
+  Language: ${language}
+
+  Problem:
+  ${challengePrompt}
+
+  User Code:
+  ${userCode}
+
+  Test Cases:
+  ${JSON.stringify(testCases, null, 2)}
   `;
 
   try {
-    const response = await generateStructuredOutput<EvaluationResult>({
+    const response = await generateStructuredOutput({
       formatSchema: jsonSchema,
       instructions,
-      prompt: `
-Language: ${language}
-
-Problem:
-${prompt}
-
-User Code:
-${userCode}
-
-Test Cases:
-${JSON.stringify(testCases, null, 2)}
-      `,
+      prompt,
     });
     console.log("Evaluation response:", response);
     return evaluationResultSchema.parse(response);

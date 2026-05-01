@@ -18,16 +18,16 @@ export async function evaluateChallengeAction(
       return { results: [] };
     }
 
-    const cleanedTestCases = challenge.testCases.map(tc => ({
-      input: tc.input,
+    const cleanedTestCases = challenge.testCases.map((tc) => ({
       expectedOutput: tc.expectedOutput,
+      input: tc.input,
     }));
 
     const result = await evaluateChallenge(
       challenge.prompt,
       userCode,
       challenge.language,
-      cleanedTestCases
+      cleanedTestCases,
     );
 
     return result;

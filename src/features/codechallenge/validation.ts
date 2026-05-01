@@ -42,5 +42,6 @@ export const submissionReviewSchema = z.object({
 });
 
 export type ChallengeData = z.infer<typeof challengeSchema>;
+export type ChallengeTestCase = z.infer<typeof challengeTestCaseSchema>;
 export type EvaluationResult = z.infer<typeof evaluationResultSchema>;
 export type SubmissionReview = z.infer<typeof submissionReviewSchema>;

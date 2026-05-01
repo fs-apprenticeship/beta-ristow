@@ -5,47 +5,46 @@
 interface Evaluation {
   results: {
     output: string;
-    stdout: string;
     passed: boolean;
+    stdout: string;
   }[];
-}
-
-interface TestCase {
-  input: string;
-  expectedOutput: string;
 }
 
 interface Props {
   activeTab: number;
   evaluation: Evaluation;
-  testCases: TestCase[];
   setActiveTab: (index: number) => void;
+  testCases: TestCase[];
+}
+
+interface TestCase {
+  expectedOutput: string;
+  input: string;
 }
 
 export default function EvaluationPanel({
   activeTab,
   evaluation,
-  testCases,
   setActiveTab,
+  testCases,
 }: Props) {
   const results = evaluation.results;
 
   // Safety guard
-  if (!results.length) return null
+  if (!results.length) return null;
 
   if (results.length !== testCases.length) {
     console.warn("Mismatch between results and testCases");
   }
 
   const safeIndex = Math.min(activeTab, results.length - 1);
-  
+
   const activeResult = results[safeIndex];
   const activeTest = testCases[safeIndex];
 
-  const passedCount = results.filter(r => r.passed).length;
+  const passedCount = results.filter((r) => r.passed).length;
   const total = results.length;
   const allPassed = passedCount === total;
- 
 
   return (
     <section
@@ -58,15 +57,15 @@ export default function EvaluationPanel({
     >
       {/* Overall Result */}
       <p>
-        <strong>Result:</strong>{" "}
-        {allPassed ? "✅ Passed" : "❌ Failed"} ({passedCount}/{total})
+        <strong>Result:</strong> {allPassed ? "✅ Passed" : "❌ Failed"} (
+        {passedCount}/{total})
       </p>
 
       {/* Tabs */}
       <div
         style={{
-          display: "flex",
           borderBottom: "2px solid #ddd",
+          display: "flex",
           marginTop: "1rem",
         }}
       >
@@ -82,13 +81,9 @@ export default function EvaluationPanel({
                   ? `3px solid ${result.passed ? "blue" : "red"}`
                   : "3px solid transparent",
               color:
-                activeTab === index
-                  ? result.passed
-                    ? "blue"
-                    : "red"
-                  : "#666",
+                activeTab === index ? (result.passed ? "blue" : "red") : "#666",
               cursor: "pointer",
-              padding: "0.5rem 1rem"
+              padding: "0.5rem 1rem",
             }}
           >
             Test {index + 1}
@@ -110,9 +105,7 @@ export default function EvaluationPanel({
         >
           <p>
             <strong>Input:</strong>
-            <pre style={{ whiteSpace: "pre-wrap" }}>
-              {activeTest.input}
-            </pre>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{activeTest.input}</pre>
           </p>
 
           <p>
@@ -124,9 +117,7 @@ export default function EvaluationPanel({
 
           <p>
             <strong>Your Output:</strong>
-            <pre style={{ whiteSpace: "pre-wrap" }}>
-              {activeResult.output}
-            </pre>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{activeResult.output}</pre>
           </p>
 
           {activeResult.stdout && (
