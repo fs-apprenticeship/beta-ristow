@@ -8,10 +8,22 @@ export async function saveChallengeToDB(challengeData: ChallengeData) {
   return await prisma.challenge.create({
     data: {
       difficulty: challengeData.difficulty,
-      language: challengeData.language,
+      language: challengeData.language ?? "python",
       prompt: challengeData.prompt,
-      solution: challengeData.solution,
-      starterCode: challengeData.starterCode,
+      solution: challengeData.solution ?? null,
+      starterCode: challengeData.starterCode ?? null,
+
+      testCases: {
+        create: challengeData.testCases.map((tc, index) => ({
+          expectedOutput: tc.expectedOutput,
+          input: tc.input,
+          isHidden: false,
+          position: index,
+        })),
+      },
+    },
+    include: {
+      testCases: true,
     },
   });
 }

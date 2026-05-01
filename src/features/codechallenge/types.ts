@@ -4,4 +4,10 @@ export interface ChallengeData {
   prompt: string;
   solution?: string;
   starterCode?: string;
+  testCases: ChallengeTestCase[];
+}
+
+export interface ChallengeTestCase {
+  expectedOutput: string;
+  input: string;
 }
