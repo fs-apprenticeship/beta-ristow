@@ -1,4 +1,4 @@
-import { generateLessonArticle } from "@/features/article/generate-article";
+import getLessonArticles from "@/features/article/get-lesson-article";
 import requireCurrentAccount from "@/features/identity/actions/require-current-account";
 import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
@@ -14,9 +14,12 @@ export async function GET(_request: Request, { params }: { params: Params }) {
   const course = await getCourse(courseSlug);
   const lesson = await getLesson(course.id, lessonSlug);
 
-  const article = await generateLessonArticle(lesson.id, course.id);
+  const articles = await getLessonArticles(lesson.id);
 
-  return new Response(JSON.stringify(article), {
-    headers: { "Content-Type": "application/json" },
+  return new Response(JSON.stringify(articles), {
+    headers: {
+      "Cache-Control": "no-store",
+      "Content-Type": "application/json",
+    },
   });
 }

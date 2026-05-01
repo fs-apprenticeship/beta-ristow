@@ -106,12 +106,10 @@ model Lesson {
   quiz          Boolean? @map("quiz")
   codeChallenge Boolean? @map("code_challenge")
 
-  /// prisma-lint-ignore-field require-default-empty-arrays
-  lessonItems   LessonItem[]
-  lessonArticle LessonArticle?
-  /// prisma-lint-ignore-field require-default-empty-arrays
-  quizAttempts  QuizAttempt[]
-  course        Course         @relation(fields: [courseId], references: [id])
+  lessonItems    LessonItem[]
+  lessonArticles LessonArticle[]
+  quizAttempts   QuizAttempt[]
+  course         Course          @relation(fields: [courseId], references: [id])
 
   /// prisma-lint-ignore-field require-default-empty-arrays
   quizzes Quiz[]
@@ -125,15 +123,17 @@ model Lesson {
 }
 
 model LessonArticle {
-  id       String @id @default(uuid()) @db.Uuid
-  lessonId String @unique @map("lesson_id") @db.Uuid
+  id       String  @id @default(uuid()) @db.Uuid
+  lessonId String  @map("lesson_id") @db.Uuid
   content  Json
+  title    String?
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([lessonId])
   @@map("lesson_articles")
 }
 

@@ -1,4 +1,6 @@
-import { getOrGenerateLessonArticle } from "@/features/article/generate-article";
+import { notFound } from "next/navigation";
+
+import { getLessonArticleById } from "@/features/article/get-lesson-article";
 import requireCurrentAccount from "@/features/identity/actions/require-current-account";
 import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
@@ -10,14 +12,20 @@ export const dynamic = "force-dynamic";
 export default async function ArticlePage({
   params,
 }: {
-  params: Promise<{ courseSlug: string; lessonSlug: string }>;
+  params: Promise<{
+    articleId: string;
+    courseSlug: string;
+    lessonSlug: string;
+  }>;
 }) {
-  const { courseSlug, lessonSlug } = await params;
+  const { articleId, courseSlug, lessonSlug } = await params;
   await requireCurrentAccount();
 
   const course = await getCourse(courseSlug);
   const lesson = await getLesson(course.id, lessonSlug);
-  const article = await getOrGenerateLessonArticle(lesson.id, course.id);
+  const article = await getLessonArticleById(articleId);
+
+  if (!article) notFound();
 
   return (
     <main className="container">
@@ -27,9 +35,9 @@ export default async function ArticlePage({
           textAlign: "center",
         }}
       >
-        <h1>{lesson.title}</h1>
+        <h1>{article.title}</h1>
         <p>
-          <small>{course.title}</small>
+          <small>{lesson.title}</small>
         </p>
       </header>
 

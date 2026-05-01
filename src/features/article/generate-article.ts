@@ -10,6 +10,7 @@ interface Article {
   conclusion: string;
   intro: string;
   sections: { content: string; heading: string }[];
+  title: string;
 }
 
 // the visibility flags for lesson
@@ -70,23 +71,19 @@ const ARTICLE_JSON_FORMAT = {
         },
         type: "array",
       },
+      title: { type: "string" },
     },
-    required: ["conclusion", "intro", "sections"],
+    required: ["conclusion", "intro", "sections", "title"],
     type: "object",
   },
   strict: true,
   type: "json_schema",
 } as const;
 
-export async function getOrGenerateLessonArticle(
+export async function generateLessonArticle(
   lessonId: string,
   courseId: string,
-): Promise<Article> {
-  const existing = await prisma.lessonArticle.findUnique({
-    where: { lessonId },
-  });
-  if (existing) return existing.content as unknown as Article;
-
+): Promise<Article & { id: string }> {
   return generateAndPersistArticle(lessonId, courseId);
 }
 
@@ -122,10 +119,27 @@ export async function getOrGenerateLessonVisibility(
   return visibility;
 }
 
-function buildInstructions() {
+function buildInstructions(existingArticleCount: number) {
+  const depthGuidance =
+    existingArticleCount === 0
+      ? `This is the first article on this lesson. Write for a learner who is new to the topic.
+         Start from the fundamentals, define key terms, and build understanding step by step.
+         Use simple examples and avoid assuming prior knowledge beyond the course prerequisites.`
+      : existingArticleCount === 1
+        ? `A foundational article on this lesson already exists. This is the second article, so go deeper.
+           Skip basic definitions — assume the reader understands the fundamentals.
+           Focus on nuance, edge cases, less-obvious gotchas, and richer examples.
+           Introduce more realistic scenarios and explore the "why" behind the concepts.`
+        : `${existingArticleCount} articles on this lesson already exist, covering both basics and intermediate depth.
+           This article should be advanced. Target a reader who is comfortable with the topic and wants mastery.
+           Cover expert-level insights, real-world trade-offs, performance considerations, or patterns used in production.
+           Challenge assumptions, present non-obvious pitfalls, and go beyond what a tutorial would cover.`;
+
   return `
     You are an instructional writer. The user prompt gives course context (title, description, outcomes)
     and one lesson (title, description). Write a single lesson article that teaches that lesson.
+
+    ${depthGuidance}
 
     Ground everything in those fields: explain and expand on this lesson, and show how it fits the course
     and supports the course outcomes. Do not invent a different topic or ignore the lesson description.
@@ -136,11 +150,11 @@ function buildInstructions() {
     Length: aim for roughly 800–1200 words—substantive enough to learn from, not a thin summary.
 
     Tone: clear, plain language. Use examples where they clarify the lesson.
-    
-    the article should have intro, conclusion and a clear structure with headings and subheadings.
 
-    the article should be focused on teaching the lesson, not just describing it. 
-    It should have actionable insights and practical examples that help the learner understand and apply the material.    
+    The article should have intro, conclusion and a clear structure with headings and subheadings.
+
+    The article should be focused on teaching the lesson, not just describing it.
+    It should have actionable insights and practical examples that help the learner understand and apply the material.
     `
     .replace(/\s+/g, " ")
     .trim();
@@ -167,15 +181,16 @@ async function buildPrompt(
 async function generateAndPersistArticle(
   lessonId: string,
   courseId: string,
-): Promise<Article> {
-  const [course, lesson] = await Promise.all([
+): Promise<Article & { id: string }> {
+  const [course, lesson, articles] = await Promise.all([
     prisma.course.findUniqueOrThrow({ where: { id: courseId } }),
     prisma.lesson.findUniqueOrThrow({ where: { courseId, id: lessonId } }),
+    prisma.lessonArticle.findMany({ where: { lessonId } }),
   ]);
 
   const response = await openai.responses.create({
     input: [
-      { content: buildInstructions(), role: "developer" },
+      { content: buildInstructions(articles.length), role: "developer" },
       { content: await buildPrompt(lesson, course), role: "user" },
     ],
     max_output_tokens: 8192,
@@ -201,11 +216,9 @@ async function generateAndPersistArticle(
   }
   const content = JSON.parse(JSON.stringify(article));
 
-  await prisma.lessonArticle.upsert({
-    create: { content, lessonId },
-    update: { content },
-    where: { lessonId },
+  const record = await prisma.lessonArticle.create({
+    data: { content, lessonId, title: article.title },
   });
 
-  return article;
+  return { ...article, id: record.id };
 }

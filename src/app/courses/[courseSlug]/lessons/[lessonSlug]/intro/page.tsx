@@ -1,26 +1,50 @@
-import Link from "next/link";
+"use client";
 
-import { getOrGenerateLessonVisibility } from "@/features/article/generate-article";
-import requireCurrentAccount from "@/features/identity/actions/require-current-account";
-import getCourse from "@/features/learning/get-course";
-import getLesson from "@/features/learning/get-lesson";
+import { use, useEffect, useState } from "react";
+
+import type { LessonArticleContent } from "@/features/article/get-lesson-article";
 
 export const dynamic = "force-dynamic";
 
-export default async function IntroPage({
+type Visibility = { codeChallenge: boolean; quiz: boolean };
+
+export default function IntroPage({
   params,
 }: {
   params: Promise<{ courseSlug: string; lessonSlug: string }>;
 }) {
-  const { courseSlug, lessonSlug } = await params;
-  await requireCurrentAccount();
+  const { courseSlug, lessonSlug } = use(params);
 
-  const course = await getCourse(courseSlug);
-  const lesson = await getLesson(course.id, lessonSlug);
+  const [articles, setArticles] = useState<LessonArticleContent[]>([]);
+  const [visibility, setVisibility] = useState<null | Visibility>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const articlePath = `/courses/${courseSlug}/lessons/${lessonSlug}/article`;
+  const articleBasePath = `/courses/${courseSlug}/lessons/${lessonSlug}/article`;
 
-  const visibility = await getOrGenerateLessonVisibility(lesson.id);
+  useEffect(() => {
+    fetch(`/api/courses/${courseSlug}/lessons/${lessonSlug}/articles`, {
+      cache: "no-store",
+    })
+      .then((res) => res.json())
+      .then(setArticles);
+
+    fetch(`/api/courses/${courseSlug}/lessons/${lessonSlug}/visibility`)
+      .then((res) => res.json())
+      .then(setVisibility);
+  }, [courseSlug, lessonSlug]);
+
+  async function handleGenerate() {
+    setIsGenerating(true);
+    try {
+      const res = await fetch(
+        `/api/courses/${courseSlug}/lessons/${lessonSlug}/article`,
+      );
+      const article = (await res.json()) as LessonArticleContent;
+      setArticles((prev) => [...prev, article]);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
   return (
     <main className="container">
@@ -30,24 +54,41 @@ export default async function IntroPage({
           textAlign: "center",
         }}
       >
-        <h1>{lesson.title}</h1>
+        <h1>{lessonSlug}</h1>
         <p>
-          <small>{course.title}</small>
+          <small>{courseSlug}</small>
         </p>
       </header>
 
-      {/* articles link */}
-      <h3 style={{ marginBottom: "var(--pico-spacing)" }}>Articles</h3>
-      <Link href={articlePath} style={{ textDecoration: "none" }}>
-        <article style={{ cursor: "pointer", marginBottom: 0 }}>
-          <h3 style={{ margin: 0 }}>{lesson.title}</h3>
-        </article>
-      </Link>
+      <h2>Articles</h2>
+      {articles.length === 0 ? (
+        <div style={{ marginBottom: "var(--pico-spacing)" }}>
+          <p style={{ color: "var(--pico-muted-color)" }}>No articles yet.</p>
+        </div>
+      ) : (
+        <ul>
+          {articles.map((article) => (
+            <li key={article.id}>
+              <a href={`${articleBasePath}/${article.id}`}>{article.title}</a>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      {/* options visibility: code-challenge, quiz and chat */}
-      <h3 style={{ marginBottom: "var(--pico-spacing)" }}>Other options</h3>
-      <p>quiz: {String(visibility.quiz)}</p>
-      <p>code-challenges: {String(visibility.codeChallenge)}</p>
+      <h3>Options</h3>
+      <button
+        aria-busy={isGenerating}
+        disabled={isGenerating}
+        onClick={handleGenerate}
+      >
+        Generate Article
+      </button>
+      {visibility && (
+        <>
+          <p>quiz: {String(visibility.quiz)}</p>
+          <p>code-challenges: {String(visibility.codeChallenge)}</p>
+        </>
+      )}
     </main>
   );
 }
