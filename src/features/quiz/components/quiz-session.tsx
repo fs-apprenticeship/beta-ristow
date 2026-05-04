@@ -3,16 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import type {
-  PersistedQuizFeedback,
-  Quiz,
-  QuizContext,
-  UserAnswer,
-} from "../types";
+import type { Quiz, QuizContext, UserAnswer } from "../types";
 import type { QuizSessionStatus } from "./types";
 
 import submitQuiz from "../actions/submit-quiz";
-import QuizFeedbackView from "./quiz-feedback-view";
 import QuizFormView from "./quiz-form-view";
 
 type QuizSessionProps = {
@@ -33,18 +27,14 @@ export default function QuizSession({
   quiz,
 }: QuizSessionProps) {
   const router = useRouter();
+
   const [status, setStatus] = useState<QuizSessionStatus>("answering");
-  const [feedback, setFeedback] = useState<null | PersistedQuizFeedback>(null);
-  const [submittedAnswers, setSubmittedAnswers] = useState<null | UserAnswer[]>(
-    null,
-  );
 
   const handleSubmit = async (answers: UserAnswer[]) => {
-    setSubmittedAnswers(answers);
     setStatus("submitting");
 
     try {
-      const result = await submitQuiz({
+      const attemptId = await submitQuiz({
         learnerId,
         lessonId,
         submission: {
@@ -54,26 +44,14 @@ export default function QuizSession({
         },
       });
 
-      setFeedback(result);
-      setStatus("submitted");
+      router.push(
+        `/courses/${courseSlug}/lessons/${lessonSlug}/quizzes/attempts/${attemptId}`,
+      );
     } catch (error) {
       console.error(error);
       setStatus("error");
     }
   };
-
-  if (status === "submitted" && submittedAnswers && feedback) {
-    return (
-      <QuizFeedbackView
-        feedback={feedback}
-        onBackToQuiz={() =>
-          router.push(`/courses/${courseSlug}/lessons/${lessonSlug}/quizzes`)
-        }
-        quiz={quiz}
-        quizTitle={quiz.title}
-      />
-    );
-  }
 
   return <QuizFormView onSubmit={handleSubmit} quiz={quiz} status={status} />;
 }

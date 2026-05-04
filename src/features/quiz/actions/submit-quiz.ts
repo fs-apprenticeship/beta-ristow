@@ -11,22 +11,17 @@ type SubmitQuizInput = {
   submission: QuizSubmission;
 };
 
-type SubmitQuizResult = QuizFeedback & {
-  score: number;
-  totalQuestions: number;
-};
-
 export default async function submitQuiz({
   learnerId,
   lessonId,
   submission,
-}: SubmitQuizInput): Promise<SubmitQuizResult> {
+}: SubmitQuizInput): Promise<string> {
   const feedback = await generateQuizFeedback(submission);
 
   const totalQuestions = submission.quiz.questions.length;
   const score = calculateQuizScore(feedback, totalQuestions);
 
-  await saveQuizAttempt({
+  const savedAttempt = await saveQuizAttempt({
     feedback,
     learnerId,
     lessonId,
@@ -34,12 +29,7 @@ export default async function submitQuiz({
     submission,
     totalQuestions,
   });
-
-  return {
-    ...feedback,
-    score,
-    totalQuestions,
-  };
+  return savedAttempt.id;
 }
 
 function calculateQuizScore(
