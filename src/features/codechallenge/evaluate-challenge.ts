@@ -28,6 +28,7 @@ export async function evaluateChallenge(
     The user's code should produce output that matches the expected output of each test case.
 
     IMPORTANT:
+    - Only pass the test case user input to the user's function, do not include anything extra.
     - If the user's code produces the expected output for a test case, mark that test case as passed.
     - If the user's code does not produce the expected output for a test case, mark that test case as failed.
 
