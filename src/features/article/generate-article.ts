@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { z } from "zod";
 
 import generateStructuredOutput from "@/lib/openai/generate-structured-output";
 import getClient from "@/lib/prisma/get-client";
@@ -13,22 +14,12 @@ interface Article {
   title: string;
 }
 
-// the visibility flags for lesson
-interface LessonContentVisibility {
-  codeChallenge: boolean;
-  quiz: boolean;
-}
+const CONTENT_FLAGS_SCHEMA = z.object({
+  codeChallenge: z.boolean(),
+  quiz: z.boolean(),
+});
 
-//  the output schema for the visibility flags
-const CONTENT_FLAGS_SCHEMA = {
-  additionalProperties: false,
-  properties: {
-    codeChallenge: { type: "boolean" },
-    quiz: { type: "boolean" },
-  },
-  required: ["quiz", "codeChallenge"],
-  type: "object",
-} as const;
+type LessonContentVisibility = z.infer<typeof CONTENT_FLAGS_SCHEMA>;
 
 // generate the visibility flags for the lesson
 export async function setLessonContentVisibility(lesson: {
@@ -36,7 +27,7 @@ export async function setLessonContentVisibility(lesson: {
   outcomes: string;
   title: string;
 }): Promise<LessonContentVisibility> {
-  return generateStructuredOutput<LessonContentVisibility>({
+  return generateStructuredOutput({
     formatSchema: CONTENT_FLAGS_SCHEMA,
     instructions: `You are a teacher, tasked with creating a curriculum for a new course. Given a lesson title, description, and outcomes,
       decide whether the lesson warrants a quiz and/or a coding challenge.

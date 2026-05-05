@@ -23,18 +23,24 @@ describe("getQuizzes", () => {
     vi.clearAllMocks();
   });
 
-  it("retrieves quizzes for a lesson with ordered questions and options", async () => {
+  it("retrieves quiz list items for a lesson", async () => {
+    const createdAt = new Date("2026-04-27T12:00:00.000Z");
+
     const quizzes = [
       {
+        _count: {
+          questions: 5,
+        },
+        createdAt,
         id: "quiz-1",
-        lessonId: "lesson-123",
-        questions: [],
         title: "Core Java Quiz",
       },
       {
+        _count: {
+          questions: 10,
+        },
+        createdAt,
         id: "quiz-2",
-        lessonId: "lesson-123",
-        questions: [],
         title: "JUnit Quiz",
       },
     ];
@@ -45,20 +51,31 @@ describe("getQuizzes", () => {
 
     expect(findManyMock).toHaveBeenCalledTimes(1);
     expect(findManyMock).toHaveBeenCalledWith({
-      include: {
-        questions: {
-          include: {
-            options: {
-              orderBy: { position: "asc" },
-            },
-          },
-          orderBy: { position: "asc" },
-        },
-      },
       orderBy: { createdAt: "desc" },
+      select: {
+        _count: {
+          select: { questions: true },
+        },
+        createdAt: true,
+        id: true,
+        title: true,
+      },
       where: { lessonId: "lesson-123" },
     });
 
-    expect(result).toBe(quizzes);
+    expect(result).toEqual([
+      {
+        createdAt,
+        id: "quiz-1",
+        questionCount: 5,
+        title: "Core Java Quiz",
+      },
+      {
+        createdAt,
+        id: "quiz-2",
+        questionCount: 10,
+        title: "JUnit Quiz",
+      },
+    ]);
   });
 });

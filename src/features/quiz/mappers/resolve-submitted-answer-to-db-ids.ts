@@ -1,10 +1,4 @@
-import type { UserAnswer } from "../types";
-
-import getQuizzes from "../data/get-quizzes";
-
-type PersistedQuiz = NonNullable<
-  Awaited<ReturnType<typeof getQuizzes>>
->[number];
+import type { PersistedQuiz, UserAnswer } from "../types";
 
 export default function resolveSubmittedAnswerToDbIds(
   persistedQuiz: PersistedQuiz,

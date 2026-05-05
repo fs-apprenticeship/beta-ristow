@@ -1,8 +1,7 @@
 "use server";
 
+import { aiReviewSubmission } from "@/features/codechallenge/ai-review-submission";
 import { saveSubmission } from "@/features/codechallenge/save-submission";
-
-import { evaluateChallengeAction } from "./evaluate-challenge-action";
 
 export async function submitChallengeAction(
   challengeId: string,
@@ -16,12 +15,15 @@ export async function submitChallengeAction(
     throw new Error("User code is required");
   }
 
-  const evaluation = await evaluateChallengeAction(challengeId, userCode);
+  const review = await aiReviewSubmission({
+    challengeId,
+    userCode,
+  });
 
   const submission = await saveSubmission({
     challengeId,
-    correct: evaluation.correct,
-    feedback: evaluation.feedback,
+    correct: review.correct,
+    feedback: review.feedback,
     userCode,
   });
 

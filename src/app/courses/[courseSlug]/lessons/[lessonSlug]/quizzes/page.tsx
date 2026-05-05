@@ -1,18 +1,17 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import requireCurrentAccount from "@/features/identity/actions/require-current-account";
 import getCourse from "@/features/learning/get-course";
 import getLesson from "@/features/learning/get-lesson";
 import onboard from "@/features/onboarding/onboard";
-import buildQuizContext from "@/features/quiz/build-quiz-context";
-import QuizSession from "@/features/quiz/components/quiz-session";
-import saveQuiz from "@/features/quiz/data/save-quiz";
-import generateQuiz from "@/features/quiz/generate-quiz";
-import mapQuizToUIQuiz from "@/features/quiz/mappers/map-quiz-to-ui-quiz";
+import QuizListView from "@/features/quiz/components/quiz-list-view";
+import getQuizzes from "@/features/quiz/data/get-quizzes";
+import { QuizListItem } from "@/features/quiz/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function LessonQuizPage({
+export default async function LessonQuizzesPage({
   params,
 }: {
   params: Promise<{
@@ -33,30 +32,16 @@ export default async function LessonQuizPage({
   }
 
   const lesson = await getLesson(course.id, lessonSlug);
-  const context = buildQuizContext(lesson);
-  const generatedQuiz = await generateQuiz(context);
 
-  const savedQuiz = await saveQuiz({
-    lessonId: lesson.id,
-    quiz: generatedQuiz,
-  });
-
-  if (!savedQuiz) {
-    throw new Error("Failed to save quiz.");
-  }
-
-  const quiz = mapQuizToUIQuiz(savedQuiz);
+  const quizList: QuizListItem[] = await getQuizzes(lesson.id);
 
   return (
     <main>
-      <QuizSession
-        context={context}
-        courseSlug={courseSlug}
-        learnerId={learnerId}
-        lessonId={lesson.id}
-        lessonSlug={lessonSlug}
-        quiz={quiz}
-      />
+      <div style={{ marginBottom: "1rem" }}>
+        <Link href="./quizzes/generate">New Quiz</Link>
+      </div>
+
+      <QuizListView quizList={quizList} />
     </main>
   );
 }

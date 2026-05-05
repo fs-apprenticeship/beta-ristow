@@ -76,7 +76,7 @@ export default function QuizFeedbackView({
         })}
       </ul>
       <button onClick={onBackToQuiz} type="button">
-        Back to Quiz
+        Back to Quizzes
       </button>
     </section>
   );

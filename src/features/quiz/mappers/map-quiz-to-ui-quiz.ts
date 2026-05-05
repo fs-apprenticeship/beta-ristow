@@ -1,10 +1,4 @@
-import type { Quiz } from "../types";
-
-import getQuizzes from "../data/get-quizzes";
-
-type PersistedQuiz = NonNullable<
-  Awaited<ReturnType<typeof getQuizzes>>
->[number];
+import type { PersistedQuiz, Quiz } from "../types";
 
 export default function mapQuizToUIQuiz(quiz: PersistedQuiz): Quiz {
   return {

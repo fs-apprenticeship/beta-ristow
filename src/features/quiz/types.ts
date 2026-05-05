@@ -3,6 +3,30 @@ export type GeneratedQuiz = {
   title: string;
 };
 
+export type PersistedQuiz = {
+  createdAt: Date;
+  id: string;
+  lessonId: string;
+  questions: {
+    createdAt: Date;
+    id: string;
+    options: {
+      createdAt: Date;
+      id: string;
+      position: number;
+      questionId: string;
+      text: string;
+      updatedAt: Date;
+    }[];
+    position: number;
+    prompt: string;
+    quizId: string;
+    updatedAt: Date;
+  }[];
+  title: string;
+  updatedAt: Date;
+};
+
 export type PersistedQuizFeedback = QuizFeedback & {
   score: number;
   totalQuestions: number;
@@ -21,9 +45,37 @@ export type Quiz = {
   title: string;
 };
 
+export type QuizAttemptDetail = {
+  answers: {
+    feedback: null | string;
+    id: string;
+    isCorrect: boolean;
+    questionPrompt: string;
+    selectedOptionText: string;
+  }[];
+  createdAt: Date;
+  id: string;
+  overallFeedback: string;
+  passed: boolean;
+  quizTitle: string;
+  score: number;
+  totalQuestions: number;
+};
+
+export type QuizAttemptListItem = {
+  createdAt: Date;
+  id: string;
+  passed: boolean;
+  quizTitle: string;
+  score: number;
+  totalQuestions: number;
+};
+
 export type QuizContext = {
   content: string;
+  extraInstructions?: string;
   questionCount?: number;
+  quizTitle?: string;
   title: string;
 };
 
@@ -33,11 +85,17 @@ export type QuizFeedback = {
   questionFeedback: QuestionFeedback[];
 };
 
+export type QuizListItem = {
+  createdAt: Date;
+  id: string;
+  questionCount: number;
+  title: string;
+};
+
 export type QuizOption = {
   id: string;
   text: string;
 };
-
 export type QuizQuestion = {
   id: string;
   options: QuizOption[];

@@ -7,13 +7,13 @@ import AppHeader from "@/components/layouts/app-header";
 
 import "./globals.css";
 
-export const firaSans = Fira_Sans({
+const firaSans = Fira_Sans({
   subsets: ["latin"],
   variable: "--font-fira-sans",
   weight: ["400", "700", "800"],
 });
 
-export const openSans = Open_Sans({
+const openSans = Open_Sans({
   subsets: ["latin"],
   variable: "--font-open-sans",
   weight: ["400", "600", "700"],

@@ -12,17 +12,28 @@ import SubmissionList from "./submission-list";
 import { SubmitButton } from "./submit-button";
 
 interface Evaluation {
-  correct: boolean;
-  expectedOutput?: string[];
-  feedback?: string;
-  output?: string[];
-  stdout?: string[];
-  testExamples?: string[];
+  results: {
+    output: string;
+    passed: boolean;
+    stdout: string;
+  }[];
 }
 
 interface Props {
   challengeId: string;
   starterCode: string;
+  testCases: {
+    expectedOutput: string;
+    input: string;
+  }[];
+}
+
+interface Submission {
+  correct: boolean;
+  createdAt: string;
+  feedback: string;
+  id: string;
+  userCode: string;
 }
 
 interface Submission {
@@ -36,6 +47,7 @@ interface Submission {
 export default function ChallengePageClient({
   challengeId,
   starterCode,
+  testCases,
 }: Props) {
   const [userCode, setUserCode] = useState(starterCode);
   const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
@@ -78,6 +90,7 @@ export default function ChallengePageClient({
           activeTab={activeTab}
           evaluation={evaluation}
           setActiveTab={setActiveTab}
+          testCases={testCases}
         />
       )}
 
