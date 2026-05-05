@@ -38,9 +38,6 @@ export default async function QuizAttemptDetailPage({
 
   const attempt = await getQuizAttemptById(id, learnerId);
 
-  console.log("Attenpt Page ----------------------");
-  console.log(attempt);
-
   if (!attempt) {
     notFound();
   }
