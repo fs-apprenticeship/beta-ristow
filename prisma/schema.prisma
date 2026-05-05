@@ -79,20 +79,28 @@ model OnboardingQuestion {
 }
 
 model Lesson {
-  id            String         @id @default(uuid()) @db.Uuid
-  courseId      String         @map("course_id") @db.Uuid
-  slug          String
-  title         String
-  description   String
-  outcomes      String
-  position      Int
-  lessonArticle LessonArticle?
-  lessonItems   LessonItem[]
-  course        Course         @relation(fields: [courseId], references: [id])
-  quizAttempts  QuizAttempt[]
-  quizzes       Quiz[]
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
+  id       String @id @default(uuid()) @db.Uuid
+  courseId String @map("course_id") @db.Uuid
+
+  slug        String
+  title       String
+  description String
+  outcomes    String
+  position    Int
+
+  quiz          Boolean? @map("quiz")
+  codeChallenge Boolean? @map("code_challenge")
+
+  lessonItems    LessonItem[]
+  lessonArticles LessonArticle[]
+  quizAttempts   QuizAttempt[]
+  course         Course          @relation(fields: [courseId], references: [id])
+
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  quizzes Quiz[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([courseId, slug])
   @@unique([courseId, position])
@@ -100,13 +108,17 @@ model Lesson {
 }
 
 model LessonArticle {
-  id        String   @id @default(uuid()) @db.Uuid
-  lessonId  String   @unique @map("lesson_id") @db.Uuid
-  content   Json
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  id       String  @id @default(uuid()) @db.Uuid
+  lessonId String  @map("lesson_id") @db.Uuid
+  content  Json
+  title    String?
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([lessonId])
   @@map("lesson_articles")
 }
 
