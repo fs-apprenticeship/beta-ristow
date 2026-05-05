@@ -2,11 +2,10 @@
 
 import { use, useEffect, useState } from "react";
 
+import type { LessonContentVisibility } from "@/features/article/generate-article";
 import type { LessonArticleContent } from "@/features/article/get-lesson-article";
 
 export const dynamic = "force-dynamic";
-
-type Visibility = { codeChallenge: boolean; quiz: boolean };
 
 export default function IntroPage({
   params,
@@ -16,7 +15,9 @@ export default function IntroPage({
   const { courseSlug, lessonSlug } = use(params);
 
   const [articles, setArticles] = useState<LessonArticleContent[]>([]);
-  const [visibility, setVisibility] = useState<null | Visibility>(null);
+  const [visibility, setVisibility] = useState<LessonContentVisibility | null>(
+    null,
+  );
   const [isGenerating, setIsGenerating] = useState(false);
 
   const articleBasePath = `/courses/${courseSlug}/lessons/${lessonSlug}/article`;
@@ -37,7 +38,8 @@ export default function IntroPage({
     setIsGenerating(true);
     try {
       const res = await fetch(
-        `/api/courses/${courseSlug}/lessons/${lessonSlug}/article`,
+        `/api/courses/${courseSlug}/lessons/${lessonSlug}/articles`,
+        { method: "POST" },
       );
       const article = (await res.json()) as LessonArticleContent;
       setArticles((prev) => [...prev, article]);

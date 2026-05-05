@@ -19,7 +19,7 @@ const CONTENT_FLAGS_SCHEMA = z.object({
   quiz: z.boolean(),
 });
 
-type LessonContentVisibility = z.infer<typeof CONTENT_FLAGS_SCHEMA>;
+export type LessonContentVisibility = z.infer<typeof CONTENT_FLAGS_SCHEMA>;
 
 // generate the visibility flags for the lesson
 export async function setLessonContentVisibility(lesson: {
