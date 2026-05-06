@@ -13,19 +13,19 @@ export default async function QuizAttemptDetailPage({
   params,
 }: {
   params: Promise<{
-    attemptId: string;
     courseSlug: string;
+    id: string;
     lessonSlug: string;
   }>;
 }) {
-  const { attemptId, courseSlug, lessonSlug } = await params;
+  const { courseSlug, id, lessonSlug } = await params;
 
   const course = await getCourse(courseSlug);
   const { id: learnerId } = await requireCurrentAccount();
   const { nextQuestion } = await onboard(course.id, learnerId);
 
   if (nextQuestion) {
-    const currentPath = `/courses/${course.slug}/lessons/${lessonSlug}/quizzes/attempts/${attemptId}`;
+    const currentPath = `/courses/${course.slug}/lessons/${lessonSlug}/quizzes/attempts/${id}`;
 
     redirect(
       `/courses/${course.slug}/onboarding?returnTo=${encodeURIComponent(
@@ -36,7 +36,7 @@ export default async function QuizAttemptDetailPage({
 
   await getLesson(course.id, lessonSlug);
 
-  const attempt = await getQuizAttemptById(attemptId, learnerId);
+  const attempt = await getQuizAttemptById(id, learnerId);
 
   if (!attempt) {
     notFound();
