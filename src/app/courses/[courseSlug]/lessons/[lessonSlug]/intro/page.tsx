@@ -5,6 +5,8 @@ import { use, useEffect, useState } from "react";
 import type { LessonContentVisibility } from "@/features/article/generate-article";
 import type { LessonArticleContent } from "@/features/article/get-lesson-article";
 
+import { generateChallengeAction } from "../code-challenges/_actions/generate-challenge-action"; // import function to generate a coding challenge
+
 export const dynamic = "force-dynamic";
 
 export default function IntroPage({
@@ -19,6 +21,7 @@ export default function IntroPage({
     null,
   );
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoadingChallenge, setIsLoadingChallenge] = useState(false);
 
   const articleBasePath = `/courses/${courseSlug}/lessons/${lessonSlug}/article`;
 
@@ -45,6 +48,19 @@ export default function IntroPage({
       setArticles((prev) => [...prev, article]);
     } finally {
       setIsGenerating(false);
+    }
+  }
+
+  async function handleGoToChallenge() {
+    setIsLoadingChallenge(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", lessonSlug);
+      formData.append("topics", courseSlug);
+
+      await generateChallengeAction(lessonSlug, courseSlug, formData);
+    } finally {
+      setIsLoadingChallenge(false);
     }
   }
 
@@ -85,6 +101,15 @@ export default function IntroPage({
       >
         Generate Article
       </button>
+
+      <button
+        aria-busy={isLoadingChallenge}
+        disabled={isLoadingChallenge}
+        onClick={handleGoToChallenge}
+      >
+        Coding Challenge
+      </button>
+
       {visibility && (
         <>
           <p>quiz: {String(visibility.quiz)}</p>
