@@ -88,7 +88,7 @@ model Lesson {
   outcomes        String
   position        Int
 
-  # Fields from main branch
+  // Fields from main branch
   quiz            Boolean?       @map("quiz")
   codeChallenge   Boolean?       @map("code_challenge")
 
