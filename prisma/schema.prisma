@@ -92,15 +92,15 @@ model Lesson {
   quiz            Boolean?       @map("quiz")
   codeChallenge   Boolean?       @map("code_challenge")
 
-  # Relations
+  // Relations
   lessonItems     LessonItem[]
-  lessonArticles  LessonArticle[]     # plural (updated in main)
+  lessonArticles  LessonArticle[]     // plural (updated in main)
   quizAttempts    QuizAttempt[]
   course          Course             @relation(fields: [courseId], references: [id])
 
   quizzes         Quiz[]
 
-  # Chat functionality (from your chat-database-phase1 branch)
+  // Chat functionality (from your chat-database-phase1 branch)
   chatMessages    ChatMessage[]
 
   createdAt       DateTime       @default(now()) @map("created_at")
