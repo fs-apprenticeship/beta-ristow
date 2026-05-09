@@ -107,7 +107,6 @@ model Lesson {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt     @map("updated_at")
 
-  // === Important constraints below ===
   @@unique([courseId, slug])
   @@unique([courseId, position])
   @@map("lessons")
