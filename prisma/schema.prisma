@@ -98,7 +98,6 @@ model Lesson {
   quizAttempts    QuizAttempt[]
   course          Course             @relation(fields: [courseId], references: [id])
 
-  /// prisma-lint-ignore-field require-default-empty-arrays
   quizzes         Quiz[]
 
   # Chat functionality (from your chat-database-phase1 branch)
