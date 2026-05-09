@@ -77,8 +77,9 @@ describe("submitQuiz", () => {
     vi.clearAllMocks();
   });
 
-  it("generates feedback, calculates score, persists, and returns enriched result", async () => {
+  it("generates feedback, calculates score, persists the attempt, and returns the attempt id", async () => {
     generateQuizFeedbackMock.mockResolvedValue(feedback);
+    saveQuizAttemptMock.mockResolvedValue({ id: "attempt-1" });
 
     const result = await submitQuiz({
       learnerId: "learner-1",
@@ -87,8 +88,6 @@ describe("submitQuiz", () => {
     });
 
     expect(generateQuizFeedbackMock).toHaveBeenCalledWith(submission);
-    expect(result.score).toBe(100);
-    expect(result.totalQuestions).toBe(2);
 
     expect(saveQuizAttemptMock).toHaveBeenCalledWith({
       feedback,
@@ -99,21 +98,20 @@ describe("submitQuiz", () => {
       totalQuestions: 2,
     });
 
-    expect(result).toEqual({
-      ...feedback,
-      score: 100,
-      totalQuestions: 2,
-    });
+    expect(result).toBe("attempt-1");
   });
 
-  it("calculates partial score correctly", async () => {
-    generateQuizFeedbackMock.mockResolvedValue({
+  it("calculates partial score correctly before saving the attempt", async () => {
+    const partialFeedback: QuizFeedback = {
       ...feedback,
       questionFeedback: [
         { ...feedback.questionFeedback[0], isCorrect: true },
         { ...feedback.questionFeedback[1], isCorrect: false },
       ],
-    });
+    };
+
+    generateQuizFeedbackMock.mockResolvedValue(partialFeedback);
+    saveQuizAttemptMock.mockResolvedValue({ id: "attempt-2" });
 
     const result = await submitQuiz({
       learnerId: "learner-1",
@@ -121,7 +119,15 @@ describe("submitQuiz", () => {
       submission,
     });
 
-    expect(result.score).toBe(50);
-    expect(result.totalQuestions).toBe(2);
+    expect(saveQuizAttemptMock).toHaveBeenCalledWith({
+      feedback: partialFeedback,
+      learnerId: "learner-1",
+      lessonId: "lesson-1",
+      score: 50,
+      submission,
+      totalQuestions: 2,
+    });
+
+    expect(result).toBe("attempt-2");
   });
 });
