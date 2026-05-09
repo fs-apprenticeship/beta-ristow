@@ -80,31 +80,37 @@ model OnboardingQuestion {
 }
 
 model Lesson {
-  id              String         @id @default(uuid()) @db.Uuid
-  courseId        String         @map("course_id") @db.Uuid
-  slug            String
-  title           String
-  description     String
-  outcomes        String
-  position        Int
+  id            String   @id @default(uuid()) @db.Uuid
+  courseId      String   @map("course_id") @db.Uuid
+  slug          String
+  title         String
+  description   String
+  outcomes      String
+  position      Int
 
   // Fields from main branch
-  quiz            Boolean?       @map("quiz")
-  codeChallenge   Boolean?       @map("code_challenge")
+  quiz          Boolean? @map("quiz")
+  codeChallenge Boolean? @map("code_challenge")
 
   // Relations
-  lessonItems     LessonItem[]
-  lessonArticles  LessonArticle[]     // plural (updated in main)
-  quizAttempts    QuizAttempt[]
-  course          Course             @relation(fields: [courseId], references: [id])
+  lessonItems   LessonItem[]
+  lessonArticles LessonArticle[] // plural (updated in main)
+  quizAttempts  QuizAttempt[]
+  course        Course     @relation(fields: [courseId], references: [id])
 
-  quizzes         Quiz[]
+  /// prisma-lint-ignore-field require-default-empty-arrays
+  quizzes       Quiz[]
 
   // Chat functionality (from your chat-database-phase1 branch)
-  chatMessages    ChatMessage[]
+  chatMessages  ChatMessage[]
 
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt     @map("updated_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt     @map("updated_at")
+
+  // === Important constraints below ===
+  @@unique([courseId, slug])
+  @@unique([courseId, position])
+  @@map("lessons")
 }
 
 model LessonArticle {
