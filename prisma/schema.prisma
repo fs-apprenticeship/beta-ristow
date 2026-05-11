@@ -20,7 +20,6 @@ model Account {
   lessonItems          LessonItem[]
   onboardingQuestions  OnboardingQuestion[]
   quizAttempts         QuizAttempt[]
-  chatMessages         ChatMessage[]
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
 
@@ -80,32 +79,28 @@ model OnboardingQuestion {
 }
 
 model Lesson {
-  id            String   @id @default(uuid()) @db.Uuid
-  courseId      String   @map("course_id") @db.Uuid
-  slug          String
-  title         String
-  description   String
-  outcomes      String
-  position      Int
+  id       String @id @default(uuid()) @db.Uuid
+  courseId String @map("course_id") @db.Uuid
 
-  // Fields from main branch
+  slug        String
+  title       String
+  description String
+  outcomes    String
+  position    Int
+
   quiz          Boolean? @map("quiz")
   codeChallenge Boolean? @map("code_challenge")
 
-  // Relations
-  lessonItems   LessonItem[]
-  lessonArticles LessonArticle[] // plural (updated in main)
-  quizAttempts  QuizAttempt[]
-  course        Course     @relation(fields: [courseId], references: [id])
+  lessonItems    LessonItem[]
+  lessonArticles LessonArticle[]
+  quizAttempts   QuizAttempt[]
+  course         Course          @relation(fields: [courseId], references: [id])
 
   /// prisma-lint-ignore-field require-default-empty-arrays
-  quizzes       Quiz[]
+  quizzes Quiz[]
 
-  // Chat functionality (from your chat-database-phase1 branch)
-  chatMessages  ChatMessage[]
-
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt     @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([courseId, slug])
   @@unique([courseId, position])
@@ -278,24 +273,6 @@ model QuizAttemptAnswer {
   @@index([questionId])
   @@index([selectedOptionId])
   @@map("quiz_attempt_answers")
-}
-
-model ChatMessage {
-  id        String @id @default(uuid()) @db.Uuid
-  lessonId  String @map("lesson_id") @db.Uuid
-  learnerId String @map("learner_id") @db.Uuid
-  role      String
-  content   String @db.Text
-
-  lesson  Lesson  @relation(fields: [lessonId], references: [id])
-  learner Account @relation(fields: [learnerId], references: [id])
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@index([learnerId])
-  @@index([lessonId, learnerId])
-  @@map("chat_messages")
 }
 
 enum OnboardingQuestionOrigin {
