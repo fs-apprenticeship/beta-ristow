@@ -104,11 +104,17 @@ export default function IntroPage({
 
       <button
         aria-busy={isLoadingChallenge}
-        disabled={isLoadingChallenge}
+        disabled={
+          isLoadingChallenge || !visibility || !visibility.codeChallenge
+        }
         onClick={handleGoToChallenge}
       >
         Coding Challenge
       </button>
+
+      <button disabled={!visibility || !visibility.quiz}>Quiz</button>
+
+      <button>Chat</button>
 
       {visibility && (
         <>
