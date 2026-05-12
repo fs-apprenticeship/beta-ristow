@@ -20,6 +20,7 @@ model Account {
   lessonItems          LessonItem[]
   onboardingQuestions  OnboardingQuestion[]
   quizAttempts         QuizAttempt[]
+  chatMessages         ChatMessage[]
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
 
@@ -98,6 +99,7 @@ model Lesson {
 
   /// prisma-lint-ignore-field require-default-empty-arrays
   quizzes Quiz[]
+  chatMessages    ChatMessage[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -273,6 +275,24 @@ model QuizAttemptAnswer {
   @@index([questionId])
   @@index([selectedOptionId])
   @@map("quiz_attempt_answers")
+}
+
+model ChatMessage {
+  id        String @id @default(uuid()) @db.Uuid
+  lessonId  String @map("lesson_id") @db.Uuid
+  learnerId String @map("learner_id") @db.Uuid
+  role      String
+  content   String @db.Text
+
+  lesson  Lesson  @relation(fields: [lessonId], references: [id])
+  learner Account @relation(fields: [learnerId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([learnerId])
+  @@index([lessonId, learnerId])
+  @@map("chat_messages")
 }
 
 enum OnboardingQuestionOrigin {
