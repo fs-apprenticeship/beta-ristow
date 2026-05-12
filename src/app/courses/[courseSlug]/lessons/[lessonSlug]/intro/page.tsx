@@ -96,7 +96,7 @@ export default function IntroPage({
       <h3>Options</h3>
       <button
         aria-busy={isGenerating}
-        disabled={isGenerating}
+        disabled={isGenerating || articles.length >= 3}
         onClick={handleGenerate}
       >
         Generate Article

@@ -34,6 +34,12 @@ export async function POST(_request: Request, { params }: { params: Params }) {
   const course = await getCourse(courseSlug);
   const lesson = await getLesson(course.id, lessonSlug);
 
+  // TEMPORARY LIMIT OF 3 ARTICLES PER LESSON -> Server returns 403 to limit more generations
+  const articles = await getLessonArticles(lesson.id);
+  if (articles.length >= 3) {
+    return new Response("Article limit reached", { status: 403 });
+  }
+
   const article = await generateLessonArticle(lesson.id, course.id);
 
   return new Response(JSON.stringify(article), {
