@@ -20,11 +20,13 @@ export default async function submitQuiz({
 
   const totalQuestions = submission.quiz.questions.length;
   const score = calculateQuizScore(feedback, totalQuestions);
+  const passed = score >= 80;
 
   const savedAttempt = await saveQuizAttempt({
     feedback,
     learnerId,
     lessonId,
+    passed,
     score,
     submission,
     totalQuestions,

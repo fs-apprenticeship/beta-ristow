@@ -56,7 +56,6 @@ describe("submitQuiz", () => {
 
   const feedback: QuizFeedback = {
     overallFeedback: "Nice work",
-    passed: true,
     questionFeedback: [
       {
         chosenAnswer: "Correct",
@@ -93,6 +92,7 @@ describe("submitQuiz", () => {
       feedback,
       learnerId: "learner-1",
       lessonId: "lesson-1",
+      passed: true,
       score: 100,
       submission,
       totalQuestions: 2,
@@ -123,6 +123,7 @@ describe("submitQuiz", () => {
       feedback: partialFeedback,
       learnerId: "learner-1",
       lessonId: "lesson-1",
+      passed: false,
       score: 50,
       submission,
       totalQuestions: 2,

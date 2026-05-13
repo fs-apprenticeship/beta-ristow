@@ -76,7 +76,6 @@ describe("generateQuizFeedback", () => {
     expect(result.overallFeedback).toBe(
       "Great job. You understood the main concepts well.",
     );
-    expect(result.passed).toBe(true);
     expect(result.questionFeedback[0]?.questionId).toBe("q1");
     expect(result.questionFeedback[0]?.chosenAnswer).toBe(
       "A storage location for data",

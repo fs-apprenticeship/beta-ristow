@@ -125,7 +125,6 @@ describe("saveQuizAttempt", () => {
 
   const feedback: QuizFeedback = {
     overallFeedback: "Good work overall.",
-    passed: true,
     questionFeedback: [
       {
         chosenAnswer: "Reusable code",
@@ -161,6 +160,7 @@ describe("saveQuizAttempt", () => {
       feedback,
       learnerId: "learner-1",
       lessonId: "lesson-1",
+      passed: true,
       score: 100,
       submission,
       totalQuestions: 2,
@@ -233,7 +233,6 @@ describe("saveQuizAttempt", () => {
 
     const partialFeedback: QuizFeedback = {
       overallFeedback: "Partial feedback.",
-      passed: false,
       questionFeedback: [
         {
           chosenAnswer: "Reusable code",
@@ -248,6 +247,7 @@ describe("saveQuizAttempt", () => {
       feedback: partialFeedback,
       learnerId: "learner-2",
       lessonId: "lesson-2",
+      passed: false,
       score: 50,
       submission,
       totalQuestions: 2,
@@ -281,6 +281,7 @@ describe("saveQuizAttempt", () => {
         feedback,
         learnerId: "learner-1",
         lessonId: "lesson-1",
+        passed: true,
         score: 100,
         submission,
         totalQuestions: 2,
@@ -305,6 +306,7 @@ describe("saveQuizAttempt", () => {
         feedback,
         learnerId: "learner-1",
         lessonId: "lesson-1",
+        passed: false,
         score: 0,
         submission: invalidSubmission,
         totalQuestions: 1,
@@ -331,6 +333,7 @@ describe("saveQuizAttempt", () => {
         feedback,
         learnerId: "learner-1",
         lessonId: "lesson-1",
+        passed: false,
         score: 0,
         submission: invalidSubmission,
         totalQuestions: 1,

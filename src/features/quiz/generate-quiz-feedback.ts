@@ -14,7 +14,6 @@ const questionFeedbackSchema = z.object({
 
 const quizFeedbackSchema = z.object({
   overallFeedback: z.string(),
-  passed: z.boolean().optional(),
   questionFeedback: z.array(questionFeedbackSchema),
 });
 
@@ -24,15 +23,17 @@ You evaluate multiple-choice quiz submissions based on lesson content.
 Rules:
 - Return JSON only.
 - Do not include markdown or explanations outside JSON.
-- Evaluate answers based only on the provided lesson content.
+- Evaluate answers based only on the provided lesson content and quiz.
 - Provide clear and concise feedback.
-- For each question:
+- For each submitted answer:
   - Return the original questionId exactly as provided.
-  - Indicate whether the answer is correct (true/false).
-  - Provide short feedback explaining why.
-- Include an overall summary of performance.
-- Determine if the quiz is passed or not.
-- Be fair and consistent in evaluation.
+  - Return the chosenAnswer exactly as provided in User Answers.
+  - Indicate whether the selected answer is correct using isCorrect true/false.
+  - Provide short feedback explaining why the answer is correct or incorrect.
+- Include an overall summary of the learner's performance.
+- Do not decide whether the learner passed or failed.
+- Do not calculate a score.
+- The application calculates pass/fail separately using a passing score of 80%.
 `;
 
 export default async function generateQuizFeedback({
@@ -98,11 +99,10 @@ Evaluate the following quiz submission.
 Return JSON in exactly this shape:
 {
   "overallFeedback": "string",
-  "passed": true,
   "questionFeedback": [
     {
       "questionId": "string",
-      "chosenAnswer": "A storage location for data",
+      "chosenAnswer": "string",
       "isCorrect": true,
       "feedback": "string"
     }
@@ -112,6 +112,10 @@ Return JSON in exactly this shape:
 Important:
 - Return each questionId exactly as provided in User Answers.
 - Do not replace questionId with question text.
+- Return exactly one questionFeedback item for each submitted answer.
+- Do not include a passed field.
+- Do not calculate a score.
+- The application will calculate score and pass/fail using 80% as the passing threshold.
 
 Lesson title:
 ${context.title}
