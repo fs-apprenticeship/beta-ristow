@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 
 import type { LessonContentVisibility } from "@/features/article/generate-article";
@@ -13,6 +14,7 @@ export default function IntroPage({
   params: Promise<{ courseSlug: string; lessonSlug: string }>;
 }) {
   const { courseSlug, lessonSlug } = use(params);
+  const router = useRouter();
 
   const [articles, setArticles] = useState<LessonArticleContent[]>([]);
   const [visibility, setVisibility] = useState<LessonContentVisibility | null>(
@@ -52,44 +54,86 @@ export default function IntroPage({
     <main className="container">
       <header
         style={{
-          padding: "var(--pico-spacing) 0 calc(var(--pico-spacing) * 3)",
+          borderBottom: "1px solid var(--pico-muted-border-color)",
+          marginBottom: "calc(var(--pico-spacing) * 2)",
+          padding: "calc(var(--pico-spacing) * 2) 0",
           textAlign: "center",
         }}
       >
-        <h1>{lessonSlug}</h1>
-        <p>
+        <p style={{ color: "var(--pico-muted-color)", margin: "0 0 0.25rem" }}>
           <small>{courseSlug}</small>
         </p>
+        <h1 style={{ margin: 0 }}>{lessonSlug}</h1>
       </header>
 
-      <h2>Articles</h2>
-      {articles.length === 0 ? (
-        <div style={{ marginBottom: "var(--pico-spacing)" }}>
-          <p style={{ color: "var(--pico-muted-color)" }}>No articles yet.</p>
+      <section style={{ marginBottom: "calc(var(--pico-spacing) * 2)" }}>
+        <div
+          style={{
+            alignItems: "center",
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "var(--pico-spacing)",
+          }}
+        >
+          <h2 style={{ margin: 0 }}>Articles</h2>
+          <button
+            aria-busy={isGenerating}
+            disabled={isGenerating}
+            onClick={handleGenerate}
+            style={{ margin: 0, width: "auto" }}
+          >
+            Generate Article
+          </button>
         </div>
-      ) : (
-        <ul>
-          {articles.map((article) => (
-            <li key={article.id}>
-              <a href={`${articleBasePath}/${article.id}`}>{article.title}</a>
-            </li>
-          ))}
-        </ul>
-      )}
+        {articles.length === 0 ? (
+          <p style={{ color: "var(--pico-muted-color)" }}>No articles yet.</p>
+        ) : (
+          <ul>
+            {articles.map((article) => (
+              <li key={article.id}>
+                <a href={`${articleBasePath}/${article.id}`}>{article.title}</a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
-      <h3>Options</h3>
-      <button
-        aria-busy={isGenerating}
-        disabled={isGenerating}
-        onClick={handleGenerate}
-      >
-        Generate Article
-      </button>
-      {visibility && (
-        <>
-          <p>quiz: {String(visibility.quiz)}</p>
-          <p>code-challenges: {String(visibility.codeChallenge)}</p>
-        </>
+      {(visibility?.quiz || visibility?.codeChallenge) && (
+        <section>
+          <h2 style={{ marginBottom: "var(--pico-spacing)" }}>Practice</h2>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "var(--pico-spacing)",
+            }}
+          >
+            {visibility.quiz && (
+              <button
+                onClick={() =>
+                  router.push(
+                    `/courses/${courseSlug}/lessons/${lessonSlug}/quizzes`,
+                  )
+                }
+                style={{ flex: 1, margin: 0, minWidth: "160px" }}
+              >
+                Quiz
+              </button>
+            )}
+            {visibility.codeChallenge && (
+              <button
+                onClick={() =>
+                  router.push(
+                    `/courses/${courseSlug}/lessons/${lessonSlug}/code-challenges`,
+                  )
+                }
+                style={{ flex: 1, margin: 0, minWidth: "160px" }}
+              >
+                Code Challenges
+              </button>
+            )}
+          </div>
+        </section>
       )}
     </main>
   );
