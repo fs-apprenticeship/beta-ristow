@@ -27,11 +27,6 @@ export type PersistedQuiz = {
   updatedAt: Date;
 };
 
-export type PersistedQuizFeedback = QuizFeedback & {
-  score: number;
-  totalQuestions: number;
-};
-
 export type QuestionFeedback = {
   chosenAnswer: string;
   feedback: string;
@@ -81,7 +76,6 @@ export type QuizContext = {
 
 export type QuizFeedback = {
   overallFeedback: string;
-  passed?: boolean;
   questionFeedback: QuestionFeedback[];
 };
 

@@ -12,6 +12,7 @@ type SaveQuizAttemptInput = {
   feedback: QuizFeedback;
   learnerId: string;
   lessonId: string;
+  passed: boolean;
   score: number;
   submission: QuizSubmission;
   totalQuestions: number;
@@ -21,6 +22,7 @@ export default async function saveQuizAttempt({
   feedback,
   learnerId,
   lessonId,
+  passed,
   score,
   submission,
   totalQuestions,
@@ -52,7 +54,7 @@ export default async function saveQuizAttempt({
         learnerId,
         lessonId,
         overallFeedback: feedback.overallFeedback,
-        passed: feedback.passed ?? false,
+        passed,
         quizId,
         score,
         totalQuestions,
